@@ -36,15 +36,18 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 
+	// mybatis
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.0'
+
 	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
 
-	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0'
 	implementation 'org.modelmapper:modelmapper:3.1.0'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 	implementation 'net.coobird:thumbnailator:0.4.16'
 
+	// spring security
 //	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	annotationProcessor(
