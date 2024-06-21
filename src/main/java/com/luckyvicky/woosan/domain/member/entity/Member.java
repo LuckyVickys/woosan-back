@@ -23,10 +23,10 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
-    @ColumnDefault("0L")
+    @ColumnDefault("0")
     private Long point;
 
-    @ColumnDefault("1L")
+    @ColumnDefault("1")
     private Long grade;
 
     @ColumnDefault("true")
