@@ -1,4 +1,4 @@
-package com.luckyvicky.woosan.domain.Likes.service;
+package com.luckyvicky.woosan.domain.likes.service;
 
 public class LikesServiceImpl implements LikesService {
 }
