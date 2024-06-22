@@ -3,6 +3,7 @@ package com.luckyvicky.woosan.domain.board.entity;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +30,7 @@ public class Reply {
     @JoinColumn(name = "writerId", nullable = false)
     private Member writer;  // 작성자
 
-    @Column(nullable = false)
+    @CreationTimestamp
     private LocalDateTime regDate;  // 작성 날짜
 
     @Column

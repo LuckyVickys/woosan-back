@@ -6,7 +6,6 @@ import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,13 +39,12 @@ public class BoardRepositoryTest {
         for (int i = 0; i < 10; i++) {
             Board board = Board.builder()
                     .writer(testMember)
-                    .postType(i)
-                    .title("Test Title" + i)
-                    .content("Test Content " + i)
+                    .title("ㅁㄴㄹㅁㄴㅇㄹ" + i)
+                    .content("asfasdfasdf " + i)
                     .regDate(LocalDateTime.now())
                     .views(0)
                     .isDeleted(false)
-                    .categoryName("Test Category" + i)
+                    .categoryName("fasfads" + i)
                     .build();
 
             Board savedBoard = boardRepository.save(board);
@@ -66,7 +64,7 @@ public class BoardRepositoryTest {
     @Transactional
     public void updateTest() {
         Member testMember = memberRepository.findById(1L).orElseThrow();
-        Board board = boardRepository.findById(2L).orElseThrow();
+        Board board = boardRepository.findById(4L).orElseThrow();
 
 
         board.changeTitle("수정테스트");
@@ -110,5 +108,14 @@ public class BoardRepositoryTest {
         log.info("Has Previous Page: " + result.hasPrevious());
 
         result.getContent().forEach(board -> log.info("Board: " + board));
+    }
+
+
+
+    @Test
+    public void testProjection(){
+//        List<BoardProjection> boards = boardRepository.findAllProjectedBy(BoardProjection.class);
+
+
     }
 }
