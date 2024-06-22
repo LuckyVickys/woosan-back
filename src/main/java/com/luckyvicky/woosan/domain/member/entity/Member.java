@@ -8,7 +8,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @Entity
 @Getter
 @Builder
-@AllArgsConstructor
+@AllArgsConstructor // USER 사용
 @NoArgsConstructor
 @ToString
 @DynamicUpdate
@@ -33,10 +33,24 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberType memberType;
 
+    @Enumerated(EnumType.STRING)
+    private MemberType.Level level;
+
     @ColumnDefault("true")
     private Boolean isActive;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
+
+    // level 필드를 제외한 생성자(ADMIN, GUEST 사용)
+    public Member(String email, String nickname, String password, Long point, MemberType memberType, Boolean isActive, SocialType socialType) {
+        this.email = email;
+        this.nickname = nickname;
+        this.password = password;
+        this.point = point;
+        this.memberType = memberType;
+        this.isActive = isActive;
+        this.socialType = socialType;
+    }
 }
