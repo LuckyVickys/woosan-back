@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -82,7 +83,6 @@ public class FileImgServiceImpl implements FileImgService {
         }
     }
 
-
     private void makeFilePublic(AmazonS3 s3, String objectName, String savePath) {
 
         try {
@@ -94,5 +94,19 @@ public class FileImgServiceImpl implements FileImgService {
         } catch (SdkClientException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<String> findFiles(String type, Long targetId) {
+        List<FileImg> fileImgs = fileImgRepository.findByTypeAndTargetIdOrderByOrdAsc(type, targetId);
+
+        final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, regionName))
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+                .build();
+
+        return fileImgs.stream()
+                .map(fileImg -> s3.getUrl(bucketName + fileImg.getPath(),  fileImg.getUuid().toString() + "_" + fileImg.getFileName()).toString())
+                .collect(Collectors.toList());
     }
 }

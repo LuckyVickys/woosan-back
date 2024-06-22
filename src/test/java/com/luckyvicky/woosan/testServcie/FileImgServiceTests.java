@@ -35,4 +35,12 @@ public class FileImgServiceTests {
 
         fileImgService.fileUploadMultiple(type, targetId, files);
     }
+    @Test
+    void selectTargetFile() {
+        String type = "board";
+        Long targetId = 2L;
+
+        List<String> filesURL = fileImgService.findFiles(type, targetId);
+        System.out.println(filesURL);
+    }
 }
