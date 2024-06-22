@@ -18,7 +18,7 @@ public interface BoardService {
 
     BoardDTO get(Long id);
 
-    PageResponseDTO<BoardDTO> getlist(PageRequestDTO pageRequestDTO);
+    PageResponseDTO<BoardDTO> getlist(PageRequestDTO pageRequestDTO,  String categoryName);
 
     void modify(BoardDTO boardDTO);
 
