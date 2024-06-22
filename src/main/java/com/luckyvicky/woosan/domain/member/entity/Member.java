@@ -20,15 +20,23 @@ public class Member {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false, unique = true)
+    private String nickname;
+
     @Column(nullable = false)
     private String password;
 
     @ColumnDefault("0")
     private Long point;
 
-    @ColumnDefault("1")
-    private Long grade;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MemberType memberType;
 
     @ColumnDefault("true")
     private Boolean isActive;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private SocialType socialType;
 }
