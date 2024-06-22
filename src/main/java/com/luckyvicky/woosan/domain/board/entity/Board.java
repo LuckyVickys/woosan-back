@@ -24,9 +24,6 @@ public class Board {
     @JoinColumn(name = "writerId", nullable = false)
     private Member writer;  // 작성자 (회원 엔티티와의 연관관계)
 
-    @Column(nullable = false)
-    private int postType;  // 게시글 형태
-
     @Column(nullable = false, length = 255)
     private String title;  // 제목
 
@@ -46,17 +43,31 @@ public class Board {
     private String categoryName;  // 카테고리 유형
 
 
-
+    /**
+     * 제목 수정
+    */
     public void changeTitle(String title){
         this.title = title;
     }
 
+    /**
+     * 내용 수정
+     */
     public void changeContent(String content){
         this.content = content;
     }
 
+    /**
+     * 게시글 삭제
+     */
     public void changeIsDeleted(Boolean isDeleted){
         this.isDeleted = isDeleted;
     }
 
+    /**
+     * 조회수 추가
+     */
+    public void addViewCount(int views){
+        this.views++;
+    }
 }
