@@ -25,15 +25,16 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public void reportTarget(Long reporterId, ReportDTO reportDTO) {
-        Member reporter = memberRepository.findById(reporterId).get();
-        Member reportedMember = null;
+        Member reporter = memberRepository.findById(reporterId).orElseThrow(() -> new IllegalArgumentException("Reporter not found with id: " + reporterId));
+        Member reportedMember;
 
-        if(reportDTO.getType().equals("board")){
-            reportedMember = boardRepository.findById(reportDTO.getTargetId()).get().getWriter();
-        }else if(reportDTO.getType().equals("reply")){
-            reportedMember = replyRepository.findById(reportDTO.getTargetId()).get().getWriter();
+        if(reportDTO.getType().equals("board")) {
+            reportedMember = boardRepository.findById(reportDTO.getTargetId()).orElseThrow(() -> new IllegalArgumentException("Board not found with id: " + reportDTO.getTargetId())).getWriter();
+        } else if(reportDTO.getType().equals("reply")) {
+            reportedMember = replyRepository.findById(reportDTO.getTargetId()).orElseThrow(() -> new IllegalArgumentException("Reply not found with id: " + reportDTO.getTargetId())).getWriter();
+        } else {
+            throw new IllegalArgumentException("Invalid report type: " + reportDTO.getType());
         }
-
 
         Report report = Report.builder()
                 .reporter(reporter)
@@ -43,8 +44,8 @@ public class ReportServiceImpl implements ReportService {
                 .reportedMember(reportedMember)
                 .build();
 
-        reportRepository.save(report);
-        fileImgService.fileUploadMultiple("report", reportDTO.getTargetId(), reportDTO.getUploadFiles());
+        report = reportRepository.save(report); // Save the report and get the persisted entity
 
+        fileImgService.fileUploadMultiple("report", report.getId(), reportDTO.getUploadFiles()); // Use the ID of the persisted report
     }
 }
