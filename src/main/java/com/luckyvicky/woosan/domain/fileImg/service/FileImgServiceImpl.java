@@ -11,7 +11,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.luckyvicky.woosan.domain.fileImg.entity.FileImg;
 import com.luckyvicky.woosan.domain.fileImg.repository.FileImgRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,26 +23,31 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class FileImgServiceImpl implements FileImgService {
 
-
     private final FileImgRepository fileImgRepository;
+    private AmazonS3 s3;
+    private String bucketName;
 
-    private String endPoint = "https://kr.object.ncloudstorage.com";
-    private String regionName = "kr-standard";
-    private String accessKey = "1EDE4BFB56570D2EF3F0";
-    private String secretKey = "C77834083E8F1B6F52187691A9E848B4BEE8E073";
-    private String bucketName = "woosan";
+    public FileImgServiceImpl(
+            FileImgRepository fileImgRepository,
+            @Value("${cloud.ncp.s3.endpoint}") String endPoint,
+            @Value("${cloud.ncp.region.static}") String regionName,
+            @Value("${cloud.ncp.credentials.access-key}") String accessKey,
+            @Value("${cloud.ncp.credentials.secret-key}") String secretKey,
+            @Value("${cloud.ncp.s3.bucket-name}") String bucketName) {
 
-    private final AmazonS3 s3 = AmazonS3ClientBuilder.standard()
-            .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, regionName))
-            .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
-            .build();
+        this.fileImgRepository = fileImgRepository;
+        this.bucketName = bucketName;
+
+        this.s3 = AmazonS3ClientBuilder.standard()
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, regionName))
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+                .build();
+    }
 
     @Override
     public void fileUploadMultiple(String type, Long targetId, List<MultipartFile> files) {
-
         for (int i = 0; i < files.size(); i++) {
             String uuid = UUID.randomUUID().toString();
             String uniqueSaveName = uuid + "_" + files.get(i).getOriginalFilename();
@@ -83,9 +88,7 @@ public class FileImgServiceImpl implements FileImgService {
     }
 
     private void makeFilePublic(AmazonS3 s3, String objectName, String savePath) {
-
         try {
-            // 파일에 대한 ACL을 설정하여 공개로 설정
             s3.setObjectAcl(savePath, objectName, CannedAccessControlList.PublicRead);
             System.out.format("Object %s has been made public.\n", objectName);
         } catch (AmazonS3Exception e) {
@@ -114,6 +117,4 @@ public class FileImgServiceImpl implements FileImgService {
 
         fileImgRepository.deleteByTypeAndTargetId(type, targetId);
     }
-
-
 }
