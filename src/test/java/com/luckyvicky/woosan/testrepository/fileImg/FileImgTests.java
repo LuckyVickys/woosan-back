@@ -42,5 +42,16 @@ class FileImgTests {
 
 	}
 
+	@Test
+	void testDeleteByTarget() {
+		String type = "board";
+		Long targetId = 2L;
+		fileImgRepository.deleteByTypeAndTargetId(type, targetId);
+		System.out.println("==========================================================");
+		System.out.println("Target Deleted");
+		System.out.println("==========================================================");
+
+	}
+
 
 }
