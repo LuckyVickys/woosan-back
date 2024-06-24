@@ -31,11 +31,11 @@ public class Report {
     @Column(name = "complaint_reason", length = 255, nullable = false)
     private String complaintReason;
 
-    @Column(name = "reg_date", nullable = false)
-    private LocalDateTime regDate;
+    @Builder.Default
+    private LocalDateTime regDate = LocalDateTime.now();
 
-    @Column(name = "is_checked", nullable = false)
-    private Boolean isChecked;
+    @Builder.Default
+    private Boolean isChecked=false;
 
     @ManyToOne
     @JoinColumn(name = "reported_member_id", nullable = false)
