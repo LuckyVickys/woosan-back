@@ -53,4 +53,9 @@ public class Member {
         this.isActive = isActive;
         this.socialType = socialType;
     }
+
+    // 게시물, 댓글 작성 시 포인트 추가
+    public void addPoint(int points){
+        this.point += points;
+    }
 }
