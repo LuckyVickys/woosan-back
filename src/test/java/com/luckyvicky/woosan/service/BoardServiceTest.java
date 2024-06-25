@@ -1,8 +1,13 @@
 package com.luckyvicky.woosan.service;
 
+import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.projection.IBoard;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
+import com.luckyvicky.woosan.domain.member.dto.WriterDTO;
+import com.luckyvicky.woosan.domain.member.entity.Member;
+import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +16,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +34,8 @@ public class BoardServiceTest {
     @Autowired
     private BoardService boardService;
 
+    @Autowired
+    private MemberRepository memberRepository;
 
     /**
      * <Test>
@@ -64,7 +77,6 @@ public class BoardServiceTest {
                     ", Content: " + boardMember.getContent() +
                     ", RegDate: " + boardMember.getRegDate() +
                     ", Views: " + boardMember.getViews() +
-                    ", IsDeleted: " + boardMember.getIsDeleted() +
                     ", CategoryName: " + boardMember.getCategoryName() +
                     ", WriterId: " + boardMember.getWriter().getId() +
                     ", WriterNickname: " + boardMember.getWriter().getNickname());
@@ -101,7 +113,6 @@ public class BoardServiceTest {
             log.info("Board Member Content: " + boardMember.getContent());
             log.info("Board Member RegDate: " + boardMember.getRegDate());
             log.info("Board Member Views: " + boardMember.getViews());
-            log.info("Board Member IsDeleted: " + boardMember.getIsDeleted());
             log.info("Board Member CategoryName: " + boardMember.getCategoryName());
             log.info("Board Member WriterId: " + boardMember.getWriter().getId());
             log.info("Board Member Writer Nickname: " + boardMember.getWriter().getNickname());
@@ -141,12 +152,37 @@ public class BoardServiceTest {
             log.info("Board Member Content: " + boardMember.getContent());
             log.info("Board Member RegDate: " + boardMember.getRegDate());
             log.info("Board Member Views: " + boardMember.getViews());
-            log.info("Board Member IsDeleted: " + boardMember.getIsDeleted());
             log.info("Board Member CategoryName: " + boardMember.getCategoryName());
             log.info("Board Member WriterId: " + boardMember.getWriter().getId());
             log.info("Board Member Writer Nickname: " + boardMember.getWriter().getNickname());
         });
     }
+
+    @Test
+    void boardInesrtTest() throws IOException {
+
+        String filePath1 = "C:\\Users\\ho976\\IdeaSnapshots\\OneDrive\\사진\\스크린샷\\민지.png";
+        String filePath2 = "C:\\Users\\ho976\\IdeaSnapshots\\OneDrive\\사진\\스크린샷\\karina.png";
+
+        MultipartFile multipartFile1 = new MockMultipartFile("file1", "민지.png", "image/png", new FileInputStream(filePath1));
+        MultipartFile multipartFile2 = new MockMultipartFile("file2", "karina.png", "image/png", new FileInputStream(filePath2));
+        List<MultipartFile> files = Arrays.asList(multipartFile1, multipartFile2);
+
+        WriterDTO writerDTO = new WriterDTO();
+        writerDTO.setId(1L);
+        writerDTO.setNickname("asdf");
+
+        BoardDTO boardDTO = new BoardDTO();
+        boardDTO.setWriter(writerDTO);
+        boardDTO.setTitle("제목 test");
+        boardDTO.setContent("내용 test");
+        boardDTO.setCategoryName("꿀팁");
+        boardDTO.setImages(files);
+
+        Long board = boardService.add(boardDTO);
+
+    }
+
 
 
 }

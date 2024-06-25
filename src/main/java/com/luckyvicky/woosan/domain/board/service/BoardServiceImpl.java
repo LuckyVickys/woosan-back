@@ -4,8 +4,11 @@ import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
+import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.global.util.HashUtil;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -20,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.luckyvicky.woosan.domain.member.entity.QMember.member;
 
 @Service
 @Log4j2
@@ -32,7 +34,8 @@ public class BoardServiceImpl implements BoardService {
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
     private final ReplyService replyService;
-
+    private final HttpSession session;
+    private final FileImgService fileImgService;
 
     /**
      * 게시물 작성
@@ -55,9 +58,11 @@ public class BoardServiceImpl implements BoardService {
                 .categoryName(boardDTO.getCategoryName())
                 .build();
 
-        boardRepository.save(board);
 
-//        이미지 추가하는 코드~;
+        board = boardRepository.save(board);
+        //파일 정보를 저장합니다.
+        fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
+
 
         return board.getId();
     }
@@ -95,13 +100,12 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-
     /**
      * 게시물 다건 조회(공지사항, 인기글, 전체 조회(카테고리)
      */
     @Override
     @Transactional(readOnly = true)
-    public BoardPageResponseDTO getBoardPage(PageRequestDTO pageRequestDTO, String categoryName){
+    public BoardPageResponseDTO getBoardPage(PageRequestDTO pageRequestDTO, String categoryName) {
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").ascending());
 
         // 공지사항 조회
@@ -112,7 +116,7 @@ public class BoardServiceImpl implements BoardService {
 
         // 일반 게시물 조회
         Page<IBoardMember> result;
-        if(categoryName != null && !categoryName.isEmpty()) {
+        if (categoryName != null && !categoryName.isEmpty()) {
             result = boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalse(categoryName, pageable);
         } else {
             result = boardRepository.findAllProjectedByIsDeletedFalse(pageable);
@@ -137,28 +141,37 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-
     /**
-     * 단건 - 게시물과 댓글 함께 조회
+     * 게시물 단건 조회 - 상세 페이지 (조회수 증가)
      */
     @Transactional
     @Override
-    public BoardWithRepliesDTO getWithReplies(Long id, PageRequestDTO pageRequestDTO) {
-        Board board = boardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디"));
-        BoardDTO boardDTO = modelMapper.map(board, BoardDTO.class);
+    public BoardDTO getBoard(Long id) {
 
+        // 세션 키 설정
+        String sessionKey = "viewedBoard_" + HashUtil.sha256(String.valueOf(id));
+        // 세션에서 조회 여부 확인
+        Boolean hasViewed = (Boolean) session.getAttribute(sessionKey);
+        // Board 엔티티를 조회하여 조회수를 증가
+        Board board = boardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디"));
 
         // 조회수 증가
-        board.addViewCount();
-        boardRepository.save(board);
+        if (hasViewed == null || !hasViewed) {
+            board.addViewCount();
+            boardRepository.save(board);
+            session.setAttribute(sessionKey, true); // 세션에 조회 여부 저장
+        }
 
-        PageResponseDTO<ReplyDTO> replies = replyService.getRepliesByBoardId(id, pageRequestDTO);
 
-        return BoardWithRepliesDTO.builder()
-                .board(boardDTO)
-                .replies(replies)
-                .build();
+        Optional<IBoardMember> result = boardRepository.findById(id, IBoardMember.class);
+        return result.map(boardMember -> {
+            BoardDTO boardDTO = modelMapper.map(boardMember, BoardDTO.class);
+            boardDTO.setViews(board.getViews());  // 최신 조회수 DTO에 반영
+            boardDTO.setFilePathUrl(fileImgService.findFiles("board", id));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
+            return boardDTO;
+        }).orElse(null);
     }
+
 
 
     /**
@@ -199,10 +212,8 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-
-
     /**
-     * 공지사항 상단 고정
+     * (공지사항 상단 고정)
      * 최신 게시물 단건 조회
      */
     @Override
@@ -214,7 +225,7 @@ public class BoardServiceImpl implements BoardService {
 
 
     /**
-     * 인기글 상단 고정
+     * (인기글 상단 고정)
      * 인기 게시물 상위 3개 조회
      */
     @Override
@@ -230,7 +241,7 @@ public class BoardServiceImpl implements BoardService {
 
 
 //    /**
-//     * 공지사항 상단 고정
+//     * (공지사항 상단 고정)
 //     * 특정 게시물 단건 조회
 //     */
 //    @Transactional(readOnly = true)
@@ -238,9 +249,6 @@ public class BoardServiceImpl implements BoardService {
 //        Optional<IBoardMember> result = boardRepository.findFirstByIdAndCategoryNameAndIsDeletedFalse(id, categoryName, IBoardMember.class);
 //        return result.map(boardMember -> modelMapper.map(boardMember, BoardDTO.class)).orElse(null);
 //    }
-
-
-
 
 
 // <--------------------------------------------프로젝션 Test-------------------------------------------->
@@ -289,10 +297,6 @@ public class BoardServiceImpl implements BoardService {
         return boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalse(categoryName, pageable);
     }
     // <--------------------------------------------프로젝션 Test-------------------------------------------->
-
-
-
-
 
 
 }

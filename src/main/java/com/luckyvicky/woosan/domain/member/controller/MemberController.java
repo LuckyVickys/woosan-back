@@ -1,9 +1,7 @@
 package com.luckyvicky.woosan.domain.member.controller;
 
-import com.luckyvicky.woosan.domain.member.dto.MailDTO;
 import com.luckyvicky.woosan.domain.member.dto.SignUpReqDTO;
 import com.luckyvicky.woosan.domain.member.dto.SignUpResDTO;
-import com.luckyvicky.woosan.domain.member.dto.UpdatePwDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
 import com.luckyvicky.woosan.domain.member.service.MemberService;
@@ -57,7 +55,7 @@ public class MemberController {
         }
     }
 
-    // 임시 비밀번호 발급
+    // 임시 비밀번호 발급 및 임시 비밀번호로 비밀번호 변경
     @PutMapping("/updateTempPw/{email}")
     public ResponseEntity<Object> updateTempPw(@PathVariable String email) {
         try {
@@ -83,6 +81,7 @@ public class MemberController {
         }
     }
 
+    // 비밀번호 변경 
     @PutMapping("/updatePw")
     public ResponseEntity<Object> updatePw(@RequestBody UpdatePwDTO updatePwDTO) {
         try {
