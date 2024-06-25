@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.board.repository;
 
 import com.luckyvicky.woosan.domain.board.entity.Board;
+import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
 
 
     /**
-     * board-member 연관관계 인터페이스 프로젝션
+     * 다이나믹 프로젝션
      * 게시물 단건 조회
      */
     @Transactional
@@ -32,20 +33,62 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
 
 
     /**
-     * 연관관계 인터페이스 프로젝션
+     * 인터페이스 프로젝션
      * 게시물 전체 조회
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    <T> Page<T> findAllProjectedBy(Pageable pageable, Class<T> className);
+    Page<IBoardMember> findAllProjectedByIsDeletedFalse(Pageable pageable);
 
 
 
 
-
+    /**
+     * 카테고리별 게시물 전체 조회
+     */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    <T> Page<T> findAllProjectedByCategoryName(String categoryName, Pageable pageable, Class<T> type);
+    Page<IBoardMember> findAllProjectedByCategoryNameAndIsDeletedFalse(String categoryName, Pageable pageable);
+
+
+
+
+    /**
+     * 공지사항 상단 고정
+     * 최신 단건 게시물 조회
+     */
+    @Transactional(readOnly = true)
+    @EntityGraph(attributePaths = {"writer"})
+    Optional<IBoardMember> findFirstByCategoryNameAndIsDeletedFalse(String categoryName);
+
+
+    /**
+     * 인기글 상단 고정
+     * 인기글 상위 3개 게시물 조회
+     */
+    @Transactional(readOnly = true)
+    @EntityGraph(attributePaths = {"writer"})
+    List<IBoardMember> findTop3ByIsDeletedFalseOrderByViewsDesc();
+
+
+/**
+ *      @Transactional
+ *     @EntityGraph(attributePaths = {"writer"})
+ *     Optional<IBoardMember> findByTitle(String title);
+ */
+
+    // <--------------------------------------------미완-------------------------------------------->
+
+
+//    /** 공지사항 상단 고정
+//      * 특정 게시물 단건 조회
+//      */
+//    @Transactional(readOnly = true)
+//    @EntityGraph(attributePaths = {"writer"})
+//    <T> Optional<T> findFirstByIdAndCategoryNameAndIsDeletedFalse(Long id, String categoryName, Class<T> className);
+
+
+
 
 }
 

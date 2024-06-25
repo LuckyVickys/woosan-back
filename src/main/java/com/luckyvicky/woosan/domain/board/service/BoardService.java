@@ -1,9 +1,6 @@
 package com.luckyvicky.woosan.domain.board.service;
 
-import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
-import com.luckyvicky.woosan.domain.board.dto.PageRequestDTO;
-import com.luckyvicky.woosan.domain.board.dto.PageResponseDTO;
-import com.luckyvicky.woosan.domain.board.projection.IBoard;
+import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,26 +11,40 @@ import java.util.Optional;
 
 @Transactional
 public interface BoardService {
-    Long register(BoardDTO boardDTO);
+    Long add(BoardDTO boardDTO);
+
+    @Transactional(readOnly = true)
+    BoardDTO getNotice(String categoryName);
+
+    void modify(BoardDTO boardDTO);
+
+    void remove(Long id);
 
     BoardDTO get(Long id);
 
     PageResponseDTO<BoardDTO> getlist(PageRequestDTO pageRequestDTO,  String categoryName);
 
-    void modify(BoardDTO boardDTO);
-
-    void delete(Long id);
 
 
 
 
-    // <---------------프로젝션----------------->
+
+    // <--------------------------------------------프로젝션 Test-------------------------------------------->
+
+    @Transactional(readOnly = true)
+    BoardPageResponseDTO getBoardPage(PageRequestDTO pageRequestDTO, String categoryName);
 
     /**
      *  단일 인터페이스
       */
 //    List<IBoard> findAllProjectedBoard();
 
+
+    @Transactional
+    BoardWithRepliesDTO getWithReplies(Long id, PageRequestDTO pageRequestDTO);
+
+    @Transactional(readOnly = true)
+    List<BoardDTO> getTop3ByLikes();
 
     /**
      * 게시물 단건 조회 프로젝션
@@ -48,6 +59,10 @@ public interface BoardService {
 
     @Transactional(readOnly = true)
     Page<IBoardMember> findAllProjectedBoardMemberByCategoryName(String categoryName, Pageable pageable);
+
+
+
+    // <--------------------------------------------프로젝션 Test-------------------------------------------->
 }
 
 

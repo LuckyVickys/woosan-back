@@ -36,11 +36,15 @@ public class Board {
     @ColumnDefault("0")
     private int views;  // 조회수
 
+    @ColumnDefault("0")
+    private int likesCount; // 추천 수
+
     @ColumnDefault("false")
-    private Boolean isDeleted;  // 삭제 상태
+    private boolean isDeleted;  // 삭제 상태
 
     @Column(nullable = false, length = 255)
     private String categoryName;  // 카테고리 유형
+
 
 
     /**
@@ -67,7 +71,21 @@ public class Board {
     /**
      * 조회수 추가
      */
-    public void addViewCount(int views){
+    public void addViewCount(){
         this.views++;
+    }
+
+    /**
+     * 추천수 증가
+     */
+    public void incrementLikesCount(){
+        this.likesCount++;
+    }
+
+    /**
+     * 추천수 감소
+     */
+    public void decrementLikesCount(){
+        this.likesCount--;
     }
 }

@@ -8,16 +8,11 @@ public interface IBoardMember {
     String getContent();
     LocalDateTime getRegDate();
     int getViews();
+    int getLikesCount();
     Boolean getIsDeleted();
     String getCategoryName();
 
 
+    MemberInfo getWriter();
 
-
-    Memberinfo getWriter();
-
-    interface Memberinfo {
-        Long getId();
-        String getNickname();
-    }
 }

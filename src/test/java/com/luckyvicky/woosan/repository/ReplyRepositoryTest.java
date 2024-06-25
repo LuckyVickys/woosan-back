@@ -60,7 +60,7 @@ public class ReplyRepositoryTest {
     @Test
     public void addTest2() {
         Board testBoard = boardRepository.findById(3L).orElseThrow();
-        Member testMember = memberRepository.findById(2L).orElseThrow();
+        Member testMember = memberRepository.findById(1L).orElseThrow();
 
         for (int i = 0; i < 3; i++) {
             Reply reply = Reply.builder()
@@ -68,7 +68,7 @@ public class ReplyRepositoryTest {
                     .writer(testMember)
                     .content("ㅗㅗ")
                     .regDate(LocalDateTime.now())
-                    .parentId(1L)
+                    .parentId(2L)
                     .build();
 
             Reply saveReply = replyRepository.save(reply);

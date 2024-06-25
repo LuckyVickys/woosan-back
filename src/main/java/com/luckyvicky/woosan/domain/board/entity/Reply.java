@@ -3,6 +3,7 @@ package com.luckyvicky.woosan.domain.board.entity;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -35,9 +36,26 @@ public class Reply {
 
     @Column
     private Long parentId;  // 부모 댓글
+    
+    @ColumnDefault("0")
+    private int likesCount; // 추천 수
 
 
     public void changeContent(String content) {
         this.content = content;
+    }
+
+    /**
+     * 추천수 증가
+     */
+    public void incrementLikesCount(){
+        this.likesCount++;
+    }
+
+    /**
+     * 추천수 감소
+     */
+    public void decrementLikesCount(){
+        this.likesCount--;
     }
 }
