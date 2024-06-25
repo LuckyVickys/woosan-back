@@ -74,7 +74,6 @@ public class ReplyServiceTest {
                 log.info("    Child Reply ID: " + childReplyDTO.getId());
                 log.info("    Child Reply Content: " + childReplyDTO.getContent());
                 log.info("    Child Reply Writer ID: " + childReplyDTO.getWriter().getId());
-                log.info("    Child Reply Writer email: " + childReplyDTO.getWriter().getEmail());
                 log.info("    Child Reply Writer Nickname: " + childReplyDTO.getWriter().getNickname());
                 log.info("    Child Reply RegDate: " + childReplyDTO.getRegDate());
             });
