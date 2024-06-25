@@ -22,10 +22,10 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 닉네임 중복 체크
-//    @Override
-//    public Boolean existNickname(String nickname) throws Exception {
-//        return memberRepository.existsByNickname(nickname);
-//    }
+    @Override
+    public Boolean existNickname(String nickname) throws Exception {
+        return memberRepository.existsByNickname(nickname);
+    }
 
     // 회원가입
 //    @Override
