@@ -1,6 +1,6 @@
 package com.luckyvicky.woosan.domain.board.dto;
 
-import com.luckyvicky.woosan.domain.member.dto.MemberDTO;
+import com.luckyvicky.woosan.domain.member.dto.WriterDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +17,8 @@ import java.util.List;
 public class BoardDTO {
 
     private Long id;
-    private MemberDTO writer;
+    private WriterDTO writer;
+
     private String title;
     private String content;
     private LocalDateTime regDate;
