@@ -1,7 +1,9 @@
 package com.luckyvicky.woosan.domain.member.controller;
 
+import com.luckyvicky.woosan.domain.member.dto.MailDTO;
 import com.luckyvicky.woosan.domain.member.dto.SignUpReqDTO;
 import com.luckyvicky.woosan.domain.member.dto.SignUpResDTO;
+import com.luckyvicky.woosan.domain.member.dto.UpdatePwDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
 import com.luckyvicky.woosan.domain.member.service.MemberService;

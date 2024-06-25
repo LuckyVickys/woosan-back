@@ -37,8 +37,8 @@ public class Reply {
     @Column
     private Long parentId;  // 부모 댓글 ID
     
-//    @ColumnDefault("0")
-//    private int likesCount; // 추천 수
+    @ColumnDefault("0")
+    private int likesCount; // 추천 수
 
 
     public void changeContent(String content) {
@@ -58,4 +58,11 @@ public class Reply {
 //    public void decrementLikesCount(){
 //        this.likesCount--;
 //    }
+
+
+    // 추천수 변경
+    public void changeLikesCount(int likesCount){
+        this.likesCount += likesCount;
+    }
+
 }
