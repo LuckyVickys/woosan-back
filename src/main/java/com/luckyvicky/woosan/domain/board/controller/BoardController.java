@@ -27,7 +27,7 @@ public class BoardController {
 
 
 //    /**
-//     * 게시물 전체 조회(+카테고리)
+//     * 게시물 전체 조회(+카테고리)_상단고정 미포함
 //     */
 //    @GetMapping
 //    public ResponseEntity<PageResponseDTO<BoardDTO>> getList(PageRequestDTO pageRequestDTO,
@@ -48,13 +48,12 @@ public class BoardController {
 
 
     /**
-     * 단건 _ 댓글과 게시물 한 번에 조회
+     * 게시물 단건 조회 - 상세 페이지
      */
     @GetMapping("/{id}")
-    public ResponseEntity<BoardWithRepliesDTO> getBoardWithReplies(@PathVariable Long id,
-                                                                   PageRequestDTO pageRequestDTO) {
-        BoardWithRepliesDTO boardWithRepliesDTO = boardService.getWithReplies(id, pageRequestDTO);
-        return ResponseEntity.ok(boardWithRepliesDTO);
+    public ResponseEntity<BoardDTO> getBoard(@PathVariable Long id) {
+        BoardDTO boardDTO = boardService.getBoard(id);
+        return ResponseEntity.ok(boardDTO);
     }
 
 

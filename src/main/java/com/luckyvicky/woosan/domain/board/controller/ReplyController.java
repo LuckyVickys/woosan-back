@@ -1,5 +1,7 @@
 package com.luckyvicky.woosan.domain.board.controller;
 
+import com.luckyvicky.woosan.domain.board.dto.PageRequestDTO;
+import com.luckyvicky.woosan.domain.board.dto.PageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,11 @@ public class ReplyController {
         return ResponseEntity.ok(saveReply);
     }
 
+    @GetMapping("{boardId}")
+    public ResponseEntity<PageResponseDTO<ReplyDTO>> getReply(@PathVariable Long boardId, PageRequestDTO pageRequestDTO) {
+        PageResponseDTO<ReplyDTO> replyDTO  = replyService.getRepliesByBoardId(boardId, pageRequestDTO);
+        return ResponseEntity.ok(replyDTO);
+    }
 
     /**
      * 댓글 삭제
