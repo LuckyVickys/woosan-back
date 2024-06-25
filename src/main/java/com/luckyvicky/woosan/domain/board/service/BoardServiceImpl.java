@@ -4,6 +4,7 @@ import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
+import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.luckyvicky.woosan.domain.member.entity.QMember.member;
 
 @Service
 @Log4j2
@@ -32,7 +32,7 @@ public class BoardServiceImpl implements BoardService {
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
     private final ReplyService replyService;
-
+    private final FileImgService fileImgService;
 
     /**
      * 게시물 작성
@@ -55,9 +55,11 @@ public class BoardServiceImpl implements BoardService {
                 .categoryName(boardDTO.getCategoryName())
                 .build();
 
-        boardRepository.save(board);
 
-//        이미지 추가하는 코드~;
+        board = boardRepository.save(board);
+        //파일 정보를 저장합니다.
+        fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
+
 
         return board.getId();
     }
@@ -93,7 +95,6 @@ public class BoardServiceImpl implements BoardService {
 
         return responseDTO;
     }
-
 
 
     /**
@@ -135,7 +136,6 @@ public class BoardServiceImpl implements BoardService {
                 .boardPage(boardPage)
                 .build();
     }
-
 
 
     /**
@@ -199,8 +199,6 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-
-
     /**
      * 공지사항 상단 고정
      * 최신 게시물 단건 조회
@@ -238,9 +236,6 @@ public class BoardServiceImpl implements BoardService {
 //        Optional<IBoardMember> result = boardRepository.findFirstByIdAndCategoryNameAndIsDeletedFalse(id, categoryName, IBoardMember.class);
 //        return result.map(boardMember -> modelMapper.map(boardMember, BoardDTO.class)).orElse(null);
 //    }
-
-
-
 
 
 // <--------------------------------------------프로젝션 Test-------------------------------------------->
