@@ -57,25 +57,26 @@ public class MemberController {
         }
     }
 
-//    @Transactional
-//    @PostMapping("/sendEmail")
-//    public ResponseEntity<Object> sendEmail(@RequestParam("email") String email) {
-//        try {
-//            MailDTO dto = memberService.createMailAndChangePw(email);
-//            memberService.mailSend(dto);
-//            return new ResponseEntity<>(HttpStatus.OK);
-//        } catch(Exception e) {
-//            e.printStackTrace();
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-//        }
-//    }
-
     // 임시 비밀번호 발급
     @PutMapping("/updateTempPw/{email}")
     public ResponseEntity<Object> updateTempPw(@PathVariable String email) {
         try {
             memberService.createMailAndChangePw(email);
             return new ResponseEntity<>(true, HttpStatus.CREATED);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // 메일 전송
+    @Transactional
+    @PostMapping("/sendEmail")
+    public ResponseEntity<Object> sendEmail(@RequestParam("email") String email) {
+        try {
+            MailDTO dto = memberService.createMailAndChangePw(email);
+            memberService.mailSend(dto);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch(Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

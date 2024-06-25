@@ -100,20 +100,20 @@ public class MemberServiceImpl implements MemberService {
         return str;
     }
 
-    // 메일 전송
-//    @Override
-//    public void mailSend(MailDTO mailDTO) throws Exception {
-//        System.out.println("메일 전송 완료");
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setTo(mailDTO.getEmail());
-//        message.setSubject(mailDTO.getTitle());
-//        message.setText(mailDTO.getMessage());
-//        message.setFrom("보낸이@naver.com");
-//        message.setReplyTo("보낸이@naver.com");
-//        System.out.println("message" + message);
-//        mailSender.send(message);
-//    }
-//
+     // 메일 전송
+    @Override
+    public void mailSend(MailDTO mailDTO) throws Exception {
+        System.out.println("메일 전송 완료");
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(mailDTO.getEmail());
+        message.setSubject(mailDTO.getTitle());
+        message.setText(mailDTO.getMessage());
+        message.setFrom("보낸이@naver.com");
+        message.setReplyTo("보낸이@naver.com");
+        System.out.println("message" + message);
+        mailSender.send(message);
+    }
+
 //    // 비밀번호 변경
 //    @Override
 //    public void updatePassword(String email, String newPassword) throws Exception {
