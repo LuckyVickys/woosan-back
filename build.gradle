@@ -48,7 +48,7 @@ dependencies {
 	implementation 'net.coobird:thumbnailator:0.4.16'
 
 	// spring security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	annotationProcessor(
 			"com.querydsl:querydsl-apt:5.0.0:jakarta",
