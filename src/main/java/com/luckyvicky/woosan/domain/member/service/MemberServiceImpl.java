@@ -5,7 +5,7 @@ import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import com.luckyvicky.woosan.domain.member.entity.SocialType;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+//    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // 이메일 중복 체크
     @Override
@@ -37,7 +37,8 @@ public class MemberServiceImpl implements MemberService {
         member = Member.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .password(bCryptPasswordEncoder.encode(member.getPassword()))
+//                .password(bCryptPasswordEncoder.encode(member.getPassword()))
+                .password(member.getPassword())
                 .point(0L)
                 .memberType(member.getEmail().equals("woosan@bitcamp.com") ? MemberType.ADMIN : MemberType.USER)
                 .level(member.getEmail().equals("woosan@bitcamp.com") ? null : MemberType.Level.LEVEL_1)
