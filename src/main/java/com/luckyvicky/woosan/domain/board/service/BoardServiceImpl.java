@@ -33,6 +33,7 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
+    private final ReplyService replyService;
     private final HttpSession session;
     private final FileImgService fileImgService;
 
@@ -57,9 +58,11 @@ public class BoardServiceImpl implements BoardService {
                 .categoryName(boardDTO.getCategoryName())
                 .build();
 
-        boardRepository.save(board);
 
-//        이미지 추가하는 코드~;
+        board = boardRepository.save(board);
+        //파일 정보를 저장합니다.
+        fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
+
 
         return board.getId();
     }
