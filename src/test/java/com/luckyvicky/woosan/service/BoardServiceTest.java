@@ -77,7 +77,6 @@ public class BoardServiceTest {
                     ", Content: " + boardMember.getContent() +
                     ", RegDate: " + boardMember.getRegDate() +
                     ", Views: " + boardMember.getViews() +
-                    ", IsDeleted: " + boardMember.getIsDeleted() +
                     ", CategoryName: " + boardMember.getCategoryName() +
                     ", WriterId: " + boardMember.getWriter().getId() +
                     ", WriterNickname: " + boardMember.getWriter().getNickname());
@@ -114,7 +113,6 @@ public class BoardServiceTest {
             log.info("Board Member Content: " + boardMember.getContent());
             log.info("Board Member RegDate: " + boardMember.getRegDate());
             log.info("Board Member Views: " + boardMember.getViews());
-            log.info("Board Member IsDeleted: " + boardMember.getIsDeleted());
             log.info("Board Member CategoryName: " + boardMember.getCategoryName());
             log.info("Board Member WriterId: " + boardMember.getWriter().getId());
             log.info("Board Member Writer Nickname: " + boardMember.getWriter().getNickname());
@@ -154,7 +152,6 @@ public class BoardServiceTest {
             log.info("Board Member Content: " + boardMember.getContent());
             log.info("Board Member RegDate: " + boardMember.getRegDate());
             log.info("Board Member Views: " + boardMember.getViews());
-            log.info("Board Member IsDeleted: " + boardMember.getIsDeleted());
             log.info("Board Member CategoryName: " + boardMember.getCategoryName());
             log.info("Board Member WriterId: " + boardMember.getWriter().getId());
             log.info("Board Member Writer Nickname: " + boardMember.getWriter().getNickname());
@@ -183,7 +180,6 @@ public class BoardServiceTest {
         boardDTO.setImages(files);
 
         Long board = boardService.add(boardDTO);
-
 
     }
 

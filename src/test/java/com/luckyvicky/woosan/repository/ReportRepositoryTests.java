@@ -1,4 +1,4 @@
-package com.luckyvicky.woosan.testrepository.report;
+package com.luckyvicky.woosan.repository;
 
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;

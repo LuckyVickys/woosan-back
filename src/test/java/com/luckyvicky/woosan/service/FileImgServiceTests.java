@@ -1,4 +1,4 @@
-package com.luckyvicky.woosan.testServcie;
+package com.luckyvicky.woosan.service;
 
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import org.junit.jupiter.api.Test;
