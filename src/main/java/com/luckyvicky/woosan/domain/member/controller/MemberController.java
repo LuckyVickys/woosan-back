@@ -61,7 +61,8 @@ public class MemberController {
     @PutMapping("/updateTempPw/{email}")
     public ResponseEntity<Object> updateTempPw(@PathVariable String email) {
         try {
-            memberService.createMailAndChangePw(email);
+            MailDTO dto = memberService.createMailAndChangePw(email);
+            memberService.mailSend(dto);
             return new ResponseEntity<>(true, HttpStatus.CREATED);
         } catch(Exception e) {
             e.printStackTrace();

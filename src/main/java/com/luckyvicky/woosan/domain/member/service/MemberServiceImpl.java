@@ -7,19 +7,23 @@ import com.luckyvicky.woosan.domain.member.entity.SocialType;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
 //    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JavaMailSender mailSender;
+
+    @Value("${spring.mail.username}")
+    private String fromEmail;
 
     // 이메일 중복 체크
     @Override
@@ -37,7 +41,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Member addMember(Member member) throws Exception {
         if(existEmail(member.getEmail()) == true) {
-            throw new Exception("중복된 회원입니다.");
+            throw new Exception("중복된 이메일입니다.");
+        } else if(existNickname(member.getNickname()) == true) {
+            throw new Exception("중복된 닉네임입니다.");
         }
 
         member = Member.builder()
@@ -108,8 +114,8 @@ public class MemberServiceImpl implements MemberService {
         message.setTo(mailDTO.getEmail());
         message.setSubject(mailDTO.getTitle());
         message.setText(mailDTO.getMessage());
-        message.setFrom("보낸이@naver.com");
-        message.setReplyTo("보낸이@naver.com");
+        message.setFrom(fromEmail);
+        message.setReplyTo(fromEmail);
         System.out.println("message" + message);
         mailSender.send(message);
     }
