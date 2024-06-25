@@ -1,10 +1,12 @@
 package com.luckyvicky.woosan.domain.member.service;
 
+//import com.luckyvicky.woosan.domain.member.dto.LoginReqDTO;
 import com.luckyvicky.woosan.domain.member.dto.MailDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import com.luckyvicky.woosan.domain.member.entity.SocialType;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+//import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +14,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+//import org.springframework.web.context.request.RequestContextHolder;
+//import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +64,27 @@ public class MemberServiceImpl implements MemberService {
 
         return memberRepository.save(member);
     }
+
+    // 세션 로그인(스프링시큐리티, jwt토큰 적용 전)
+//    @Override
+//    public Boolean login(LoginReqDTO loginReqDTO) throws Exception {
+//        String email = loginReqDTO.getEmail();
+//        String password = loginReqDTO.getPassword();
+//        boolean isCorrectEmail = memberRepository.existsByEmail(email);
+//        boolean isCorrectPw = memberRepository.existsByEmailAndPassword(email, password);
+//
+//        if(!isCorrectEmail) {
+//            throw new Exception("존재하지 않는 이메일입니다.");
+//        } else if(!isCorrectPw) {
+//            throw new Exception("비밀번호가 일치하지 않습니다.");
+//        }
+//
+//        Long memberId = memberRepository.findByEmail(email).getId();
+//        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+//        HttpSession session = attr.getRequest().getSession(true);   // 세션이 존재하지 않는다면 세션 생성
+//        session.setAttribute("memberId", memberId);
+//        return true;
+//    }
 
     /**
      * 임시 비밀번호 발급 및 비밀번호 변경 관련 코드들
@@ -122,15 +147,17 @@ public class MemberServiceImpl implements MemberService {
 
     // 비밀번호 변경
     @Override
-    public void updatePassword(String email, String newPassword) throws Exception {
+    public void updatePassword(String email, String password, String newPassword) throws Exception {
         Member member = memberRepository.findByEmail(email);
-        if(member != null) {
-            member.changePassword(newPassword);
-//        member.changePassword(bCryptPasswordEncoder.encode(newPassword));
-            memberRepository.save(member);
-        } else {
-            throw new Exception("회원정보가 일치하지 않습니다.");
+        if(member == null) {
+            throw new Exception("존재하지 않는 이메일입니다.");
+        } else if(member.getPassword() != password) {
+            throw new Exception("비밀번호가 틀립니다.");
         }
+
+        member.changePassword(newPassword);
+//                member.changePassword(bCryptPasswordEncoder.encode(newPassword));
+        memberRepository.save(member);
     }
 
 }
