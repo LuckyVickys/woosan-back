@@ -27,10 +27,6 @@ public interface BoardService {
 
 
 
-
-
-    // <--------------------------------------------프로젝션 Test-------------------------------------------->
-
     @Transactional(readOnly = true)
     BoardPageResponseDTO getBoardPage(PageRequestDTO pageRequestDTO, String categoryName);
 
@@ -41,7 +37,7 @@ public interface BoardService {
 
 
     @Transactional
-    BoardWithRepliesDTO getWithReplies(Long id, PageRequestDTO pageRequestDTO);
+    BoardDTO getBoard(Long id);
 
     @Transactional(readOnly = true)
     List<BoardDTO> getTop3ByLikes();
