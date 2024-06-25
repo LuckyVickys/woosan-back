@@ -28,24 +28,24 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 회원가입
-//    @Override
-//    public Member addMember(Member member) throws Exception {
-//        if(existEmail(member.getEmail()) == true) {
-//            throw new Exception("중복된 회원입니다.");
-//        }
-//
-//        member = Member.builder()
-//                .email(member.getEmail())
-//                .nickname(member.getNickname())
-//                .password(bCryptPasswordEncoder.encode(member.getPassword()))
-//                .point(0L)
-//                .memberType(member.getEmail().equals("woosan@bitcamp.com") ? MemberType.ADMIN : MemberType.USER)
-//                .level(member.getEmail().equals("woosan@bitcamp.com") ? null : MemberType.Level.LEVEL_1)
-//                .isActive(true)
-//                .socialType(SocialType.NORMAL)
-//                .build();
-//
-//        return memberRepository.save(member);
-//    }
+    @Override
+    public Member addMember(Member member) throws Exception {
+        if(existEmail(member.getEmail()) == true) {
+            throw new Exception("중복된 회원입니다.");
+        }
+
+        member = Member.builder()
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .password(bCryptPasswordEncoder.encode(member.getPassword()))
+                .point(0L)
+                .memberType(member.getEmail().equals("woosan@bitcamp.com") ? MemberType.ADMIN : MemberType.USER)
+                .level(member.getEmail().equals("woosan@bitcamp.com") ? null : MemberType.Level.LEVEL_1)
+                .isActive(true)
+                .socialType(SocialType.NORMAL)
+                .build();
+
+        return memberRepository.save(member);
+    }
 
 }
