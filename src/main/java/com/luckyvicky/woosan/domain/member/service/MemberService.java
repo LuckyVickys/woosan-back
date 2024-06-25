@@ -15,5 +15,5 @@ public interface MemberService {
     void updateTempPw(String str, String email) throws Exception;
     String getTempPassword() throws Exception;
     void mailSend(MailDTO mailDTO) throws Exception;
-//    void updatePassword(String email, String newPassword) throws Exception;
+    void updatePassword(String email, String newPassword) throws Exception;
 }

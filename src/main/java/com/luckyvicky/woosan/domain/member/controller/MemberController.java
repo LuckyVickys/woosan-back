@@ -83,14 +83,14 @@ public class MemberController {
         }
     }
 
-//    @PutMapping("/updatePw")
-//    public ResponseEntity<Object> updatePw(@RequestBody UpdatePwDTO updatePwDTO) {
-//        try {
-//            memberService.updatePassword(updatePwDTO.getEmail(), updatePwDTO.getPassword());
-//            return new ResponseEntity<>(true, HttpStatus.CREATED);
-//        } catch(Exception e) {
-//            e.printStackTrace();
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-//        }
-//    }
+    @PutMapping("/updatePw")
+    public ResponseEntity<Object> updatePw(@RequestBody UpdatePwDTO updatePwDTO) {
+        try {
+            memberService.updatePassword(updatePwDTO.getEmail(), updatePwDTO.getPassword());
+            return new ResponseEntity<>(true, HttpStatus.CREATED);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 }

@@ -114,17 +114,17 @@ public class MemberServiceImpl implements MemberService {
         mailSender.send(message);
     }
 
-//    // 비밀번호 변경
-//    @Override
-//    public void updatePassword(String email, String newPassword) throws Exception {
-//        Member member = memberRepository.findByEmail(email);
-//        if(member != null) {
-//            member.changePassword(newPassword);
-////        member.changePassword(bCryptPasswordEncoder.encode(newPassword));
-//            memberRepository.save(member);
-//        } else {
-//            throw new Exception("회원정보가 일치하지 않습니다.");
-//        }
-//    }
+    // 비밀번호 변경
+    @Override
+    public void updatePassword(String email, String newPassword) throws Exception {
+        Member member = memberRepository.findByEmail(email);
+        if(member != null) {
+            member.changePassword(newPassword);
+//        member.changePassword(bCryptPasswordEncoder.encode(newPassword));
+            memberRepository.save(member);
+        } else {
+            throw new Exception("회원정보가 일치하지 않습니다.");
+        }
+    }
 
 }
