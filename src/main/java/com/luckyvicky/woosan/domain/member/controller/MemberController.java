@@ -23,7 +23,7 @@ public class MemberController {
 
     // 이메일 중복 체크
     @GetMapping("/email/{email}")
-    public ResponseEntity<Object> emailCheck(@PathVariable String email) {
+    public ResponseEntity<Object> emailCheck(@PathVariable(value = "email") String email) {
         try {
             return new ResponseEntity(memberService.existEmail(email), HttpStatus.OK);
         } catch(Exception e) {
