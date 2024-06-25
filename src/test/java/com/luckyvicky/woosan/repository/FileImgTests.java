@@ -1,4 +1,4 @@
-package com.luckyvicky.woosan.testrepository.fileImg;
+package com.luckyvicky.woosan.repository;
 
 import com.luckyvicky.woosan.domain.fileImg.entity.FileImg;
 import com.luckyvicky.woosan.domain.fileImg.repository.FileImgRepository;

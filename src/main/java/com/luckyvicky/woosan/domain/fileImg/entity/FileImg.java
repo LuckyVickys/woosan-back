@@ -19,13 +19,13 @@ public class FileImg {
     @Column(name = "type", nullable = false, length = 255)
     private String type;
 
-    @Column(name = "targetId", nullable = false)
+    @Column(name = "target_id", nullable = false)
     private Long targetId;
 
     @Column(name = "uuid", nullable = false, length = 255)
     private String uuid;
 
-    @Column(name = "fileName", nullable = false, length = 255)
+    @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
 
     @Column(name = "ord")
