@@ -39,4 +39,12 @@ public class MemberRepositoryTests {
             log.info("member_id" + memberRepository.save(member).getId());
         });
     }
+
+    @Test
+    public void testRead() {
+        String email = "bit1@naver.com";
+        Member member = memberRepository.findByEmail(email);
+        log.info("--------------------");
+        log.info(member);
+    }
 }
