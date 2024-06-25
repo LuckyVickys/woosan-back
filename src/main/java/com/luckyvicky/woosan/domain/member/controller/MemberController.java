@@ -55,15 +55,15 @@ public class MemberController {
     }
 
     // 세션 로그인(스프링시큐리티, jwt토큰 적용 전)
-//    @PostMapping("/login")
-//    public ResponseEntity<Object> login(@RequestBody LoginReqDTO loginReqDTO) {
-//        try {
-//            return new ResponseEntity<>(memberService.login(loginReqDTO), HttpStatus.OK);
-//        } catch(Exception e) {
-//            e.printStackTrace();
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-//        }
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody LoginReqDTO loginReqDTO) {
+        try {
+            return new ResponseEntity<>(memberService.login(loginReqDTO), HttpStatus.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 
     // 임시비밀번호 메일 전송 및 임시비밀번호 변경
     @PostMapping("/sendEmail")
