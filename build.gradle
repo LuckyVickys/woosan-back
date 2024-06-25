@@ -52,7 +52,7 @@ dependencies {
 
 
 	// spring security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	annotationProcessor(
 			"com.querydsl:querydsl-apt:5.0.0:jakarta",
