@@ -69,19 +69,19 @@ public class MemberServiceImpl implements MemberService {
 //        updateTempPw(str,email);
 //        return dto;
 //    }
-//
-//    // 임시 비밀번호로 업데이트
-//    @Override
-//    public void updateTempPw(String str, String email) throws Exception {
-//        Member member = memberRepository.findByEmail(email);
-//        if(member != null) {
-//            member.changePassword(str);
-////        member.changePassword(bCryptPasswordEncoder.encode(str));
-//            memberRepository.save(member);
-//        } else {
-//            throw new Exception("회원정보가 일치하지 않습니다.");
-//        }
-//    }
+
+    // 임시 비밀번호로 업데이트
+    @Override
+    public void updateTempPw(String str, String email) throws Exception {
+        Member member = memberRepository.findByEmail(email);
+        if(member != null) {
+            member.changePassword(str);
+//        member.changePassword(bCryptPasswordEncoder.encode(str));
+            memberRepository.save(member);
+        } else {
+            throw new Exception("회원정보가 일치하지 않습니다.");
+        }
+    }
 
     // 랜덤함수로 임시 비밀번호 구문 만들기
     @Override
