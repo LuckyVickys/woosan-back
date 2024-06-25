@@ -35,27 +35,27 @@ public class Reply {
     private LocalDateTime regDate;  // 작성 날짜
 
     @Column
-    private Long parentId;  // 부모 댓글
+    private Long parentId;  // 부모 댓글 ID
     
-    @ColumnDefault("0")
-    private int likesCount; // 추천 수
+//    @ColumnDefault("0")
+//    private int likesCount; // 추천 수
 
 
     public void changeContent(String content) {
         this.content = content;
     }
 
-    /**
-     * 추천수 증가
-     */
-    public void incrementLikesCount(){
-        this.likesCount++;
-    }
-
-    /**
-     * 추천수 감소
-     */
-    public void decrementLikesCount(){
-        this.likesCount--;
-    }
+//    /**
+//     * 추천수 증가
+//     */
+//    public void incrementLikesCount(){
+//        this.likesCount++;
+//    }
+//
+//    /**
+//     * 추천수 감소
+//     */
+//    public void decrementLikesCount(){
+//        this.likesCount--;
+//    }
 }

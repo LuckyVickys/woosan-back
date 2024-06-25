@@ -8,7 +8,7 @@ public interface IReply {
     String getContent();
     LocalDateTime regDate();
     Long parentId();
-    int getLikes();
+//    int getLikes();
 
 
     MemberInfo getWriter();
