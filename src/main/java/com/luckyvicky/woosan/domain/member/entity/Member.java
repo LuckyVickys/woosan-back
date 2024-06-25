@@ -58,4 +58,9 @@ public class Member {
     public void addPoint(int points){
         this.point += points;
     }
+
+    // 비밀번호 변경
+    public void changePassword(String password) {
+        this.password = password;
+    }
 }
