@@ -58,17 +58,17 @@ public class MemberServiceImpl implements MemberService {
     /**
      * 임시 비밀번호 발급 및 비밀번호 변경 관련 코드들
      */
-    // 메일 내용 생성 및 임시 비밀번호로 회원 비밀번호 변경
-//    @Override
-//    public MailDTO createMailAndChangePw(String email) throws Exception {
-//        String str = getTempPassword();
-//        MailDTO dto = new MailDTO(email,
-//                "Woosan 임시비밀번호 안내 이메일입니다.",
-//                "안녕하세요. Woosan 임시비밀번호 안내 관련 이메일 입니다." + " 회원님의 임시 비밀번호는 "
-//                        + str + " 입니다." + "로그인 후에 비밀번호를 변경을 해주세요");
-//        updateTempPw(str,email);
-//        return dto;
-//    }
+    //메일 내용 생성 및 임시 비밀번호로 회원 비밀번호 변경
+    @Override
+    public MailDTO createMailAndChangePw(String email) throws Exception {
+        String str = getTempPassword();
+        MailDTO dto = new MailDTO(email,
+                "Woosan 임시비밀번호 안내 이메일입니다.",
+                "안녕하세요. Woosan 임시비밀번호 안내 관련 이메일 입니다." + " 회원님의 임시 비밀번호는 "
+                        + str + " 입니다." + "로그인 후에 비밀번호를 변경을 해주세요");
+        updateTempPw(str,email);
+        return dto;
+    }
 
     // 임시 비밀번호로 업데이트
     @Override

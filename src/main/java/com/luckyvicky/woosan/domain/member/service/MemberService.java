@@ -11,7 +11,7 @@ public interface MemberService {
     /**
      * 임시 비밀번호 발급 및 비밀번호 변경 관련 코드들
      */
-//    MailDTO createMailAndChangePw(String email) throws Exception;
+    MailDTO createMailAndChangePw(String email) throws Exception;
     void updateTempPw(String str, String email) throws Exception;
     String getTempPassword() throws Exception;
 //    void mailSend(MailDTO mailDTO) throws Exception;
