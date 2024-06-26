@@ -1,6 +1,5 @@
 package com.luckyvicky.woosan.domain.board.dto;
 
-import com.luckyvicky.woosan.domain.member.dto.WriterDTO;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,7 +13,10 @@ public class ReplyDTO {
     private Long id;  // 댓글 고유번호
     private Long boardId;  // 게시글 고유번호
     private String content;  // 내용
-    private WriterDTO writer;  // 작성자 정보
+
+    private Long writerId;  // 작성자 고유번호
+    private String nickname;    //작성자 닉네임
+
     private LocalDateTime regDate;  // 작성 날짜
     private Long parentId;  // 부모 댓글의 고유번호
 

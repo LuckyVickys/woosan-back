@@ -1,12 +1,8 @@
 package com.luckyvicky.woosan.service;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
-import com.luckyvicky.woosan.domain.board.entity.Board;
-import com.luckyvicky.woosan.domain.board.projection.IBoard;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
-import com.luckyvicky.woosan.domain.member.dto.WriterDTO;
-import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
@@ -21,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -161,28 +156,29 @@ public class BoardServiceTest {
     @Test
     void boardInesrtTest() throws IOException {
 
-        String filePath1 = "C:\\Users\\ho976\\IdeaSnapshots\\OneDrive\\사진\\스크린샷\\민지.png";
-        String filePath2 = "C:\\Users\\ho976\\IdeaSnapshots\\OneDrive\\사진\\스크린샷\\karina.png";
+        String filePath1 = "/Users/tars/Documents/7.jpg";
 
-        MultipartFile multipartFile1 = new MockMultipartFile("file1", "민지.png", "image/png", new FileInputStream(filePath1));
-        MultipartFile multipartFile2 = new MockMultipartFile("file2", "karina.png", "image/png", new FileInputStream(filePath2));
-        List<MultipartFile> files = Arrays.asList(multipartFile1, multipartFile2);
+        MultipartFile multipartFile1 = new MockMultipartFile("file1", "수지.png", "image/png", new FileInputStream(filePath1));
+        List<MultipartFile> files = Arrays.asList(multipartFile1);
 
-        WriterDTO writerDTO = new WriterDTO();
-        writerDTO.setId(1L);
-        writerDTO.setNickname("asdf");
+        Long writerId = 2L;
 
         BoardDTO boardDTO = new BoardDTO();
-        boardDTO.setWriter(writerDTO);
-        boardDTO.setTitle("제목 test");
-        boardDTO.setContent("내용 test");
-        boardDTO.setCategoryName("꿀팁");
+        boardDTO.setWriterId(writerId);
+        boardDTO.setTitle("ㅎㅇ test");
+        boardDTO.setContent("ㅎㅇ test");
+        boardDTO.setCategoryName("ㅎㅇ");
         boardDTO.setImages(files);
 
         Long board = boardService.add(boardDTO);
 
     }
 
+    @Test
+    void dddd(){
+        BoardDTO boardDTO = boardService.getBoard(55L);
+        System.out.println(boardDTO);
+    }
 
 
 }

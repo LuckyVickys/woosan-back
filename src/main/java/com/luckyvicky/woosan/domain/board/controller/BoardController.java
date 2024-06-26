@@ -82,7 +82,7 @@ public class BoardController {
     /**
      * 게시물 삭제
      */
-    @PatchMapping("/{id}/delete")
+    @PatchMapping("/delete/{id}")
     public ResponseEntity<String> deleteBoard(@PathVariable Long id) {
         boardService.remove(id);
         return ResponseEntity.ok("삭제 완료");
