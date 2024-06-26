@@ -36,43 +36,77 @@ public class ReplyServiceImpl implements ReplyService{
     /**
      * 댓글 작성
      */
+//    @Override
+//    public ReplyDTO add(ReplyDTO replyDTO, Long parentId) {
+//
+//        Board board = boardRepository.findById(replyDTO.getBoardId())
+//                .orElseThrow();
+//        Member writer = memberRepository.findById(replyDTO.getWriter().getId())
+//                .orElseThrow();
+//
+//        Reply reply;
+//
+//        if (parentId != null){
+//            //자식 댓글로 설정
+//            Reply parentReply = replyRepository.findById(parentId)
+//                    .orElseThrow();
+//
+//            reply = Reply.builder()
+//                    .board(board)
+//                    .writer(writer)
+//                    .content(replyDTO.getContent())
+//                    .parentId(parentId)
+//                    .build();
+//        } else {
+//            //부모 댓글로 설정
+//            reply = Reply.builder()
+//                    .board(board)
+//                    .writer(writer)
+//                    .content(replyDTO.getContent())
+//                    .build();
+//        }
+//
+//        //  1포인트 추가
+//        writer.addPoint(1);
+//        memberRepository.save(writer);
+//
+//        Reply savedReply = replyRepository.save(reply);
+//        return modelMapper.map(savedReply, ReplyDTO.class);
+//    }
     @Override
     public ReplyDTO add(ReplyDTO replyDTO, Long parentId) {
 
+        // 게시글과 작성자 조회
         Board board = boardRepository.findById(replyDTO.getBoardId())
-                .orElseThrow();
-        Member writer = memberRepository.findById(replyDTO.getWriter().getId())
-                .orElseThrow();
+                .orElseThrow(() -> new IllegalArgumentException("Invalid board ID"));
+        Member writer = memberRepository.findById(replyDTO.getWriterId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid writer ID"));
 
-        Reply reply;
+        // 댓글 생성 빌더
+        Reply.ReplyBuilder replyBuilder = Reply.builder()
+                .board(board)
+                .writer(writer)
+                .content(replyDTO.getContent());
 
-        if (parentId != null){
-            //자식 댓글로 설정
-            Reply parentReply = replyRepository.findById(parentId)
-                    .orElseThrow();
-
-            reply = Reply.builder()
-                    .board(board)
-                    .writer(writer)
-                    .content(replyDTO.getContent())
-                    .parentId(parentId)
-                    .build();
-        } else {
-            //부모 댓글로 설정
-            reply = Reply.builder()
-                    .board(board)
-                    .writer(writer)
-                    .content(replyDTO.getContent())
-                    .build();
+        // 부모 댓글이 있는 경우
+        if (parentId != null) {
+            // 부모 댓글 존재 여부 확인
+            replyRepository.findById(parentId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid parent reply ID"));
+            replyBuilder.parentId(parentId);
         }
 
-        //  1포인트 추가
+        Reply reply = replyBuilder.build();
+
+        // 작성자 포인트 추가 및 저장
         writer.addPoint(1);
         memberRepository.save(writer);
 
         Reply savedReply = replyRepository.save(reply);
+
         return modelMapper.map(savedReply, ReplyDTO.class);
     }
+
 
 
 

@@ -38,33 +38,36 @@ public class BoardServiceImpl implements BoardService {
     private final FileImgService fileImgService;
 
     /**
-     * 게시물 작성
+     * 게시물 작성getWriter
      */
     @Override
     public Long add(BoardDTO boardDTO) {
-        // writer 정보를 통해 Member 엔티티를 조회합니다.
-        Member writer = memberRepository.findById(boardDTO.getWriter().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid writer ID"));
+        try {
+            // writer 정보를 통해 Member 엔티티를 조회
+            Member writer = memberRepository.findById(boardDTO.getWriterId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 id"));
 
-        // 10 포인트 추가
-        writer.addPoint(10);
-        memberRepository.save(writer);
+            // 10 포인트 추가
+            writer.addPoint(10);
+            memberRepository.save(writer);
 
-        // Board 엔티티를 생성합니다.
-        Board board = Board.builder()
-                .writer(writer)
-                .title(boardDTO.getTitle())
-                .content(boardDTO.getContent())
-                .categoryName(boardDTO.getCategoryName())
-                .build();
+            // Board 엔티티를 생성합니다.
+            Board board = Board.builder()
+                    .writer(writer)
+                    .title(boardDTO.getTitle())
+                    .content(boardDTO.getContent())
+                    .categoryName(boardDTO.getCategoryName())
+                    .build();
 
+            board = boardRepository.save(board);
 
-        board = boardRepository.save(board);
-        //파일 정보를 저장합니다.
-        fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
+            //파일 정보를 저장합니다.
+            fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
 
-
-        return board.getId();
+            return board.getId();
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
     }
 
 
@@ -195,6 +198,7 @@ public class BoardServiceImpl implements BoardService {
         board.changeTitle(boardDTO.getTitle());
         board.changeContent(boardDTO.getContent());
 
+        // 사진 변경 필요
         boardRepository.save(board);
     }
 
