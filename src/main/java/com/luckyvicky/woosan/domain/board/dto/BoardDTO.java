@@ -1,6 +1,5 @@
 package com.luckyvicky.woosan.domain.board.dto;
 
-import com.luckyvicky.woosan.domain.member.dto.WriterDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +16,8 @@ import java.util.List;
 public class BoardDTO {
 
     private Long id;
-    private WriterDTO writer;
+    private Long writerId;
+    private String nickname;
 
     private String title;
     private String content;
@@ -28,6 +28,4 @@ public class BoardDTO {
 
     private List<MultipartFile> images;
     private List<String> filePathUrl;
-
-
 }

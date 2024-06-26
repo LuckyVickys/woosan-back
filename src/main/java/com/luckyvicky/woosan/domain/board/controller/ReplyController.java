@@ -22,14 +22,14 @@ public class ReplyController {
     /**
      * 댓글 작성
      */
-    @PostMapping("add")
+    @PostMapping("/add")
     public ResponseEntity<ReplyDTO> createReply(@RequestBody ReplyDTO replyDTO,
                                                   @RequestParam(value = "parentId", required = false) Long parentId) {
         ReplyDTO saveReply = replyService.add(replyDTO, parentId);
         return ResponseEntity.ok(saveReply);
     }
 
-    @GetMapping("{boardId}")
+    @GetMapping("/{boardId}")
     public ResponseEntity<PageResponseDTO<ReplyDTO>> getReply(@PathVariable Long boardId, PageRequestDTO pageRequestDTO) {
         PageResponseDTO<ReplyDTO> replyDTO  = replyService.getRepliesByBoardId(boardId, pageRequestDTO);
         return ResponseEntity.ok(replyDTO);
