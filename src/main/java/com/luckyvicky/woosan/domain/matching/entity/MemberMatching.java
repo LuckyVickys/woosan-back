@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.matching.entity;
 
+import com.luckyvicky.woosan.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,11 +17,15 @@ public class MemberMatching {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "matcing_id", nullable =false)
-    private Long matchingId;
+    //매칭 보드와의 관계 설정
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "matcing_id", nullable =false)
+    private MatchingBoard matchingBoard;
 
-    @Column(name = "member_id", nullable =false)
-    private Long memberId;
+    // 멤버와의 관계 설정
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Column(name = "is_accepted", nullable =false)
     private Boolean isAccepted;
