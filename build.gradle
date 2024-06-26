@@ -55,6 +55,10 @@ dependencies {
 	//Object Storage
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.58'
 
+	//언어 감지
+	implementation 'com.cybozu.labs:langdetect:1.1-20120112'
+
+
 	annotationProcessor(
 			"com.querydsl:querydsl-apt:5.0.0:jakarta",
 

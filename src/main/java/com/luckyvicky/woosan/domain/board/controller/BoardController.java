@@ -1,7 +1,10 @@
 package com.luckyvicky.woosan.domain.board.controller;
 
-import com.luckyvicky.woosan.domain.board.dto.*;
+import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
+import com.luckyvicky.woosan.domain.board.dto.PageRequestDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
+import com.luckyvicky.woosan.domain.board.service.PapagoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
 
     private final BoardService boardService;
+    private final PapagoService papagoService;
 
 
     /**
@@ -89,8 +93,18 @@ public class BoardController {
     }
 
 
-
-
+    /**
+     * 게시물 번역
+     */
+    @GetMapping("translate")
+    public ResponseEntity<BoardDTO> boardDetailTranslate(@RequestBody BoardDTO boardDTO) {
+        try {
+            boardDTO = papagoService.tanslateBoardDetailPage(boardDTO);
+            return ResponseEntity.ok(boardDTO);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 }
