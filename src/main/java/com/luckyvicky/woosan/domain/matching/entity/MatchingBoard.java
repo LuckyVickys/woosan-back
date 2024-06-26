@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.matching.entity;
 
+import com.luckyvicky.woosan.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,8 +20,12 @@ public class MatchingBoard {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "post_type", nullable = false)
-    private int postType;
+    @ManyToOne(fetch = FetchType.LAZY) //Member와의 관계 설정
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member  member;
+
+    @Column(name = "matching_type", nullable = false)
+    private int matchingType; // 1: 정기 모임, 2: 번개, 3: 셀프 소개팅
 
     @Column(name = "title", nullable = false, length = 255)
     private String title;
@@ -51,9 +56,6 @@ public class MatchingBoard {
 
     @Column(name = "meet_date", nullable = false)
     private LocalDateTime meetDate;
-
-    @Column(name = "type", nullable = false)
-    private String type;
 
     @Column(name = "tag", nullable = false)
     private String tag;
