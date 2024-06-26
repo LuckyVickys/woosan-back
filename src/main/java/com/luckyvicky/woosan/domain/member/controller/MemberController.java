@@ -1,9 +1,6 @@
 package com.luckyvicky.woosan.domain.member.controller;
 
-import com.luckyvicky.woosan.domain.member.dto.MailDTO;
-import com.luckyvicky.woosan.domain.member.dto.UpdatePwDTO;
-import com.luckyvicky.woosan.domain.member.dto.SignUpReqDTO;
-import com.luckyvicky.woosan.domain.member.dto.SignUpResDTO;
+import com.luckyvicky.woosan.domain.member.dto.*;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
 import com.luckyvicky.woosan.domain.member.service.MemberService;
@@ -57,20 +54,18 @@ public class MemberController {
         }
     }
 
-    // 임시 비밀번호 발급 및 임시 비밀번호로 비밀번호 변경
-    @PutMapping("/updateTempPw/{email}")
-    public ResponseEntity<Object> updateTempPw(@PathVariable String email) {
+    // 세션 로그인(스프링시큐리티, jwt토큰 적용 전)
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody LoginReqDTO loginReqDTO) {
         try {
-            memberService.createMailAndChangePw(email);
-            return new ResponseEntity<>(true, HttpStatus.CREATED);
+            return new ResponseEntity<>(memberService.login(loginReqDTO), HttpStatus.OK);
         } catch(Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    // 메일 전송
-    @Transactional
+    // 임시비밀번호 메일 전송 및 임시비밀번호 변경
     @PostMapping("/sendEmail")
     public ResponseEntity<Object> sendEmail(@RequestParam("email") String email) {
         try {
@@ -87,7 +82,7 @@ public class MemberController {
     @PutMapping("/updatePw")
     public ResponseEntity<Object> updatePw(@RequestBody UpdatePwDTO updatePwDTO) {
         try {
-            memberService.updatePassword(updatePwDTO.getEmail(), updatePwDTO.getPassword());
+            memberService.updatePassword(updatePwDTO.getEmail(), updatePwDTO.getPassword(), updatePwDTO.getNewPassword());
             return new ResponseEntity<>(true, HttpStatus.CREATED);
         } catch(Exception e) {
             e.printStackTrace();
