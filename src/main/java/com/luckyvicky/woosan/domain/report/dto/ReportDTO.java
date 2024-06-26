@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.report.dto;
 
+import com.luckyvicky.woosan.domain.member.dto.WriterDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +16,12 @@ public class ReportDTO {
 
     private Long id;
 
-    //신고자
     private Long reporterId;
-    private String reporterEmail;
-    private String reporterNickName;
+    private String reporterNickname;
 
-    //신고된 사람
-    private Long reportedId;
-    private String reportedEmail;
-    private String reportedNickName;
+    private Long reporteredMemberId;
+    private String reporteredMemberNickname;
 
-    //신고 대상
     private String type;
     private Long targetId;
 
@@ -33,8 +29,6 @@ public class ReportDTO {
     private LocalDateTime regDate;
     private Boolean isChecked;
 
-    //사진
-    private List<String> filesURL;
-    private List<MultipartFile> uploadFiles;
-
+    private List<MultipartFile> images;
+    private List<String> filePathUrl;
 }

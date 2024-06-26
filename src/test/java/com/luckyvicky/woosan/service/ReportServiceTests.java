@@ -1,5 +1,6 @@
-package com.luckyvicky.woosan.testService;
+package com.luckyvicky.woosan.service;
 
+import com.luckyvicky.woosan.domain.member.dto.WriterDTO;
 import com.luckyvicky.woosan.domain.report.dto.ReportDTO;
 import com.luckyvicky.woosan.domain.report.service.ReportService;
 import org.junit.jupiter.api.Test;
@@ -21,8 +22,9 @@ public class ReportServiceTests {
 
     @Test
     void testReportInsertTest() throws IOException {
-        Long reportId = 1L;
+
         ReportDTO reportDTO = new ReportDTO();
+        reportDTO.setReporterId(1L);
         reportDTO.setComplaintReason("report ineset test");
         reportDTO.setType("reply");
         reportDTO.setTargetId(1L);
@@ -33,9 +35,9 @@ public class ReportServiceTests {
         MultipartFile multipartFile1 = new MockMultipartFile("file1", "20231002_Jang_Won-young_(장원영).jpg", "image/jpeg", new FileInputStream(filePath1));
         MultipartFile multipartFile2 = new MockMultipartFile("file2", "스크린샷 2024-05-29 163620.png", "image/png", new FileInputStream(filePath2));
         List<MultipartFile> files = Arrays.asList(multipartFile1, multipartFile2);
-        reportDTO.setUploadFiles(files);
+        reportDTO.setImages(files);
 
-        reportService.reportTarget(reportId, reportDTO);
+        reportService.reportAdd(reportDTO);
         System.out.println("=========================================================");
         System.out.println("Report Insert Success");
         System.out.println("=========================================================");
