@@ -149,9 +149,13 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void updatePassword(String email, String password, String newPassword) throws Exception {
         Member member = memberRepository.findByEmail(email);
+
+        System.out.println("memberPassword: " + member.getPassword());
+        System.out.println("parameterPassword: " + password);
+
         if(member == null) {
             throw new Exception("존재하지 않는 이메일입니다.");
-        } else if(member.getPassword() != password) {
+        } else if(!member.getPassword().equals(password)) {
             throw new Exception("비밀번호가 틀립니다.");
         }
 
