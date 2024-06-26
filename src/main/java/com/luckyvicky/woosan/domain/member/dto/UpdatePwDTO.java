@@ -6,4 +6,5 @@ import lombok.Getter;
 public class UpdatePwDTO {
     private String email;
     private String password;
+    private String newPassword;
 }
