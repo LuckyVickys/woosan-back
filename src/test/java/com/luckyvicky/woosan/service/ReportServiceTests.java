@@ -1,6 +1,5 @@
 package com.luckyvicky.woosan.service;
 
-import com.luckyvicky.woosan.domain.member.dto.WriterDTO;
 import com.luckyvicky.woosan.domain.report.dto.ReportDTO;
 import com.luckyvicky.woosan.domain.report.service.ReportService;
 import org.junit.jupiter.api.Test;
