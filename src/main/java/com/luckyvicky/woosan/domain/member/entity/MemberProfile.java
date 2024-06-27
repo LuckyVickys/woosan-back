@@ -41,4 +41,9 @@ public class MemberProfile {
 
     @Column
     private int height;
+
+    // 추가된 setter 메소드
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }
