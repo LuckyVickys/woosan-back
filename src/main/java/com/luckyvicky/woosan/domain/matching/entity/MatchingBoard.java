@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.matching.entity;
 
 import com.luckyvicky.woosan.domain.member.entity.Member;
+import com.luckyvicky.woosan.domain.member.entity.MemberProfile;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,10 +28,10 @@ public class MatchingBoard {
     @Column(name = "matching_type", nullable = false)
     private int matchingType; // 1: 정기 모임, 2: 번개, 3: 셀프 소개팅
 
-    @Column(name = "title", nullable = false, length = 255)
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content", nullable = false, length = 255)
+    @Column(name = "content", nullable = false)
     private String content;
 
     @Column(name = "reg_date", nullable = false)
@@ -62,6 +63,11 @@ public class MatchingBoard {
 
     @Column(name = "head_count", nullable = false)
     private int headCount;
+
+    //셀프 소개팅 작성 시 MemberProfile 데이터를 기반으로 필드를 채움
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id", nullable = true)
+    private MemberProfile profile;
 
 }
 
