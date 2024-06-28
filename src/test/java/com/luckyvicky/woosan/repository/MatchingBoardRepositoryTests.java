@@ -1,32 +1,37 @@
 package com.luckyvicky.woosan.repository;
 
+import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardRequestDTO;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
-import com.luckyvicky.woosan.domain.matching.entity.MatchingBoardReply;
-import com.luckyvicky.woosan.domain.matching.entity.MemberMatching;
-import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardReplyRepository;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
-import com.luckyvicky.woosan.domain.matching.repository.MemberMatchingRepository;
-import com.luckyvicky.woosan.domain.member.entity.*;
-import com.luckyvicky.woosan.domain.member.repository.MemberProfileRepository;
+import com.luckyvicky.woosan.domain.matching.service.MatchingBoardService;
+import com.luckyvicky.woosan.domain.member.entity.Member;
+import com.luckyvicky.woosan.domain.member.entity.MemberType;
+import com.luckyvicky.woosan.domain.member.entity.SocialType;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 
-@SpringBootTest
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @Log4j2
+@SpringBootTest
 public class MatchingBoardRepositoryTests {
 
     @Autowired
     private MatchingBoardRepository matchingBoardRepository;
 
     @Autowired
-    private MatchingBoardReplyRepository matchingBoardReplyRepository;
+    private MatchingBoardService matchingBoardService;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -34,6 +39,23 @@ public class MatchingBoardRepositoryTests {
     @Autowired
     private MemberProfileRepository memberProfileRepository;
 
+    @BeforeEach
+    public void setup() {
+        // 테스트에 사용할 5명의 회원 엔티티 생성
+        IntStream.rangeClosed(1, 5).forEach(i -> {
+            Member member = memberRepository.save(Member.builder()
+                    .email("test" + System.currentTimeMillis() + i + "@woosan.com")
+                    .nickname("testuser" + System.currentTimeMillis() + i)
+                    .password("password")
+                    .point(0)
+                    .nextPoint(100)
+                    .memberType(MemberType.USER)
+                    .level(MemberType.Level.valueOf("LEVEL_" + i))
+                    .isActive(true)
+                    .socialType(SocialType.NORMAL)
+                    .build());
+            testMembers.add(member);
+        });
     @Autowired
     private MemberMatchingRepository memberMatchingRepository;
 
