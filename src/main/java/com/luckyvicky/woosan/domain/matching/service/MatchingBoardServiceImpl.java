@@ -166,12 +166,12 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     //특정 매칭 게시글을 삭제하는 메서드
     @Override
     @Transactional
-    public void deleteMatchingBoard(Long id){
+    public void deleteMatchingBoard(Long id, Long memberId){
         MatchingBoard matchingBoard = matchingBoardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
 
         // 작성자 확인
-        if (!matchingBoard.getMember().getId().equals(requestDTO.getMemberId())) {
+        if (!matchingBoard.getMember().getId().equals(memberId)) {
             throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
         }
 
@@ -210,14 +210,12 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
 
     // 매칭 보드 엔티티를 업데이트하는 메서드
     private MatchingBoard updateMatchingBoardEntity(MatchingBoard matchingBoard, MatchingBoardRequestDTO requestDTO) {
-        MatchingBoard updatedMatchingBoard = mapper.toEntity(requestDTO).toBuilder()
+        MatchingBoard.MatchingBoardBuilder builder = mapper.toEntity(requestDTO).toBuilder()
                 .id(matchingBoard.getId())
                 .member(matchingBoard.getMember())
                 .regDate(matchingBoard.getRegDate())
                 .views(matchingBoard.getViews())
-                .isDeleted(matchingBoard.getIsDeleted())
-                .profile(matchingBoard.getProfile())
-                .build();
+                .isDeleted(matchingBoard.getIsDeleted());
 
         // 셀프 소개팅인 경우 프로필 업데이트
         if (matchingBoard.getMatchingType() == 3) {
@@ -234,10 +232,10 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
                     .height(requestDTO.getHeight())
                     .build();
             memberProfileRepository.save(updatedProfile);
-            updatedMatchingBoard.setProfile(updatedProfile);
+            builder.profile(updatedProfile);
         }
 
-        return updatedMatchingBoard;
+        return builder.build();
     }
 
     // 매일 자정에 번개 모임 자동 삭제
