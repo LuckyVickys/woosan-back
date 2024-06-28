@@ -8,14 +8,13 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "matching_board_reply")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class MatchingBoardReply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(name = "content", nullable = false)
     private String content;
@@ -26,7 +25,7 @@ public class MatchingBoardReply {
     @Column(name = "reg_date", nullable = false)
     private LocalDateTime regDate;
 
-    @Column(name = "parentId", nullable = false)
+    @Column(name = "parent_id", nullable = true)
     private Long parentId;
 
     @Column(name = "matching_id", nullable = false)

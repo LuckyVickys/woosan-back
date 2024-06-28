@@ -9,9 +9,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "maching_board")
+@Table(name = "matching_board")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -68,6 +67,11 @@ public class MatchingBoard {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = true)
     private MemberProfile profile;
+
+    //모임장인지 확인하는 메소드
+    public boolean isManager(Long memberId){
+        return member.getId().equals(memberId);
+    }
 
 }
 
