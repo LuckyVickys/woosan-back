@@ -39,12 +39,12 @@ public class BoardRepositoryTest {
         for (int i = 0; i < 10; i++) {
             Board board = Board.builder()
                     .writer(testMember)
-                    .title("ㅁㄴㄹㅁㄴㅇㄹ" + i)
-                    .content("asfasdfasdf " + i)
+                    .title("test" + i)
+                    .content("김동우 " + i)
                     .regDate(LocalDateTime.now())
                     .views(0)
                     .isDeleted(false)
-                    .categoryName("fasfads" + i)
+                    .categoryName("김동우" + i)
                     .build();
 
             Board savedBoard = boardRepository.save(board);

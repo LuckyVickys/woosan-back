@@ -6,6 +6,7 @@ import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,9 @@ public class ReplyController {
         return ResponseEntity.ok(saveReply);
     }
 
+    /**
+     * 댓글 조회
+     */
     @GetMapping("/{boardId}")
     public ResponseEntity<PageResponseDTO<ReplyDTO>> getReply(@PathVariable Long boardId, PageRequestDTO pageRequestDTO) {
         PageResponseDTO<ReplyDTO> replyDTO  = replyService.getRepliesByBoardId(boardId, pageRequestDTO);
@@ -39,9 +43,9 @@ public class ReplyController {
      * 댓글 삭제
      */
     @DeleteMapping("/{replyId}")
-    public ResponseEntity<String>  deleteReply(@PathVariable Long replyId){
+    public ResponseEntity<Void>  deleteReply(@PathVariable Long replyId){
         replyService.remove(replyId);
-        return ResponseEntity.ok("삭제 완료");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
