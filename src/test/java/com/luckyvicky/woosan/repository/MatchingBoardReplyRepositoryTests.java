@@ -2,42 +2,45 @@ package com.luckyvicky.woosan.repository;
 
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoardReply;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardReplyRepository;
-import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 
 import java.time.LocalDateTime;
-import java.util.stream.IntStream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Log4j2
+@AutoConfigureTestDatabase(replace = Replace.NONE)
+@ActiveProfiles("test")
 public class MatchingBoardReplyRepositoryTests {
 
     @Autowired
     private MatchingBoardReplyRepository matchingBoardReplyRepository;
 
-    @Test
-    public void testAddMatchingBoardReply() {
-        IntStream.rangeClosed(1, 5).forEach(i -> {
-            MatchingBoardReply matchingBoardReply = new MatchingBoardReply();
-            matchingBoardReply.setContent("댓글 내용 " + i);
-            matchingBoardReply.setWriter("작성자 " + i);
-            matchingBoardReply.setRegDate(LocalDateTime.now());
-            matchingBoardReply.setParentId((long) i);
-            matchingBoardReply.setMatchingId((long) i);
+    @BeforeEach
+    public void setUp() {
+        for (int i = 1; i <= 10; i++) {
+            MatchingBoardReply reply = MatchingBoardReply.builder()
+                    .content("This is reply content " + i)
+                    .writer("Writer " + i)
+                    .regDate(LocalDateTime.now())
+                    .parentId(null)
+                    .matchingId((long) i) // Assuming matchingId from 1 to 10 exists
+                    .build();
 
-            // Save the MatchingBoardReply entity and log its ID
-            MatchingBoardReply savedMatchingBoardReply = matchingBoardReplyRepository.save(matchingBoardReply);
-            log.info("matchingBoardReply_id: " + savedMatchingBoardReply.getId());
-        });
+            matchingBoardReplyRepository.save(reply);
+        }
     }
 
     @Test
-    public void testRead() {
-        Long id = 1L;
-        MatchingBoardReply matchingBoardReply = matchingBoardReplyRepository.findById(id).orElse(null);
-        log.info("--------------------");
-        log.info(matchingBoardReply);
+    public void testInsertDummyData() {
+        long count = matchingBoardReplyRepository.count();
+        assertThat(count).isEqualTo(10);
     }
 }

@@ -7,7 +7,6 @@ import lombok.*;
 @Entity
 @Table(name = "member_matching")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -19,7 +18,7 @@ public class MemberMatching {
 
     //매칭 보드와의 관계 설정
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "matcing_id", nullable =false)
+    @JoinColumn(name = "matching_id", nullable =false)
     private MatchingBoard matchingBoard;
 
     // 멤버와의 관계 설정

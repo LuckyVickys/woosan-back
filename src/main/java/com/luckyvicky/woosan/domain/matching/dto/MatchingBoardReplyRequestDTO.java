@@ -1,10 +1,11 @@
 package com.luckyvicky.woosan.domain.matching.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
-@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MatchingBoardReplyRequestDTO {
     private String content;
     private String writer;

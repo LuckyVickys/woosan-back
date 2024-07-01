@@ -1,19 +1,24 @@
 package com.luckyvicky.woosan.domain.matching.dto;
 
 import com.luckyvicky.woosan.domain.member.entity.MBTI;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class MatchingBoardRequestDTO {
+public class MatchingBoardResponseDTO {
 
+    //정기모임, 번개, 셀프소개팅 관련 공통 필드
+    private Long id;
     private Long memberId;
-    private int matchingType; // 1: 정기 모임, 2: 번개, 3: 셀프 소개팅
+    private int matchingType;
     private String title;
     private String content;
     private String placeName;
@@ -24,7 +29,7 @@ public class MatchingBoardRequestDTO {
     private String tag;
     private int headCount;
 
-    // 셀프 소개팅 관련 필드 추가
+    //셀프소개팅 관련 추가 필드
     private String location;
     private String introduce;
     private MBTI mbti;
