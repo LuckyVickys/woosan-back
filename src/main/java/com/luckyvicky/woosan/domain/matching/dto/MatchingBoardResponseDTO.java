@@ -18,7 +18,6 @@ public class MatchingBoardResponseDTO {
     //정기모임, 번개, 셀프소개팅 관련 공통 필드
     private Long id;
     private Long memberId;
-    private Long managerId;
     private int matchingType;
     private String title;
     private String content;
