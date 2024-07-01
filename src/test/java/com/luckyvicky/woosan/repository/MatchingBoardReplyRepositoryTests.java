@@ -1,88 +1,46 @@
 package com.luckyvicky.woosan.repository;
 
-import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoardReply;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardReplyRepository;
-import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
-import com.luckyvicky.woosan.domain.member.entity.Member;
-import com.luckyvicky.woosan.domain.member.entity.MemberType;
-import com.luckyvicky.woosan.domain.member.entity.SocialType;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
-import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.stream.IntStream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Log4j2
+@AutoConfigureTestDatabase(replace = Replace.NONE)
+@ActiveProfiles("test")
 public class MatchingBoardReplyRepositoryTests {
 
     @Autowired
     private MatchingBoardReplyRepository matchingBoardReplyRepository;
 
-    @Autowired
-    private MatchingBoardRepository matchingBoardRepository;
+    @BeforeEach
+    public void setUp() {
+        for (int i = 1; i <= 10; i++) {
+            MatchingBoardReply reply = MatchingBoardReply.builder()
+                    .content("This is reply content " + i)
+                    .writer("Writer " + i)
+                    .regDate(LocalDateTime.now())
+                    .parentId(null)
+                    .matchingId((long) i) // Assuming matchingId from 1 to 10 exists
+                    .build();
 
-    @Autowired
-    private MemberRepository memberRepository;
+            matchingBoardReplyRepository.save(reply);
+        }
+    }
 
     @Test
-    public void testAddMatchingBoardReply() {
-        // Create 10 members with unique emails
-        IntStream.rangeClosed(1, 10).forEach(i -> {
-            Member member = Member.builder()
-                    .email("test" + i + "_" + System.currentTimeMillis() + "@example.com") // Ensure unique email
-                    .nickname("nickname" + i)
-                    .password("password")
-                    .point(0L)
-                    .memberType(MemberType.USER)
-                    .level(MemberType.Level.values()[i % MemberType.Level.values().length]) // Assign level
-                    .isActive(true)
-                    .socialType(SocialType.NORMAL)
-                    .build();
-            memberRepository.save(member);
-        });
-
-        // Create 10 matching boards
-        IntStream.rangeClosed(1, 10).forEach(i -> {
-            Member member = memberRepository.findById((long) i).orElseThrow();
-            MatchingBoard matchingBoard = MatchingBoard.builder()
-                    .member(member)
-                    .manager(member) // Set manager
-                    .matchingType(i % 3 + 1)
-                    .title("모임 " + i)
-                    .content("모임 설명 " + i)
-                    .placeName("장소 " + i)
-                    .locationX(BigDecimal.valueOf(37.5665 + i))
-                    .locationY(BigDecimal.valueOf(126.9780 + i))
-                    .address("주소 " + i)
-                    .meetDate(LocalDateTime.now().plusDays(i))
-                    .tag("태그 " + i)
-                    .headCount(i)
-                    .regDate(LocalDateTime.now())
-                    .views(0)
-                    .isDeleted(false)
-                    .build();
-            matchingBoardRepository.save(matchingBoard);
-        });
-
-        // Create 10 matching board replies
-        IntStream.rangeClosed(1, 10).forEach(i -> {
-            MatchingBoard matchingBoard = matchingBoardRepository.findById((long) i).orElseThrow();
-            MatchingBoardReply reply = MatchingBoardReply.builder()
-                    .matchingId(matchingBoard.getId())
-                    .parentId(0L) // Set parentId to 0 or any valid value
-                    .regDate(LocalDateTime.now())
-                    .content("댓글 내용 " + i)
-                    .writer("작성자 " + i)
-                    .build();
-            matchingBoardReplyRepository.save(reply);
-        });
-
-        log.info("Test for adding matching board replies completed.");
+    public void testInsertDummyData() {
+        long count = matchingBoardReplyRepository.count();
+        assertThat(count).isEqualTo(10);
     }
 }

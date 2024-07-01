@@ -25,22 +25,21 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     private final MatchingBoardRepository matchingBoardRepository;
     private final MemberRepository memberRepository;
     private final MemberProfileRepository memberProfileRepository;
-    private final MatchingBoardMapper mapper;
+    private final MatchingBoardMapper matchingBoardMapper;
 
-
-    //모든 매칭 게시글을 가져오는 메서드
+    // 모든 매칭 게시글을 가져오는 메서드
     @Override
-    public List<MatchingBoardResponseDTO> getAllMatching(){
+    public List<MatchingBoardResponseDTO> getAllMatching() {
         return matchingBoardRepository.findAll().stream()
-                .map(mapper::toResponseDTO)
+                .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    //특정 타입의 매칭 게시글을 가져오는 메서드
+    // 특정 타입의 매칭 게시글을 가져오는 메서드
     @Override
-    public List<MatchingBoardResponseDTO> getMatchingByType(int matchingType){
+    public List<MatchingBoardResponseDTO> getMatchingByType(int matchingType) {
         return matchingBoardRepository.findByMatchingType(matchingType).stream()
-                .map(mapper::toResponseDTO)
+                .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -69,7 +68,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
                 throw new IllegalArgumentException("잘못된 매칭 타입입니다.");
         }
 
-        return mapper.toResponseDTO(matchingBoard);
+        return mapToResponseDTO(matchingBoard);
     }
 
     // 정기 모임 생성
@@ -77,7 +76,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         checkRegularlyConstraints(member); // 정기 모임 제약 조건 확인
 
         // MatchingBoard 객체 생성 및 설정
-        MatchingBoard matchingBoard = mapper.toEntity(requestDTO).toBuilder()
+        MatchingBoard matchingBoard = matchingBoardMapper.toEntity(requestDTO).toBuilder()
                 .member(member)
                 .regDate(LocalDateTime.now())
                 .views(0)
@@ -97,7 +96,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         }
 
         // MatchingBoard 객체 생성 및 설정
-        MatchingBoard matchingBoard = mapper.toEntity(requestDTO).toBuilder()
+        MatchingBoard matchingBoard = matchingBoardMapper.toEntity(requestDTO).toBuilder()
                 .member(member)
                 .regDate(LocalDateTime.now())
                 .views(0)
@@ -127,7 +126,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
                 });
 
         // MatchingBoard 객체 생성 및 설정
-        MatchingBoard matchingBoard = mapper.toEntity(requestDTO).toBuilder()
+        MatchingBoard matchingBoard = matchingBoardMapper.toEntity(requestDTO).toBuilder()
                 .member(member)
                 .profile(profile)
                 .regDate(LocalDateTime.now())
@@ -138,35 +137,34 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         return matchingBoardRepository.save(matchingBoard); // DB에 저장
     }
 
-
     // 특정 매칭 게시글을 ID로 가져오는 메서드
     @Override
-    public MatchingBoardResponseDTO getMatchingBoardById(Long id){
+    public MatchingBoardResponseDTO getMatchingBoardById(Long id) {
         MatchingBoard matchingBoard = matchingBoardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
-        return mapper.toResponseDTO(matchingBoard);
+        return mapToResponseDTO(matchingBoard);
     }
 
-    //매칭 보드 엔티티를 업데이트하는 메서드
+    // 매칭 보드 엔티티를 업데이트하는 메서드
     @Override
     @Transactional
     public MatchingBoardResponseDTO updateMatchingBoard(Long id, MatchingBoardRequestDTO requestDTO) {
         MatchingBoard matchingBoard = matchingBoardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
 
-        //작성자 확인
-        if(!matchingBoard.getMember().getId().equals(requestDTO.getMemberId())){
+        // 작성자 확인
+        if (!matchingBoard.getMember().getId().equals(requestDTO.getMemberId())) {
             throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
         }
 
         MatchingBoard updatedMatchingBoard = updateMatchingBoardEntity(matchingBoard, requestDTO);
-        return mapper.toResponseDTO(matchingBoardRepository.save(updatedMatchingBoard));
+        return mapToResponseDTO(matchingBoardRepository.save(updatedMatchingBoard));
     }
 
-    //특정 매칭 게시글을 삭제하는 메서드
+    // 특정 매칭 게시글을 삭제하는 메서드
     @Override
     @Transactional
-    public void deleteMatchingBoard(Long id, Long memberId){
+    public void deleteMatchingBoard(Long id, Long memberId) {
         MatchingBoard matchingBoard = matchingBoardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
 
@@ -207,10 +205,9 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         }
     }
 
-
     // 매칭 보드 엔티티를 업데이트하는 메서드
     private MatchingBoard updateMatchingBoardEntity(MatchingBoard matchingBoard, MatchingBoardRequestDTO requestDTO) {
-        MatchingBoard.MatchingBoardBuilder builder = mapper.toEntity(requestDTO).toBuilder()
+        MatchingBoard.MatchingBoardBuilder builder = matchingBoardMapper.toEntity(requestDTO).toBuilder()
                 .id(matchingBoard.getId())
                 .member(matchingBoard.getMember())
                 .regDate(matchingBoard.getRegDate())
@@ -236,6 +233,23 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         }
 
         return builder.build();
+    }
+
+    // 매칭 보드 엔티티를 DTO로 변환하는 메서드
+    private MatchingBoardResponseDTO mapToResponseDTO(MatchingBoard matchingBoard) {
+        MatchingBoardResponseDTO responseDTO = matchingBoardMapper.toResponseDTO(matchingBoard);
+        if (matchingBoard.getMatchingType() == 3 && matchingBoard.getProfile() != null) {
+            MemberProfile profile = matchingBoard.getProfile();
+            responseDTO = responseDTO.toBuilder()
+                    .location(profile.getLocation())
+                    .introduce(profile.getIntroduce())
+                    .mbti(profile.getMbti())
+                    .gender(profile.getGender())
+                    .age(profile.getAge())
+                    .height(profile.getHeight())
+                    .build();
+        }
+        return responseDTO;
     }
 
     // 매일 자정에 번개 모임 자동 삭제
