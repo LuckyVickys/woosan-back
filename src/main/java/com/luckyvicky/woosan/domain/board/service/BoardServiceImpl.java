@@ -2,11 +2,14 @@ package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.entity.Board;
+import com.luckyvicky.woosan.domain.board.exception.BoardNotFoundException;
+import com.luckyvicky.woosan.domain.board.exception.MemberNotFoundException;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.util.HashUtil;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -33,19 +36,19 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
-    private final ReplyService replyService;
     private final HttpSession session;
     private final FileImgService fileImgService;
 
+
     /**
-     * 게시물 작성getWriter
+     * 게시물 작성
      */
     @Override
     public Long add(BoardDTO boardDTO) {
         try {
             // writer 정보를 통해 Member 엔티티를 조회
             Member writer = memberRepository.findById(boardDTO.getWriterId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 id"));
+                    .orElseThrow(() ->  new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
             // 10 포인트 추가
             writer.addPoint(10);
@@ -71,36 +74,6 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-    /**
-     * 게시물 다건 조회 (카테고리)
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public PageResponseDTO<BoardDTO> getlist(PageRequestDTO pageRequestDTO, String categoryName) {
-        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").ascending());
-
-        Page<IBoardMember> result;
-
-        if (categoryName != null && !categoryName.isEmpty()) {
-            result = boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalse(categoryName, pageable);
-        } else {
-            result = boardRepository.findAllProjectedByIsDeletedFalse(pageable);
-        }
-
-        List<BoardDTO> dtoList = result.getContent().stream()
-                .map(boardMember -> modelMapper.map(boardMember, BoardDTO.class))
-                .collect(Collectors.toList());
-
-        long totalCount = result.getTotalElements();
-
-        PageResponseDTO<BoardDTO> responseDTO = PageResponseDTO.<BoardDTO>withAll()
-                .dtoList(dtoList)
-                .pageRequestDTO(pageRequestDTO)
-                .totalCount(totalCount)
-                .build();
-
-        return responseDTO;
-    }
 
 
     /**
@@ -156,7 +129,7 @@ public class BoardServiceImpl implements BoardService {
         // 세션에서 조회 여부 확인
         Boolean hasViewed = (Boolean) session.getAttribute(sessionKey);
         // Board 엔티티를 조회하여 조회수를 증가
-        Board board = boardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디"));
+        Board board = boardRepository.findById(id).orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
 
         // 조회수 증가
         if (hasViewed == null || !hasViewed) {
@@ -182,6 +155,8 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public BoardDTO get(Long id) {
+        validationBoardId(id);
+
         Optional<IBoardMember> result = boardRepository.findById(id, IBoardMember.class);
         return result.map(boardMember -> modelMapper.map(boardMember, BoardDTO.class)).orElse(null);
     }
@@ -192,8 +167,8 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public void modify(BoardDTO boardDTO) {
-        Optional<Board> result = boardRepository.findById(boardDTO.getId());
-        Board board = result.orElseThrow();
+        Board board = boardRepository.findById(boardDTO.getId())
+                .orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
 
         board.changeTitle(boardDTO.getTitle());
         board.changeContent(boardDTO.getContent());
@@ -208,8 +183,12 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public void remove(Long id) {
-        Optional<Board> result = boardRepository.findById(id);
-        Board board = result.orElseThrow();
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
+
+        if (board.isDeleted()) {
+            throw new BoardNotFoundException(ErrorCode.BOARD_ALREADY_DELETED); // 이미 삭제된 게시물인 경우 예외 처리
+        }
 
         board.changeIsDeleted(true);
         boardRepository.save(board);
@@ -220,7 +199,6 @@ public class BoardServiceImpl implements BoardService {
      * (공지사항 상단 고정)
      * 최신 게시물 단건 조회
      */
-    @Override
     @Transactional(readOnly = true)
     public BoardDTO getNotice(String categoryName) {
         Optional<IBoardMember> result = boardRepository.findFirstByCategoryNameAndIsDeletedFalse(categoryName);
@@ -232,7 +210,6 @@ public class BoardServiceImpl implements BoardService {
      * (인기글 상단 고정)
      * 인기 게시물 상위 3개 조회
      */
-    @Override
     @Transactional(readOnly = true)
     public List<BoardDTO> getTop3ByLikes() {
         List<IBoardMember> result = boardRepository.findTop3ByIsDeletedFalseOrderByViewsDesc();
@@ -241,7 +218,6 @@ public class BoardServiceImpl implements BoardService {
                 .collect(Collectors.toList());
     }
 
-    // <--------------------------------------------미완-------------------------------------------->
 
 
 //    /**
@@ -255,52 +231,24 @@ public class BoardServiceImpl implements BoardService {
 //    }
 
 
-// <--------------------------------------------프로젝션 Test-------------------------------------------->
-    /**
-     *  <Test>
-     * board 단일 인터페이스 프로젝션
-     */
-//    @Override
-//    @Transactional(readOnly = true)
-//    public List<IBoard> findAllProjectedBoard() {
-//        return boardRepository.findAllProject(IBoard.class);
-//    }
 
+//    예외처리
 
     /**
-     * <Test>
-     * board member 연관관계 인터페이스 프로젝션
-     * 게시물 단건 조회
+     * 요청된 게시글이 존재하지 않을 때
      */
     @Override
-    @Transactional(readOnly = true)
-    public Optional<IBoardMember> findProjectedBoardMemberById(Long id) {
-        return boardRepository.findById(id, IBoardMember.class);
+    public boolean validationBoardId(Long boardId) {
+        boolean exists = boardRepository.existsById(boardId);
+        if (!exists) {
+            throw new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND);
+        }
+        return true;
     }
 
 
-    /**
-     * <Test>
-     * 연관관계 인터페이스 프로젝션
-     * 게시물 전체 조회
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<IBoardMember> findAllProjectedBoardMember(Pageable pageable) {
-        return boardRepository.findAllProjectedByIsDeletedFalse(pageable);
-    }
 
 
-    /**
-     * <Test>
-     * 카테고리별 게시물 전체 조회
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<IBoardMember> findAllProjectedBoardMemberByCategoryName(String categoryName, Pageable pageable) {
-        return boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalse(categoryName, pageable);
-    }
-    // <--------------------------------------------프로젝션 Test-------------------------------------------->
 
 
 }
