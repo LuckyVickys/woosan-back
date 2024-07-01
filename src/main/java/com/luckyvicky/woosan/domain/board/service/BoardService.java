@@ -13,52 +13,29 @@ import java.util.Optional;
 public interface BoardService {
     Long add(BoardDTO boardDTO);
 
-    @Transactional(readOnly = true)
-    BoardDTO getNotice(String categoryName);
-
     void modify(BoardDTO boardDTO);
 
     void remove(Long id);
 
     BoardDTO get(Long id);
 
-    PageResponseDTO<BoardDTO> getlist(PageRequestDTO pageRequestDTO,  String categoryName);
-
-
 
 
     @Transactional(readOnly = true)
     BoardPageResponseDTO getBoardPage(PageRequestDTO pageRequestDTO, String categoryName);
-
-    /**
-     *  단일 인터페이스
-      */
-//    List<IBoard> findAllProjectedBoard();
 
 
     @Transactional
     BoardDTO getBoard(Long id);
 
     @Transactional(readOnly = true)
-    List<BoardDTO> getTop3ByLikes();
-
-    /**
-     * 게시물 단건 조회 프로젝션
-     */
-    Optional<IBoardMember> findProjectedBoardMemberById(Long id);
-
-
-    /**
-     * 게시물 전체 조회 프로젝션
-     */
-    Page<IBoardMember> findAllProjectedBoardMember(Pageable pageable);
+    BoardDTO getNotice(String categoryName);
 
     @Transactional(readOnly = true)
-    Page<IBoardMember> findAllProjectedBoardMemberByCategoryName(String categoryName, Pageable pageable);
+    List<BoardDTO> getTop3ByLikes();
 
 
-
-    // <--------------------------------------------프로젝션 Test-------------------------------------------->
+    boolean validationBoardId(Long boardId);
 }
 
 
