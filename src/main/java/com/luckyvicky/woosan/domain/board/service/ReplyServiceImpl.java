@@ -5,11 +5,15 @@ import com.luckyvicky.woosan.domain.board.dto.PageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.entity.Reply;
+import com.luckyvicky.woosan.domain.board.exception.BoardNotFoundException;
+import com.luckyvicky.woosan.domain.board.exception.MemberNotFoundException;
+import com.luckyvicky.woosan.domain.board.exception.ReplyNotFoundException;
 import com.luckyvicky.woosan.domain.board.projection.IReply;
 import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.ReplyRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.global.exception.ErrorCode;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,61 +30,25 @@ import java.util.stream.Collectors;
 @Log4j2
 @RequiredArgsConstructor
 @Transactional
-public class ReplyServiceImpl implements ReplyService{
+public class ReplyServiceImpl implements ReplyService {
 
     private final ReplyRepository replyRepository;
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
+    private final BoardService boardService;
 
     /**
      * 댓글 작성
      */
-//    @Override
-//    public ReplyDTO add(ReplyDTO replyDTO, Long parentId) {
-//
-//        Board board = boardRepository.findById(replyDTO.getBoardId())
-//                .orElseThrow();
-//        Member writer = memberRepository.findById(replyDTO.getWriter().getId())
-//                .orElseThrow();
-//
-//        Reply reply;
-//
-//        if (parentId != null){
-//            //자식 댓글로 설정
-//            Reply parentReply = replyRepository.findById(parentId)
-//                    .orElseThrow();
-//
-//            reply = Reply.builder()
-//                    .board(board)
-//                    .writer(writer)
-//                    .content(replyDTO.getContent())
-//                    .parentId(parentId)
-//                    .build();
-//        } else {
-//            //부모 댓글로 설정
-//            reply = Reply.builder()
-//                    .board(board)
-//                    .writer(writer)
-//                    .content(replyDTO.getContent())
-//                    .build();
-//        }
-//
-//        //  1포인트 추가
-//        writer.addPoint(1);
-//        memberRepository.save(writer);
-//
-//        Reply savedReply = replyRepository.save(reply);
-//        return modelMapper.map(savedReply, ReplyDTO.class);
-//    }
     @Override
     public ReplyDTO add(ReplyDTO replyDTO, Long parentId) {
 
         // 게시글과 작성자 조회
         Board board = boardRepository.findById(replyDTO.getBoardId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid board ID"));
+                .orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
         Member writer = memberRepository.findById(replyDTO.getWriterId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid writer ID"));
+                .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 댓글 생성 빌더
         Reply.ReplyBuilder replyBuilder = Reply.builder()
@@ -91,8 +59,7 @@ public class ReplyServiceImpl implements ReplyService{
         // 부모 댓글이 있는 경우
         if (parentId != null) {
             // 부모 댓글 존재 여부 확인
-            replyRepository.findById(parentId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid parent reply ID"));
+            validationParentId(parentId);
             replyBuilder.parentId(parentId);
         }
 
@@ -108,13 +75,12 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
 
-
-
     /**
      * 댓글 조회
      */
     @Transactional(readOnly = true)
     public PageResponseDTO<ReplyDTO> getRepliesByBoardId(Long boardId, PageRequestDTO pageRequestDTO) {
+        boardService.validationBoardId(boardId);
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
         Page<IReply> parentReplies = replyRepository.findByBoardIdAndParentIdIsNull(boardId, pageable);
 
@@ -141,14 +107,38 @@ public class ReplyServiceImpl implements ReplyService{
     }
 
 
-
     /**
      * 댓글 삭제
      */
     @Override
     public void remove(Long id) {
+        validationReplyId(id);
         replyRepository.deleteById(id);
     }
 
+
+//    <--------------------------------예외처리-------------------------------->
+
+    /**
+     * 요청된 댓글이 존재하지 않을 때
+     */
+    public boolean validationReplyId(Long replyId) {
+        boolean exists = replyRepository.existsById(replyId);
+        if (!exists) {
+            throw new ReplyNotFoundException(ErrorCode.REPLY_NOT_FOUND);
+        }
+        return true;
+    }
+
+    /**
+     * 부모 댓글이 존재하지 않을 때
+     */
+    public boolean validationParentId(Long parentId) {
+        boolean exists = replyRepository.existsById(parentId);
+        if (!exists) {
+            throw new ReplyNotFoundException(ErrorCode.REPLY_NOT_FOUND);
+        }
+        return true;
+    }
 
 }
