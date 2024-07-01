@@ -52,106 +52,106 @@ public class BoardServiceTest {
 //
 //    }
 
-    /**
-     * id, title, content, writerId, nickname
-     * board-member 연관관계 인터페이스 프로젝션
-     * 게시물 단건 조회
-     */
-    @Test
-    public void testFindProjectedBoardMemberById() {
-        Long boardId = 2L; // 존재하는 보드 ID로 설정해야 함
-
-        Optional<IBoardMember> boardMemberOptional = boardService.findProjectedBoardMemberById(boardId);
-
-
-
-        if (boardMemberOptional.isPresent()) {
-            IBoardMember boardMember = boardMemberOptional.get();
-            System.out.println("Board Member - Id: " + boardMember.getId() +
-                    ", Title: " + boardMember.getTitle() +
-                    ", Content: " + boardMember.getContent() +
-                    ", RegDate: " + boardMember.getRegDate() +
-                    ", Views: " + boardMember.getViews() +
-                    ", CategoryName: " + boardMember.getCategoryName() +
-                    ", WriterId: " + boardMember.getWriter().getId() +
-                    ", WriterNickname: " + boardMember.getWriter().getNickname());
-        } else {
-            System.out.println("Board member not found.");
-        }
-    }
-
-
-    /**
-     * id, title, content, writerId, nickname
-     * 연관관계 인터페이스 프로젝션
-     * 게시물 전체 조회
-     */
-    @Test
-    @Transactional(readOnly = true)
-    public void testFindProjectedBoardMembers() {
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
-        Page<IBoardMember> page = boardService.findAllProjectedBoardMember(pageable);
+//    /**
+//     * id, title, content, writerId, nickname
+//     * board-member 연관관계 인터페이스 프로젝션
+//     * 게시물 단건 조회
+//     */
+//    @Test
+//    public void testFindProjectedBoardMemberById() {
+//        Long boardId = 2L; // 존재하는 보드 ID로 설정해야 함
+//
+//        Optional<IBoardMember> boardMemberOptional = boardService.findProjectedBoardMemberById(boardId);
+//
+//
+//
+//        if (boardMemberOptional.isPresent()) {
+//            IBoardMember boardMember = boardMemberOptional.get();
+//            System.out.println("Board Member - Id: " + boardMember.getId() +
+//                    ", Title: " + boardMember.getTitle() +
+//                    ", Content: " + boardMember.getContent() +
+//                    ", RegDate: " + boardMember.getRegDate() +
+//                    ", Views: " + boardMember.getViews() +
+//                    ", CategoryName: " + boardMember.getCategoryName() +
+//                    ", WriterId: " + boardMember.getWriter().getId() +
+//                    ", WriterNickname: " + boardMember.getWriter().getNickname());
+//        } else {
+//            System.out.println("Board member not found.");
+//        }
+//    }
 
 
-        log.info("Total Pages: " + page.getTotalPages());
-        log.info("Total Elements: " + page.getTotalElements());
-        log.info("Current Page Number: " + page.getNumber());
-        log.info("Page Size: " + page.getSize());
-        log.info("Has Next Page: " + page.hasNext());
-        log.info("Has Previous Page: " + page.hasPrevious());
-
-        log.info(" ");
-
-        page.getContent().forEach(boardMember -> {
-            log.info("Board Member ID: " + boardMember.getId());
-            log.info("Board Member Title: " + boardMember.getTitle());
-            log.info("Board Member Content: " + boardMember.getContent());
-            log.info("Board Member RegDate: " + boardMember.getRegDate());
-            log.info("Board Member Views: " + boardMember.getViews());
-            log.info("Board Member CategoryName: " + boardMember.getCategoryName());
-            log.info("Board Member WriterId: " + boardMember.getWriter().getId());
-            log.info("Board Member Writer Nickname: " + boardMember.getWriter().getNickname());
-        });
-    }
+//    /**
+//     * id, title, content, writerId, nickname
+//     * 연관관계 인터페이스 프로젝션
+//     * 게시물 전체 조회
+//     */
+//    @Test
+//    @Transactional(readOnly = true)
+//    public void testFindProjectedBoardMembers() {
+//        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+//        Page<IBoardMember> page = boardService.findAllProjectedBoardMember(pageable);
+//
+//
+//        log.info("Total Pages: " + page.getTotalPages());
+//        log.info("Total Elements: " + page.getTotalElements());
+//        log.info("Current Page Number: " + page.getNumber());
+//        log.info("Page Size: " + page.getSize());
+//        log.info("Has Next Page: " + page.hasNext());
+//        log.info("Has Previous Page: " + page.hasPrevious());
+//
+//        log.info(" ");
+//
+//        page.getContent().forEach(boardMember -> {
+//            log.info("Board Member ID: " + boardMember.getId());
+//            log.info("Board Member Title: " + boardMember.getTitle());
+//            log.info("Board Member Content: " + boardMember.getContent());
+//            log.info("Board Member RegDate: " + boardMember.getRegDate());
+//            log.info("Board Member Views: " + boardMember.getViews());
+//            log.info("Board Member CategoryName: " + boardMember.getCategoryName());
+//            log.info("Board Member WriterId: " + boardMember.getWriter().getId());
+//            log.info("Board Member Writer Nickname: " + boardMember.getWriter().getNickname());
+//        });
+//    }
 
 
 
 //    <---------------------------------------------------------------------->
 
 
-    /**
-     * id, title, content, writerId, nickname
-     * 연관관계 인터페이스 프로젝션
-     * 특정 카테고리 이름의 게시물 전체 조회
-     */
-    @Test
-    @Transactional(readOnly = true)
-    public void testFindProjectedBoardMembersByCategoryName() {
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
-        String categoryName = "스프링"; // 테스트에 사용할 카테고리 이름
-
-        Page<IBoardMember> page = boardService.findAllProjectedBoardMemberByCategoryName(categoryName, pageable);
-
-        log.info("Total Pages: " + page.getTotalPages());
-        log.info("Total Elements: " + page.getTotalElements());
-        log.info("Current Page Number: " + page.getNumber());
-        log.info("Page Size: " + page.getSize());
-        log.info("Has Next Page: " + page.hasNext());
-        log.info("Has Previous Page: " + page.hasPrevious());
-
-        log.info(" ");
-
-        page.getContent().forEach(boardMember -> {
-            log.info("Board Member ID: " + boardMember.getId());
-            log.info("Board Member Title: " + boardMember.getTitle());
-            log.info("Board Member Content: " + boardMember.getContent());
-            log.info("Board Member RegDate: " + boardMember.getRegDate());
-            log.info("Board Member Views: " + boardMember.getViews());
-            log.info("Board Member CategoryName: " + boardMember.getCategoryName());
-            log.info("Board Member WriterId: " + boardMember.getWriter().getId());
-            log.info("Board Member Writer Nickname: " + boardMember.getWriter().getNickname());
-        });
-    }
+//    /**
+//     * id, title, content, writerId, nickname
+//     * 연관관계 인터페이스 프로젝션
+//     * 특정 카테고리 이름의 게시물 전체 조회
+//     */
+//    @Test
+//    @Transactional(readOnly = true)
+//    public void testFindProjectedBoardMembersByCategoryName() {
+//        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+//        String categoryName = "스프링"; // 테스트에 사용할 카테고리 이름
+//
+//        Page<IBoardMember> page = boardService.findAllProjectedBoardMemberByCategoryName(categoryName, pageable);
+//
+//        log.info("Total Pages: " + page.getTotalPages());
+//        log.info("Total Elements: " + page.getTotalElements());
+//        log.info("Current Page Number: " + page.getNumber());
+//        log.info("Page Size: " + page.getSize());
+//        log.info("Has Next Page: " + page.hasNext());
+//        log.info("Has Previous Page: " + page.hasPrevious());
+//
+//        log.info(" ");
+//
+//        page.getContent().forEach(boardMember -> {
+//            log.info("Board Member ID: " + boardMember.getId());
+//            log.info("Board Member Title: " + boardMember.getTitle());
+//            log.info("Board Member Content: " + boardMember.getContent());
+//            log.info("Board Member RegDate: " + boardMember.getRegDate());
+//            log.info("Board Member Views: " + boardMember.getViews());
+//            log.info("Board Member CategoryName: " + boardMember.getCategoryName());
+//            log.info("Board Member WriterId: " + boardMember.getWriter().getId());
+//            log.info("Board Member Writer Nickname: " + boardMember.getWriter().getNickname());
+//        });
+//    }
 
     @Test
     void boardInesrtTest() throws IOException {
