@@ -50,7 +50,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 	// spring security
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// jwt 0.12.3
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 	
 	//Object Storage
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.58'

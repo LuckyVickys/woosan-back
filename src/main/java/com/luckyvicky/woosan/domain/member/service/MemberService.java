@@ -1,6 +1,5 @@
 package com.luckyvicky.woosan.domain.member.service;
 
-import com.luckyvicky.woosan.domain.member.dto.LoginReqDTO;
 import com.luckyvicky.woosan.domain.member.dto.MailDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 
@@ -8,7 +7,6 @@ public interface MemberService {
     Boolean existEmail(String email) throws Exception;
     Boolean existNickname(String nickname) throws Exception;
     Member addMember(Member member) throws Exception;
-    Boolean login(LoginReqDTO loginReqDTO) throws Exception;
 
     /**
      * 임시 비밀번호 발급 및 비밀번호 변경 관련 코드들
