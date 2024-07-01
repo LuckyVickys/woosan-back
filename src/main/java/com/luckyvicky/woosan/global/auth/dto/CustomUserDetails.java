@@ -58,6 +58,7 @@ public class CustomUserDetails implements UserDetails {
     public Map<String, Object> getClaims() {
         Map<String, Object> dataMap = new HashMap<>();
 
+        dataMap.put("member_id", member.getId());
         dataMap.put("email", member.getEmail());
         dataMap.put("role", member.getMemberType());
         dataMap.put("social", member.getSocialType());
