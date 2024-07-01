@@ -7,7 +7,6 @@ import com.luckyvicky.woosan.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -48,17 +47,6 @@ public class MemberController {
             member = memberService.addMember(member);
             SignUpResDTO memberRes = mapper.memberToSignUpResDTO(member);
             return new ResponseEntity<>(memberRes, HttpStatus.CREATED);
-        } catch(Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    // 세션 로그인(스프링시큐리티, jwt토큰 적용 전)
-    @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody LoginReqDTO loginReqDTO) {
-        try {
-            return new ResponseEntity<>(memberService.login(loginReqDTO), HttpStatus.OK);
         } catch(Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
