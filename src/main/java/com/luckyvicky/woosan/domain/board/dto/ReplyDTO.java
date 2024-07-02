@@ -13,6 +13,7 @@ public class ReplyDTO {
     private Long id;  // 댓글 고유번호
     private Long boardId;  // 게시글 고유번호
     private String content;  // 내용
+    private int likesCount; // 추천수
 
     private Long writerId;  // 작성자 고유번호
     private String nickname;    //작성자 닉네임

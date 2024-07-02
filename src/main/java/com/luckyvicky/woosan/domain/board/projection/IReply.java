@@ -6,9 +6,9 @@ public interface IReply {
     Long getId();
     Long getBoardId();
     String getContent();
-    LocalDateTime regDate();
+    LocalDateTime getRegDate();
     Long parentId();
-//    int getLikes();
+    int getLikesCount();
 
 
     MemberInfo getWriter();
