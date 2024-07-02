@@ -42,11 +42,11 @@ public class ReplyRepositoryTest {
         Board testBoard = boardRepository.findById(3L).orElseThrow();
         Member testMember = memberRepository.findById(1L).orElseThrow();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 13; i++) {
             Reply reply = Reply.builder()
                     .board(testBoard)
                     .writer(testMember)
-                    .content("gdgdgd" + i)
+                    .content("사건은 계속되아 오예이" + i)
                     .regDate(LocalDateTime.now())
                     .parentId(null)
                     .build();
@@ -62,13 +62,13 @@ public class ReplyRepositoryTest {
         Board testBoard = boardRepository.findById(3L).orElseThrow();
         Member testMember = memberRepository.findById(1L).orElseThrow();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             Reply reply = Reply.builder()
                     .board(testBoard)
                     .writer(testMember)
-                    .content("ㅗㅗ")
+                    .content("ㅇㅇ")
                     .regDate(LocalDateTime.now())
-                    .parentId(2L)
+                    .parentId(16L)
                     .build();
 
             Reply saveReply = replyRepository.save(reply);
