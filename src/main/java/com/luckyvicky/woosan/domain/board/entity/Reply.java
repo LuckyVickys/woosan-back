@@ -24,7 +24,7 @@ public class Reply {
     @JoinColumn(name = "boardId", nullable = false)
     private Board board;  // 게시글 고유번호
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 1000)
     private String content;  // 내용
 
     @ManyToOne(fetch = FetchType.LAZY)
