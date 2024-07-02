@@ -50,10 +50,11 @@ public class CustomSecurityConfig {
 
         // 경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth
+                .anyRequest().permitAll());
 //                .requestMatchers("/login", "/", "api/signUp").permitAll()
-                .requestMatchers("*").permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
-                .anyRequest().authenticated());
+//                .requestMatchers("*").permitAll()
+//                .requestMatchers("/admin").hasRole("ADMIN")
+//                .anyRequest().authenticated());
 
         // 필터 추가 LoginFilter()는 인자를 받음
         // (AuthenticationManager() 메소드에  authenticationConfiguration 객체를 넣어야 함)

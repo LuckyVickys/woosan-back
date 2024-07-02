@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/member-matching")
+@RequestMapping("/api/memberMatching")
 public class MemberMatchingController {
 
     @Autowired
@@ -17,8 +17,8 @@ public class MemberMatchingController {
 
     //매칭 수락 요청 생성
     @PostMapping("/apply")
-    public MemberMatching applyForMatching(@RequestBody MemberMatchingRequestDTO requestDTO){
-        return memberMatchingService.createMatching(requestDTO);
+    public MemberMatching applyMatching(@RequestBody MemberMatchingRequestDTO requestDTO){
+        return memberMatchingService.applyMatching(requestDTO);
     }
 
     //매칭 수락 또는 거부 처리
