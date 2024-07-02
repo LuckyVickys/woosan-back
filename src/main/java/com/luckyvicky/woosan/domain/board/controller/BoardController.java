@@ -10,6 +10,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Log4j2
 @RequiredArgsConstructor
@@ -30,15 +32,6 @@ public class BoardController {
     }
 
 
-//    /**
-//     * 게시물 전체 조회(+카테고리)_상단고정 미포함
-//     */
-//    @GetMapping
-//    public ResponseEntity<PageResponseDTO<BoardDTO>> getList(PageRequestDTO pageRequestDTO,
-//                                                             @RequestParam(value = "categoryName", required = false) String categoryName) {
-//        PageResponseDTO<BoardDTO> responseDTO = boardService.getlist(pageRequestDTO, categoryName);
-//        return ResponseEntity.ok(responseDTO);
-//    }
 
     /**
      * 게시물 전체 조회(+카테고리)
@@ -50,6 +43,23 @@ public class BoardController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    /**
+     * 공지사항 10개 조회 (메인페이지)
+     */
+    @GetMapping("/notices")
+    public ResponseEntity<List<BoardDTO>> getNotices() {
+        List<BoardDTO> boardDTO = boardService.getNotices();
+        return ResponseEntity.ok(boardDTO);
+    }
+
+    /**
+     * 인기글 10개 조회 (메인페이지)
+     */
+    @GetMapping("/best")
+    public ResponseEntity<List<BoardDTO>> getbest() {
+        List<BoardDTO> boardDTO = boardService.getBest();
+        return ResponseEntity.ok(boardDTO);
+    }
 
     /**
      * 게시물 단건 조회 - 상세 페이지
@@ -62,14 +72,13 @@ public class BoardController {
 
 
     /**
-     * 게시물 수정 페이지
+     * 게시물 수정 페이지 조회
      */
     @GetMapping("/modify/{id}")
     public ResponseEntity<BoardDTO> getBoardForModification(@PathVariable Long id) {
         BoardDTO boardDTO = boardService.get(id);
         return ResponseEntity.ok(boardDTO);
     }
-
 
 
 

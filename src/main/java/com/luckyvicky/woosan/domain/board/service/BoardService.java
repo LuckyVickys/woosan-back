@@ -35,6 +35,12 @@ public interface BoardService {
     List<BoardDTO> getTop3ByLikes();
 
 
+    @Transactional
+    List<BoardDTO> getNotices();
+
+    @Transactional
+    List<BoardDTO> getBest();
+
     boolean validationBoardId(Long boardId);
 }
 
