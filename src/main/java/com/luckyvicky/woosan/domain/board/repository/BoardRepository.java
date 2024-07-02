@@ -38,7 +38,8 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    Page<IBoardMember> findAllProjectedByIsDeletedFalse(Pageable pageable);
+    Page<IBoardMember> findAllProjectedByCategoryNameNotAndIsDeletedFalse(String categoryName, Pageable pageable);
+
 
 
 
@@ -69,6 +70,21 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
     List<IBoardMember> findTop3ByIsDeletedFalseOrderByViewsDesc();
+
+
+    /**
+     * 공지사항 10개 게시물 조회 (메인페이지)
+     */
+    @Transactional(readOnly = true)
+    @EntityGraph(attributePaths = {"writer"})
+    List<IBoardMember> findTop10ProjectedByCategoryNameAndIsDeletedFalse(String categoryName);
+
+    /**
+     * 인기글 10개 게시물 조회 (메인페이지)
+     */
+    @Transactional(readOnly = true)
+    @EntityGraph(attributePaths = {"writer"})
+    List<IBoardMember> findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
 
 
 /**

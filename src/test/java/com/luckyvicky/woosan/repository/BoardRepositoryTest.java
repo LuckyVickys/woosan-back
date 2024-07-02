@@ -40,11 +40,11 @@ public class BoardRepositoryTest {
             Board board = Board.builder()
                     .writer(testMember)
                     .title("test" + i)
-                    .content("김동우 " + i)
+                    .content("배수지 " + i)
                     .regDate(LocalDateTime.now())
                     .views(0)
                     .isDeleted(false)
-                    .categoryName("김동우" + i)
+                    .categoryName("인테리어" + i)
                     .build();
 
             Board savedBoard = boardRepository.save(board);
