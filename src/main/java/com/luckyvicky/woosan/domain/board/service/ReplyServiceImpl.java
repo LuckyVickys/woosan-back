@@ -1,7 +1,7 @@
 package com.luckyvicky.woosan.domain.board.service;
 
-import com.luckyvicky.woosan.domain.board.dto.PageRequestDTO;
-import com.luckyvicky.woosan.domain.board.dto.PageResponseDTO;
+import com.luckyvicky.woosan.global.util.PageRequestDTO;
+import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.entity.Reply;

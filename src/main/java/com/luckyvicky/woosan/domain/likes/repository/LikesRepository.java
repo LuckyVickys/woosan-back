@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface LikesRepository extends JpaRepository<Likes, Long> {
 
     Optional<Likes> findByMemberIdAndTypeAndTargetId(Long memberId, String type, Long targetId);
+
+    boolean existsByMemberIdAndTypeAndTargetId(Long memberId, String type, Long targetId);
 }

@@ -11,6 +11,8 @@ import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.util.HashUtil;
+import com.luckyvicky.woosan.global.util.PageRequestDTO;
+import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
