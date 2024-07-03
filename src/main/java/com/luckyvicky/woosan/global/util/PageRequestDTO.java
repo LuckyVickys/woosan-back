@@ -1,4 +1,4 @@
-package com.luckyvicky.woosan.domain.board.dto;
+package com.luckyvicky.woosan.global.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
