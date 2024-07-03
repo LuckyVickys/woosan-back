@@ -36,15 +36,15 @@ public class BoardRepositoryTest {
 
         Member testMember = memberRepository.findById(1L).orElseThrow();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
             Board board = Board.builder()
                     .writer(testMember)
                     .title("test" + i)
-                    .content("김동우 " + i)
+                    .content("배수지 " + i)
                     .regDate(LocalDateTime.now())
                     .views(0)
                     .isDeleted(false)
-                    .categoryName("김동우" + i)
+                    .categoryName("인테리어" + i)
                     .build();
 
             Board savedBoard = boardRepository.save(board);

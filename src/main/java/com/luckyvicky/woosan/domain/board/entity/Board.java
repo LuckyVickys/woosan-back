@@ -27,7 +27,7 @@ public class Board {
     @Column(nullable = false, length = 255)
     private String title;  // 제목
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 3000)
     private String content;  // 내용
 
     @CreationTimestamp

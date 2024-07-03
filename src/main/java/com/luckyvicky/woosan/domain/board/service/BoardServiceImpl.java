@@ -95,7 +95,7 @@ public class BoardServiceImpl implements BoardService {
         if (categoryName != null && !categoryName.isEmpty()) {
             result = boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalse(categoryName, pageable);
         } else {
-            result = boardRepository.findAllProjectedByIsDeletedFalse(pageable);
+            result = boardRepository.findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByIdDesc("공지사항", pageable);
         }
         List<BoardDTO> dtoList = result.getContent().stream()
                 .map(boardMember -> modelMapper.map(boardMember, BoardDTO.class))
@@ -173,8 +173,9 @@ public class BoardServiceImpl implements BoardService {
         board.changeTitle(boardDTO.getTitle());
         board.changeContent(boardDTO.getContent());
 
-        // 사진 변경 필요
         boardRepository.save(board);
+
+        fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
     }
 
 
@@ -218,6 +219,31 @@ public class BoardServiceImpl implements BoardService {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * 공지사항 게시물 10개 조회
+     */
+    @Override
+    @Transactional
+    public List<BoardDTO> getNotices() {
+        String categoryName = "공지사항";
+        List<IBoardMember> result = boardRepository.findTop10ProjectedByCategoryNameAndIsDeletedFalse(categoryName);
+        return result.stream()
+                .map(boardMember -> modelMapper.map(boardMember, BoardDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 인기글 게시물 10개 조회
+     */
+    @Override
+    @Transactional
+    public List<BoardDTO> getBest() {
+        List<IBoardMember> result = boardRepository.findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
+        return result.stream()
+                .map(boardMember -> modelMapper.map(boardMember, BoardDTO.class))
+                .collect(Collectors.toList());
+    }
 
 
 //    /**

@@ -10,6 +10,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Log4j2
 @RequiredArgsConstructor
@@ -24,21 +26,12 @@ public class BoardController {
      * 게시물 작성
      */
     @PostMapping("/add")
-    public ResponseEntity<Long> register(@RequestBody BoardDTO boardDTO) {
+    public ResponseEntity<Long> register(@ModelAttribute BoardDTO boardDTO) {
         Long boardId = boardService.add(boardDTO);
         return ResponseEntity.ok(boardId);
     }
 
 
-//    /**
-//     * 게시물 전체 조회(+카테고리)_상단고정 미포함
-//     */
-//    @GetMapping
-//    public ResponseEntity<PageResponseDTO<BoardDTO>> getList(PageRequestDTO pageRequestDTO,
-//                                                             @RequestParam(value = "categoryName", required = false) String categoryName) {
-//        PageResponseDTO<BoardDTO> responseDTO = boardService.getlist(pageRequestDTO, categoryName);
-//        return ResponseEntity.ok(responseDTO);
-//    }
 
     /**
      * 게시물 전체 조회(+카테고리)
@@ -50,19 +43,36 @@ public class BoardController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    /**
+     * 공지사항 10개 조회 (메인페이지)
+     */
+    @GetMapping("/notices")
+    public ResponseEntity<List<BoardDTO>> getNotices() {
+        List<BoardDTO> boardDTO = boardService.getNotices();
+        return ResponseEntity.ok(boardDTO);
+    }
+
+    /**
+     * 인기글 10개 조회 (메인페이지)
+     */
+    @GetMapping("/best")
+    public ResponseEntity<List<BoardDTO>> getbest() {
+        List<BoardDTO> boardDTO = boardService.getBest();
+        return ResponseEntity.ok(boardDTO);
+    }
 
     /**
      * 게시물 단건 조회 - 상세 페이지
      */
     @GetMapping("/{id}")
-    public ResponseEntity<BoardDTO> getBoard(@PathVariable Long id) {
+    public ResponseEntity<BoardDTO> getBoard(@PathVariable("id") Long id) {
         BoardDTO boardDTO = boardService.getBoard(id);
         return ResponseEntity.ok(boardDTO);
     }
 
 
     /**
-     * 게시물 수정 페이지
+     * 게시물 수정 페이지 조회
      */
     @GetMapping("/modify/{id}")
     public ResponseEntity<BoardDTO> getBoardForModification(@PathVariable Long id) {
@@ -72,12 +82,11 @@ public class BoardController {
 
 
 
-
     /**
      * 게시물 수정
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<String> modifyBoard(@PathVariable Long id, @RequestBody BoardDTO boardDTO) {
+    public ResponseEntity<String> modifyBoard(@PathVariable Long id, @ModelAttribute BoardDTO boardDTO) {
         boardDTO.setId(id);
         boardService.modify(boardDTO);
         return ResponseEntity.ok("수정 완료");
@@ -96,8 +105,13 @@ public class BoardController {
     /**
      * 게시물 번역
      */
-    @GetMapping("translate")
-    public ResponseEntity<BoardDTO> boardDetailTranslate(@RequestBody BoardDTO boardDTO) {
+    @PostMapping("/{id}/translate")
+    public ResponseEntity<BoardDTO> boardDetailTranslate(@PathVariable("id") Long id, @RequestBody BoardDTO boardDTO) {
+        System.out.println("==========================================");
+        System.out.println("번역 기능");
+        System.out.println(boardDTO);
+        System.out.println("==========================================");
+
         try {
             boardDTO = papagoService.tanslateBoardDetailPage(boardDTO);
             return ResponseEntity.ok(boardDTO);
@@ -105,6 +119,7 @@ public class BoardController {
             throw new RuntimeException(e);
         }
     }
+
 
 
 }
