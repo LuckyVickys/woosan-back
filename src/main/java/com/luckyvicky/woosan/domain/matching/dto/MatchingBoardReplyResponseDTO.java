@@ -1,6 +1,9 @@
 package com.luckyvicky.woosan.domain.matching.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,7 +12,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MatchingBoardReplyRequestDTO {
+public class MatchingBoardReplyResponseDTO {
+
     // 댓글 고유번호
     private Long id;
 

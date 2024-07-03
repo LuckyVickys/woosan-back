@@ -16,7 +16,7 @@ public interface MatchingBoardService {
     List<MatchingBoardResponseDTO> getMatchingByType(int matchingType);
 
     //매칭 게시글을 생성하는 메서드
-    MatchingBoardResponseDTO  createMatchingBoard(MatchingBoardRequestDTO requestDTO);
+    MatchingBoardResponseDTO createMatchingBoard(MatchingBoardRequestDTO requestDTO);
 
     //특정 매칭 게시글을 ID로 가져오는 메서드
     MatchingBoardResponseDTO getMatchingBoardById(Long id);
