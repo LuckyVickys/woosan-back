@@ -176,7 +176,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         }
 
         // 먼저 관련된 member_matching 행 삭제
-        memberMatchingRepository.deleteByMatchingBoardId(id);
+        memberMatchingRepository.deleteByMatchingBoard_Id(id);
 
         matchingBoardRepository.delete(matchingBoard);
     }

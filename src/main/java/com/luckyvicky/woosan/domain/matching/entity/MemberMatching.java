@@ -26,8 +26,8 @@ public class MemberMatching {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    //수락여부
-    @Column(name = "is_accepted", nullable =false)
+    //수락여부 (null: 대기중, true: 승인됨, false: 거절됨)
+    @Column(name = "is_accepted", nullable = true)
     private Boolean isAccepted;
 
     //관리 여부

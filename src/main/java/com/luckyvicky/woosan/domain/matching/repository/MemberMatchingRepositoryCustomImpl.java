@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class MemberMatchingRepositoryCustomImpl implements  MemberMatchingRepositoryCustom{
+public class MemberMatchingRepositoryCustomImpl implements MemberMatchingRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
@@ -18,41 +18,46 @@ public class MemberMatchingRepositoryCustomImpl implements  MemberMatchingReposi
     public MemberMatchingRepositoryCustomImpl(JPAQueryFactory queryFactory) {
         this.queryFactory = queryFactory;
     }
-        @Override
-        public long countByMemberIdAndType(Long memberId, int matchingType) {
-            QMemberMatching memberMatching = QMemberMatching.memberMatching;
-            QMatchingBoard matchingBoard = QMatchingBoard.matchingBoard;
 
-            return queryFactory.selectFrom(memberMatching)
-                    .join(memberMatching.matchingBoard, matchingBoard)
-                    .where(memberMatching.member.id.eq(memberId)
-                            .and(matchingBoard.matchingType.eq(matchingType)))
-                    .fetchCount();
-        }
+    // 특정 매칭 타입의 승인된 멤버 수 확인
+    @Override
+    public long countByMemberIdAndMatchingBoard_MatchingType(Long memberId, int matchingType) {
+        QMemberMatching memberMatching = QMemberMatching.memberMatching;
+        QMatchingBoard matchingBoard = QMatchingBoard.matchingBoard;
 
-        @Override
-        public long countPendingByMemberIdAndType(Long memberId, int matchingType) {
-            QMemberMatching memberMatching = QMemberMatching.memberMatching;
-            QMatchingBoard matchingBoard = QMatchingBoard.matchingBoard;
-
-            return queryFactory.selectFrom(memberMatching)
-                    .join(memberMatching.matchingBoard, matchingBoard)
-                    .where(memberMatching.member.id.eq(memberId)
-                            .and(matchingBoard.matchingType.eq(matchingType))
-                            .and(memberMatching.isAccepted.isNull()))
-                    .fetchCount();
-        }
-
-        @Override
-        public List<MemberMatching> findPendingByMemberIdAndType(Long memberId, int matchingType) {
-            QMemberMatching memberMatching = QMemberMatching.memberMatching;
-            QMatchingBoard matchingBoard = QMatchingBoard.matchingBoard;
-
-            return queryFactory.selectFrom(memberMatching)
-                    .join(memberMatching.matchingBoard, matchingBoard)
-                    .where(memberMatching.member.id.eq(memberId)
-                            .and(matchingBoard.matchingType.eq(matchingType))
-                            .and(memberMatching.isAccepted.isNull()))
-                    .fetch();
-        }
+        return queryFactory.selectFrom(memberMatching)
+                .join(memberMatching.matchingBoard, matchingBoard)
+                .where(memberMatching.member.id.eq(memberId)
+                        .and(matchingBoard.matchingType.eq(matchingType))
+                        .and(memberMatching.isAccepted.isTrue()))
+                .fetchCount();
     }
+
+    // 특정 타입의 대기 중인 멤버 수 확인
+    @Override
+    public long countPendingByMemberIdAndMatchingBoard_MatchingType(Long memberId, int matchingType) {
+        QMemberMatching memberMatching = QMemberMatching.memberMatching;
+        QMatchingBoard matchingBoard = QMatchingBoard.matchingBoard;
+
+        return queryFactory.selectFrom(memberMatching)
+                .join(memberMatching.matchingBoard, matchingBoard)
+                .where(memberMatching.member.id.eq(memberId)
+                        .and(matchingBoard.matchingType.eq(matchingType))
+                        .and(memberMatching.isAccepted.isNull()))
+                .fetchCount();
+    }
+
+    // 특정 타입의 대기 중인 요청 가져오기
+    @Override
+    public List<MemberMatching> findPendingByMemberIdAndMatchingBoard_MatchingType(Long memberId, int matchingType) {
+        QMemberMatching memberMatching = QMemberMatching.memberMatching;
+        QMatchingBoard matchingBoard = QMatchingBoard.matchingBoard;
+
+        return queryFactory.selectFrom(memberMatching)
+                .join(memberMatching.matchingBoard, matchingBoard)
+                .where(memberMatching.member.id.eq(memberId)
+                        .and(matchingBoard.matchingType.eq(matchingType))
+                        .and(memberMatching.isAccepted.isNull()))
+                .fetch();
+    }
+}

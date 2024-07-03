@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/matching-board-reply")
+@RequestMapping("/api/matchingReply")
 public class MatchingBoardReplyController {
 
     @Autowired
     private MatchingBoardReplyService matchingBoardReplyService;
 
     //댓글생성
-    @PostMapping
+    @PostMapping("/add")
     public MatchingBoardReply createReply(@RequestBody MatchingBoardReplyRequestDTO requestDTO){
         return matchingBoardReplyService.createReply(requestDTO);
     }
@@ -28,8 +28,8 @@ public class MatchingBoardReplyController {
     }
 
     //특정 매칭 보드의 모든 댓글 가져오기
-    @GetMapping("/{matchingBoardId}/replies")
-    public List<MatchingBoardReply> getReplies(@PathVariable Long matchingBoardId){
-        return matchingBoardReplyService.getRepliesByMatchingBoardId(matchingBoardId);
+    @GetMapping("/{matchingId}/replies")
+    public List<MatchingBoardReply> getReplies(@PathVariable Long matchingId){
+        return matchingBoardReplyService.getRepliesByMatchingId(matchingId);
     }
 }
