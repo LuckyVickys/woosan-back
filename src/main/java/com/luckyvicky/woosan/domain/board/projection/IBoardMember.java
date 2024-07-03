@@ -10,7 +10,7 @@ public interface IBoardMember {
     int getViews();
     int getLikesCount();
     String getCategoryName();
-
+    int getReplyCount();
 
     MemberInfo getWriter();
 
