@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,13 +33,12 @@ public class BoardController {
     }
 
 
-
     /**
      * 게시물 전체 조회(+카테고리)
      */
     @GetMapping
     public ResponseEntity<BoardPageResponseDTO> getList(PageRequestDTO pageRequestDTO,
-                                                             @RequestParam(value = "categoryName", required = false) String categoryName) {
+                                                        @RequestParam(value = "categoryName", required = false) String categoryName) {
         BoardPageResponseDTO responseDTO = boardService.getBoardPage(pageRequestDTO, categoryName);
         return ResponseEntity.ok(responseDTO);
     }
@@ -81,13 +81,19 @@ public class BoardController {
     }
 
 
-
     /**
      * 게시물 수정
      */
+
     @PatchMapping("/{id}")
-    public ResponseEntity<String> modifyBoard(@PathVariable Long id, @ModelAttribute BoardDTO boardDTO) {
-        boardDTO.setId(id);
+    public ResponseEntity<String> modifyBoard(
+            @PathVariable Long id,
+            @ModelAttribute BoardDTO boardDTO) {
+
+        System.out.println("============================================");
+        System.out.println(boardDTO.getFilePathUrl());
+        System.out.println("============================================");
+
         boardService.modify(boardDTO);
         return ResponseEntity.ok("수정 완료");
     }
@@ -107,11 +113,6 @@ public class BoardController {
      */
     @PostMapping("/{id}/translate")
     public ResponseEntity<BoardDTO> boardDetailTranslate(@PathVariable("id") Long id, @RequestBody BoardDTO boardDTO) {
-        System.out.println("==========================================");
-        System.out.println("번역 기능");
-        System.out.println(boardDTO);
-        System.out.println("==========================================");
-
         try {
             boardDTO = papagoService.tanslateBoardDetailPage(boardDTO);
             return ResponseEntity.ok(boardDTO);
@@ -119,7 +120,6 @@ public class BoardController {
             throw new RuntimeException(e);
         }
     }
-
 
 
 }
