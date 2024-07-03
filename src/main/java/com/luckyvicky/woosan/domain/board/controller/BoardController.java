@@ -26,7 +26,7 @@ public class BoardController {
      * 게시물 작성
      */
     @PostMapping("/add")
-    public ResponseEntity<Long> register(@RequestBody BoardDTO boardDTO) {
+    public ResponseEntity<Long> register(@ModelAttribute BoardDTO boardDTO) {
         Long boardId = boardService.add(boardDTO);
         return ResponseEntity.ok(boardId);
     }
@@ -86,7 +86,7 @@ public class BoardController {
      * 게시물 수정
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<String> modifyBoard(@PathVariable Long id, @RequestBody BoardDTO boardDTO) {
+    public ResponseEntity<String> modifyBoard(@PathVariable Long id, @ModelAttribute BoardDTO boardDTO) {
         boardDTO.setId(id);
         boardService.modify(boardDTO);
         return ResponseEntity.ok("수정 완료");

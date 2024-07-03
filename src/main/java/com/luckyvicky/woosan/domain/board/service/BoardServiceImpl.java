@@ -95,7 +95,7 @@ public class BoardServiceImpl implements BoardService {
         if (categoryName != null && !categoryName.isEmpty()) {
             result = boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalse(categoryName, pageable);
         } else {
-            result = boardRepository.findAllProjectedByCategoryNameNotAndIsDeletedFalse("공지사항", pageable);
+            result = boardRepository.findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByIdDesc("공지사항", pageable);
         }
         List<BoardDTO> dtoList = result.getContent().stream()
                 .map(boardMember -> modelMapper.map(boardMember, BoardDTO.class))
@@ -173,8 +173,9 @@ public class BoardServiceImpl implements BoardService {
         board.changeTitle(boardDTO.getTitle());
         board.changeContent(boardDTO.getContent());
 
-        // 사진 변경 필요
         boardRepository.save(board);
+
+        fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
     }
 
 
