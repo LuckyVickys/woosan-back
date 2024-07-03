@@ -65,7 +65,7 @@ public class BoardController {
      * 게시물 단건 조회 - 상세 페이지
      */
     @GetMapping("/{id}")
-    public ResponseEntity<BoardDTO> getBoard(@PathVariable Long id) {
+    public ResponseEntity<BoardDTO> getBoard(@PathVariable("id") Long id) {
         BoardDTO boardDTO = boardService.getBoard(id);
         return ResponseEntity.ok(boardDTO);
     }
@@ -105,8 +105,13 @@ public class BoardController {
     /**
      * 게시물 번역
      */
-    @GetMapping("translate")
-    public ResponseEntity<BoardDTO> boardDetailTranslate(@RequestBody BoardDTO boardDTO) {
+    @PostMapping("/{id}/translate")
+    public ResponseEntity<BoardDTO> boardDetailTranslate(@PathVariable("id") Long id, @RequestBody BoardDTO boardDTO) {
+        System.out.println("==========================================");
+        System.out.println("번역 기능");
+        System.out.println(boardDTO);
+        System.out.println("==========================================");
+
         try {
             boardDTO = papagoService.tanslateBoardDetailPage(boardDTO);
             return ResponseEntity.ok(boardDTO);
@@ -114,6 +119,7 @@ public class BoardController {
             throw new RuntimeException(e);
         }
     }
+
 
 
 }
