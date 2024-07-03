@@ -2,7 +2,7 @@ package com.luckyvicky.woosan.domain.board.controller;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
-import com.luckyvicky.woosan.domain.board.dto.PageRequestDTO;
+import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.domain.board.service.PapagoService;
 import lombok.RequiredArgsConstructor;
