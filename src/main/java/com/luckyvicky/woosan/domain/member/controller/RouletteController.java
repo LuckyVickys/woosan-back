@@ -21,7 +21,6 @@ public class RouletteController {
         try {
             System.out.println(rouletteDTO);
             rouletteService.updateMemberPoints(rouletteDTO);
-            rouletteService.updateMemberLevel(rouletteDTO);
 
             return ResponseEntity.ok("Points updated successfully");
         } catch (IllegalArgumentException e) {
