@@ -103,4 +103,10 @@ public class Member {
     public void changePassword(String password) {
         this.password = password;
     }
+
+    //등업
+    public void setLevel(MemberType.Level level) { this.level = level; }
+
+    //닉네임 변경
+    public void setNickname(String nickname) { this.nickname = nickname; }
 }
