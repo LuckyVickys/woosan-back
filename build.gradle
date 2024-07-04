@@ -68,6 +68,9 @@ dependencies {
 	// 언어 감지
 	implementation 'com.cybozu.labs:langdetect:1.1-20120112'
 
+	// json
+	implementation 'org.json:json:20230227'
+
 	annotationProcessor(
 			"com.querydsl:querydsl-apt:5.0.0:jakarta",
 			"jakarta.annotation:jakarta.annotation-api",

@@ -69,9 +69,6 @@ public class ReplyServiceImpl implements ReplyService {
         writer.addPoint(1);
         memberRepository.save(writer);
 
-        board.changeReplyCount(+1);
-        boardRepository.save(board);
-
         Reply savedReply = replyRepository.save(reply);
 
         return modelMapper.map(savedReply, ReplyDTO.class);
@@ -116,12 +113,6 @@ public class ReplyServiceImpl implements ReplyService {
     @Override
     public void remove(Long id) {
         validationReplyId(id);
-
-        Reply reply = replyRepository.findById(id)
-                        .orElseThrow(() -> new ReplyException(ErrorCode.REPLY_NOT_FOUND));
-
-        Board board = reply.getBoard();
-        board.changeReplyCount(-1);
         replyRepository.deleteById(id);
     }
 

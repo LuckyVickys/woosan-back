@@ -5,7 +5,6 @@ import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardResponseDTO;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
 import com.luckyvicky.woosan.domain.matching.mapper.MatchingBoardMapper;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
-import com.luckyvicky.woosan.domain.matching.repository.MemberMatchingRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.entity.MemberProfile;
 import com.luckyvicky.woosan.domain.member.repository.MemberProfileRepository;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 public class MatchingBoardServiceImpl implements MatchingBoardService {
 
     private final MatchingBoardRepository matchingBoardRepository;
-    private final MemberMatchingRepository memberMatchingRepository; // 추가된 부분
     private final MemberRepository memberRepository;
     private final MemberProfileRepository memberProfileRepository;
     private final MatchingBoardMapper matchingBoardMapper;
@@ -174,9 +172,6 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         if (!matchingBoard.getMember().getId().equals(memberId)) {
             throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
         }
-
-        // 먼저 관련된 member_matching 행 삭제
-        memberMatchingRepository.deleteByMatchingBoard_Id(id);
 
         matchingBoardRepository.delete(matchingBoard);
     }

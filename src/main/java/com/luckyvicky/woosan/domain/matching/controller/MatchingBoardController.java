@@ -123,8 +123,6 @@ public class MatchingBoardController {
         try {
             matchingBoardService.deleteMatchingBoard(id, memberId);
             return new ResponseEntity<>("매칭 보드가 성공적으로 삭제되었습니다.", HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

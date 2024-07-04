@@ -66,16 +66,16 @@ public class BoardServiceImpl implements BoardService {
 
             board = boardRepository.save(board);
 
-            //파일이 있으면 파일 정보를 버킷 및 db에 저장합니다.
-            if (boardDTO.getImages() != null) {
-                fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
-            }
+            //파일 정보를 저장합니다.
+            fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
 
             return board.getId();
         } catch (IllegalArgumentException e) {
             throw e;
         }
     }
+
+
 
 
     /**
@@ -151,6 +151,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
+
     /**
      * 게시물 단건 조회 (수정)
      */
@@ -159,12 +160,7 @@ public class BoardServiceImpl implements BoardService {
         validationBoardId(id);
 
         Optional<IBoardMember> result = boardRepository.findById(id, IBoardMember.class);
-        List<String> filesUrl = fileImgService.findFiles("board", id);
-
-        BoardDTO boardDTO = result.map(boardMember -> modelMapper.map(boardMember, BoardDTO.class)).orElse(null);
-        boardDTO.setFilePathUrl(filesUrl);
-
-        return boardDTO;
+        return result.map(boardMember -> modelMapper.map(boardMember, BoardDTO.class)).orElse(null);
     }
 
 
@@ -179,23 +175,9 @@ public class BoardServiceImpl implements BoardService {
         board.changeTitle(boardDTO.getTitle());
         board.changeContent(boardDTO.getContent());
 
-        if (boardDTO.getFilePathUrl() == null) {
-            fileImgService.targetFilesDelete("board", board.getId());
-        } else {
-            List<String> beforeFiles = fileImgService.findFiles("board", board.getId());
-            List<String> afterFiles = boardDTO.getFilePathUrl();
-
-            for (String beforeFile : beforeFiles) {
-                if (!afterFiles.contains(beforeFile)) {
-                    fileImgService.deleteS3FileByUrl(board.getId(), "board", beforeFile);
-                }
-            }
-        }
-
-        if (boardDTO.getImages() != null) {
-            fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
-        }
         boardRepository.save(board);
+
+        fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
     }
 
 
@@ -213,7 +195,6 @@ public class BoardServiceImpl implements BoardService {
 
         board.changeIsDeleted(true);
         boardRepository.save(board);
-
     }
 
 
@@ -278,6 +259,7 @@ public class BoardServiceImpl implements BoardService {
 //    }
 
 
+
 //    예외처리
 
     /**
@@ -291,6 +273,10 @@ public class BoardServiceImpl implements BoardService {
         }
         return true;
     }
+
+
+
+
 
 
 }

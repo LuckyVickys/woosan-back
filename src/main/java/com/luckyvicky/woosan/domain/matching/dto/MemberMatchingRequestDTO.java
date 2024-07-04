@@ -7,15 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberMatchingRequestDTO {
-    // 매칭 보드 ID
-    private Long matchingId;
-
-    // 회원 ID
+    private Long matchingBoardId; // 수정된 부분
     private Long memberId;
-
-    // 수락 여부
     private Boolean isAccepted;
-
-    // 관리 여부
     private Boolean isManaged;
 }

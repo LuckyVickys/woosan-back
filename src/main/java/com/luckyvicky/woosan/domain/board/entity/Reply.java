@@ -45,6 +45,20 @@ public class Reply {
         this.content = content;
     }
 
+//    /**
+//     * 추천수 증가
+//     */
+//    public void incrementLikesCount(){
+//        this.likesCount++;
+//    }
+//
+//    /**
+//     * 추천수 감소
+//     */
+//    public void decrementLikesCount(){
+//        this.likesCount--;
+//    }
+
 
     // 추천수 변경
     public void changeLikesCount(int likesCount){
