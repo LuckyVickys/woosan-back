@@ -22,24 +22,4 @@ public class RouletteServiceImpl implements RouletteService {
         memberRepository.save(member);
     }
 
-    @Override
-    public void updateMemberLevel(RouletteDTO rouletteDTO) {
-        Member member = memberRepository.findById(rouletteDTO.getMemberId())
-                .orElseThrow(()-> new IllegalArgumentException("Member not found"));
-
-        Long points = member.getPoint();
-        if (points >= 1000) {
-            member.setLevel(MemberType.Level.LEVEL_5);
-        } else if (points >= 800) {
-            member.setLevel(MemberType.Level.LEVEL_4);
-        } else if (points >= 600) {
-            member.setLevel(MemberType.Level.LEVEL_3);
-        } else if (points >= 400) {
-            member.setLevel(MemberType.Level.LEVEL_2);
-        } else {
-            member.setLevel(MemberType.Level.LEVEL_1);
-        }
-
-        memberRepository.save(member);
-    }
 }
