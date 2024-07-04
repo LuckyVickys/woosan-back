@@ -4,6 +4,4 @@ import com.luckyvicky.woosan.domain.member.dto.RouletteDTO;
 
 public interface RouletteService {
     void updateMemberPoints(RouletteDTO rouletteDTO);
-
-    void updateMemberLevel(RouletteDTO rouletteDTO);
 }
