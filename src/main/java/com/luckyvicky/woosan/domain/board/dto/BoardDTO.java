@@ -25,6 +25,7 @@ public class BoardDTO {
     private int views;
     private int likesCount;
     private String categoryName;
+    private int replyCount;
 
     private List<MultipartFile> images;
     private List<String> filePathUrl;

@@ -1,5 +1,7 @@
 package com.luckyvicky.woosan.service;
 
+import com.luckyvicky.woosan.domain.board.entity.Reply;
+import com.luckyvicky.woosan.domain.board.service.ReplyServiceImpl;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
@@ -31,6 +33,18 @@ public class ReplyServiceTest {
      */
     @Test
     public void testRegisterReply() {
+        Long boardId = 357L;
+        Long writerId = 1L;
+        Long parentId = 52L;
+
+        for (int i = 0; i < 10; i++) {
+            ReplyDTO replyDTO = new ReplyDTO();
+            replyDTO.setBoardId(boardId);
+            replyDTO.setWriterId(writerId);
+            replyDTO.setContent("댓글 수 테스트");
+
+            replyService.add(replyDTO, parentId);
+        }
     }
 
     /**
@@ -38,7 +52,7 @@ public class ReplyServiceTest {
      */
     @Test
     public void testDeleteReply() {
-        Long replyId = 9L;  // 테스트에 사용할 댓글 ID
+        Long replyId = 64L;  // 테스트에 사용할 댓글 ID
 
         replyService.remove(replyId);
         log.info("Deleted Reply ID: " + replyId);
