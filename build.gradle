@@ -8,7 +8,8 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.0'
 	id 'io.spring.dependency-management' version '1.1.5'
-	id 'com.github.node-gradle.node' version '3.2.1'
+//	id 'com.github.node-gradle.node' version '3.2.1'
+
 }
 
 group = 'com.luckyvicky'
@@ -24,9 +25,9 @@ repositories {
 	mavenCentral()
 }
 
-tasks.withType(JavaCompile) {
-	options.compilerArgs << '-parameters'
-}
+//tasks.withType(JavaCompile) {
+//	options.compilerArgs << '-parameters'
+//}
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -100,24 +101,24 @@ tasks.withType(JavaCompile) {
 }
 
 // Node.js 설정
-node {
-	version = '16.13.0'
-	npmVersion = '8.1.0'
-	download = true
-	workDir = file("${project.buildDir}/nodejs")
-	npmWorkDir = file("${project.buildDir}/npm")
-}
-
-task appNpmInstall(type: NpmTask) {
-	workingDir = file("${project.projectDir}")
-	args = ['install']
-}
-
-build {
-	dependsOn appNpmInstall
-}
-
-// 빌드 시 테스트 제외
-tasks.withType(Test) {
-	enabled = false
-}
+//node {
+//	version = '16.13.0'
+//	npmVersion = '8.1.0'
+//	download = true
+//	workDir = file("${project.buildDir}/nodejs")
+//	npmWorkDir = file("${project.buildDir}/npm")
+//}
+//
+//task appNpmInstall(type: NpmTask) {
+//	workingDir = file("${project.projectDir}")
+//	args = ['install']
+//}
+//
+//build {
+//	dependsOn appNpmInstall
+//}
+//
+//// 빌드 시 테스트 제외
+//tasks.withType(Test) {
+//	enabled = false
+//}
