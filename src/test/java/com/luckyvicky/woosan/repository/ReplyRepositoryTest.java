@@ -66,7 +66,7 @@ public class ReplyRepositoryTest {
             Reply reply = Reply.builder()
                     .board(testBoard)
                     .writer(testMember)
-                    .content("ㅇㅇ")
+                    .content("나루토")
                     .regDate(LocalDateTime.now())
                     .parentId(16L)
                     .build();

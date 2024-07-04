@@ -2,8 +2,8 @@ package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.entity.Board;
-import com.luckyvicky.woosan.domain.board.exception.BoardNotFoundException;
-import com.luckyvicky.woosan.domain.board.exception.MemberNotFoundException;
+import com.luckyvicky.woosan.global.exception.BoardException;
+import com.luckyvicky.woosan.global.exception.MemberException;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
@@ -11,6 +11,8 @@ import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.util.HashUtil;
+import com.luckyvicky.woosan.global.util.PageRequestDTO;
+import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -48,7 +50,7 @@ public class BoardServiceImpl implements BoardService {
         try {
             // writer 정보를 통해 Member 엔티티를 조회
             Member writer = memberRepository.findById(boardDTO.getWriterId())
-                    .orElseThrow(() ->  new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
+                    .orElseThrow(() ->  new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
             // 10 포인트 추가
             writer.addPoint(10);
@@ -129,7 +131,7 @@ public class BoardServiceImpl implements BoardService {
         // 세션에서 조회 여부 확인
         Boolean hasViewed = (Boolean) session.getAttribute(sessionKey);
         // Board 엔티티를 조회하여 조회수를 증가
-        Board board = boardRepository.findById(id).orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
+        Board board = boardRepository.findById(id).orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
 
         // 조회수 증가
         if (hasViewed == null || !hasViewed) {
@@ -144,8 +146,12 @@ public class BoardServiceImpl implements BoardService {
             BoardDTO boardDTO = modelMapper.map(boardMember, BoardDTO.class);
             boardDTO.setViews(board.getViews());  // 최신 조회수 DTO에 반영
             boardDTO.setFilePathUrl(fileImgService.findFiles("board", id));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
+//            boardDTO.setFilePathUrl(fileImgService.findFiles("member", memberId));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
             return boardDTO;
         }).orElse(null);
+
+//        + 작성자 프로필 이미지 조회에 포함 필요
+
     }
 
 
@@ -168,7 +174,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void modify(BoardDTO boardDTO) {
         Board board = boardRepository.findById(boardDTO.getId())
-                .orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
 
         board.changeTitle(boardDTO.getTitle());
         board.changeContent(boardDTO.getContent());
@@ -185,10 +191,10 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void remove(Long id) {
         Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
 
         if (board.isDeleted()) {
-            throw new BoardNotFoundException(ErrorCode.BOARD_ALREADY_DELETED); // 이미 삭제된 게시물인 경우 예외 처리
+            throw new BoardException(ErrorCode.BOARD_ALREADY_DELETED); // 이미 삭제된 게시물인 경우 예외 처리
         }
 
         board.changeIsDeleted(true);
@@ -267,7 +273,7 @@ public class BoardServiceImpl implements BoardService {
     public boolean validationBoardId(Long boardId) {
         boolean exists = boardRepository.existsById(boardId);
         if (!exists) {
-            throw new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND);
+            throw new BoardException(ErrorCode.BOARD_NOT_FOUND);
         }
         return true;
     }

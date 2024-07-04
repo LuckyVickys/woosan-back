@@ -1,13 +1,10 @@
 package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.*;
-import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Transactional
 public interface BoardService {

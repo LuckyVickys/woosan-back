@@ -28,6 +28,7 @@ public class LikesServiceImpl implements LikesService {
     private final ReplyRepository replyRepository;
     private final MemberRepository memberRepository;
 
+
     /**
      * 추천 토글
      */
@@ -90,6 +91,7 @@ public class LikesServiceImpl implements LikesService {
     public boolean isLiked(Long memberId, String type, Long targetId){
         return likesRepository.existsByMemberIdAndTypeAndTargetId(memberId, type, targetId);
     }
+
 
 
 }

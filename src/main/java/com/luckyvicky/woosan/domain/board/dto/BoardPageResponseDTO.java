@@ -1,6 +1,6 @@
 package com.luckyvicky.woosan.domain.board.dto;
 
-import com.luckyvicky.woosan.domain.board.entity.Board;
+import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.Builder;
 import lombok.Data;
 

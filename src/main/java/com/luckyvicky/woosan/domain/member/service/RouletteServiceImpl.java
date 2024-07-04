@@ -2,6 +2,7 @@ package com.luckyvicky.woosan.domain.member.service;
 
 import com.luckyvicky.woosan.domain.member.dto.RouletteDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
+import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,4 +21,5 @@ public class RouletteServiceImpl implements RouletteService {
 
         memberRepository.save(member);
     }
+
 }
