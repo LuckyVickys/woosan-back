@@ -77,7 +77,6 @@ public class ReplyServiceImpl implements ReplyService {
         return modelMapper.map(savedReply, ReplyDTO.class);
     }
 
-
     /**
      * 댓글 조회
      */
@@ -103,11 +102,12 @@ public class ReplyServiceImpl implements ReplyService {
     private ReplyDTO convertToReplyDTOWithChildren(IReply iReply) {
         ReplyDTO replyDTO = modelMapper.map(iReply, ReplyDTO.class);
         List<ReplyDTO> childReplyDTOs = replyRepository.findByParentId(iReply.getId()).stream()
-                .map(this::convertToReplyDTOWithChildren)
+                .map(childReply -> modelMapper.map(childReply, ReplyDTO.class))
                 .collect(Collectors.toList());
         replyDTO.setChildren(childReplyDTOs);
         return replyDTO;
     }
+
 
 
     /**

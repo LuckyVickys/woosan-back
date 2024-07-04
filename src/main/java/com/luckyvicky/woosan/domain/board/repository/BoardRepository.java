@@ -11,15 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface BoardRepository  extends JpaRepository<Board, Long> {
-
-
-    /**
-     * <Test>
-     * 단일 인터페이스 프로젝션
-     */
-//    @Transactional
-//    <T> List<T> findAllProjectedBy(Class<T> className);
+public interface BoardRepository extends JpaRepository<Board, Long> {
 
 
     /**
@@ -31,7 +23,6 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     <T> Optional<T> findById(Long id, Class<T> className);
 
 
-
     /**
      * 인터페이스 프로젝션
      * 게시물 전체 조회
@@ -41,17 +32,12 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     Page<IBoardMember> findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByIdDesc(String categoryName, Pageable pageable);
 
 
-
-
-
     /**
      * 카테고리별 게시물 전체 조회
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
     Page<IBoardMember> findAllProjectedByCategoryNameAndIsDeletedFalse(String categoryName, Pageable pageable);
-
-
 
 
     /**
@@ -87,13 +73,9 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     List<IBoardMember> findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
 
 
-/**
- *      @Transactional
- *     @EntityGraph(attributePaths = {"writer"})
- *     Optional<IBoardMember> findByTitle(String title);
- */
 
-    // <--------------------------------------------미완-------------------------------------------->
+
+    // <--------------------------------------------예비-------------------------------------------->
 
 
 //    /** 공지사항 상단 고정
@@ -102,8 +84,6 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
 //    @Transactional(readOnly = true)
 //    @EntityGraph(attributePaths = {"writer"})
 //    <T> Optional<T> findFirstByIdAndCategoryNameAndIsDeletedFalse(Long id, String categoryName, Class<T> className);
-
-
 
 
 }

@@ -28,6 +28,10 @@ public class LikesServiceImpl implements LikesService {
     private final ReplyRepository replyRepository;
     private final MemberRepository memberRepository;
 
+
+    /**
+     * 추천 토글
+     */
     @Override
     @Transactional
     public void toggleLike(Long memberId, String type, Long targetId) {
@@ -78,6 +82,9 @@ public class LikesServiceImpl implements LikesService {
         }
     }
 
+    /**
+     * 추천 여부 확인
+     */
     @Override
     @Transactional(readOnly = true)
     public boolean isLiked(Long memberId, String type, Long targetId){
