@@ -10,4 +10,5 @@ public interface FileImgService {
     List<String> findFiles(String type, Long targetId);
     void targetFilesDelete(String type, Long targetId);
 
+    void deleteS3FileByUrl(Long id,String type,String beforeFile);
 }

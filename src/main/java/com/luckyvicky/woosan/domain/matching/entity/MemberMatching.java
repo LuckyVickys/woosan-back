@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class MemberMatching {
 
     @Id
@@ -26,9 +26,11 @@ public class MemberMatching {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Column(name = "is_accepted", nullable =false)
+    //수락여부 (null: 대기중, true: 승인됨, false: 거절됨)
+    @Column(name = "is_accepted", nullable = true)
     private Boolean isAccepted;
 
+    //관리 여부
     @Column(name = "is_managed", nullable =false)
     private Boolean isManaged;
 
