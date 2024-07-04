@@ -5,9 +5,9 @@ import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.entity.Reply;
-import com.luckyvicky.woosan.domain.board.exception.BoardNotFoundException;
-import com.luckyvicky.woosan.domain.board.exception.MemberNotFoundException;
-import com.luckyvicky.woosan.domain.board.exception.ReplyNotFoundException;
+import com.luckyvicky.woosan.global.exception.BoardException;
+import com.luckyvicky.woosan.global.exception.MemberException;
+import com.luckyvicky.woosan.global.exception.ReplyException;
 import com.luckyvicky.woosan.domain.board.projection.IReply;
 import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.ReplyRepository;
@@ -46,9 +46,9 @@ public class ReplyServiceImpl implements ReplyService {
 
         // 게시글과 작성자 조회
         Board board = boardRepository.findById(replyDTO.getBoardId())
-                .orElseThrow(() -> new BoardNotFoundException(ErrorCode.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
         Member writer = memberRepository.findById(replyDTO.getWriterId())
-                .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 댓글 생성 빌더
         Reply.ReplyBuilder replyBuilder = Reply.builder()
@@ -125,7 +125,7 @@ public class ReplyServiceImpl implements ReplyService {
     public boolean validationReplyId(Long replyId) {
         boolean exists = replyRepository.existsById(replyId);
         if (!exists) {
-            throw new ReplyNotFoundException(ErrorCode.REPLY_NOT_FOUND);
+            throw new ReplyException(ErrorCode.REPLY_NOT_FOUND);
         }
         return true;
     }
@@ -136,7 +136,7 @@ public class ReplyServiceImpl implements ReplyService {
     public boolean validationParentId(Long parentId) {
         boolean exists = replyRepository.existsById(parentId);
         if (!exists) {
-            throw new ReplyNotFoundException(ErrorCode.REPLY_NOT_FOUND);
+            throw new ReplyException(ErrorCode.REPLY_NOT_FOUND);
         }
         return true;
     }
