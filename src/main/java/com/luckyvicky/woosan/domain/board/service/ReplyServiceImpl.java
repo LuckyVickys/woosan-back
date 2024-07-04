@@ -118,7 +118,7 @@ public class ReplyServiceImpl implements ReplyService {
         validationReplyId(id);
 
         Reply reply = replyRepository.findById(id)
-                        .orElseThrow(() -> new ReplyNotFoundException(ErrorCode.REPLY_NOT_FOUND));
+                        .orElseThrow(() -> new ReplyException(ErrorCode.REPLY_NOT_FOUND));
 
         Board board = reply.getBoard();
         board.changeReplyCount(-1);
