@@ -28,6 +28,10 @@ public class LikesServiceImpl implements LikesService {
     private final ReplyRepository replyRepository;
     private final MemberRepository memberRepository;
 
+
+    /**
+     * 추천 토글
+     */
     @Override
     @Transactional
     public void toggleLike(Long memberId, String type, Long targetId) {
@@ -78,52 +82,16 @@ public class LikesServiceImpl implements LikesService {
         }
     }
 
+
+    /**
+     * 추천 여부 확인
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isLiked(Long memberId, String type, Long targetId){
+        return likesRepository.existsByMemberIdAndTypeAndTargetId(memberId, type, targetId);
+    }
+
+
+
 }
-
-//    public void toggleLike(Long memberId, String type, Long targetId) {
-//        Optional<Likes> existingLike = likesRepository.findByMemberIdAndTypeAndTargetId(memberId, type, targetId);
-//        Member member = memberRepository.findById(memberId).orElseThrow();
-//
-//        if(existingLike.isPresent()){
-//            // 이미 추천이 되어 있는 경우, 추천 취소
-//            member.addPoint(-5);
-//
-//            likesRepository.delete(existingLike.get()); // Optional에서 Likes 객체를 꺼냄
-//            decrementLikesCount(type, targetId);
-//        } else {
-//            // 추천이 되어있지 않은 경우, 추천 추가
-//            member.addPoint(5);
-//            memberRepository.save(member);
-//
-//            Likes newLike = Likes.builder()
-//                    .member(member)
-//                    .type(type)
-//                    .targetId(targetId)
-//                    .build();
-//            likesRepository.save(newLike);
-//            incrementLikeCount(type, targetId);
-//        }
-
-//        private void incrementLikeCount(String type, Long targetId) {
-//        if (type.equals("게시물")) {
-//            Board board = boardRepository.findById(targetId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물 ID"));
-//            board.incrementLikesCount();
-//            boardRepository.save(board);
-//        } else if (type.equals("댓글")) {
-//            Reply reply = replyRepository.findById(targetId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글 ID"));
-//            reply.incrementLikesCount();
-//            replyRepository.save(reply);
-//        }
-//    }
-//
-//    private void decrementLikesCount(String type, Long targetId) {
-//        if (type.equals("게시물")) {
-//            Board board = boardRepository.findById(targetId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시물 ID"));
-//            board.decrementLikesCount();
-//            boardRepository.save(board);
-//        } else if (type.equals("댓글")) {
-//            Reply reply = replyRepository.findById(targetId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글 ID"));
-//            reply.decrementLikesCount();
-//            replyRepository.save(reply);
-//        }
-//    }

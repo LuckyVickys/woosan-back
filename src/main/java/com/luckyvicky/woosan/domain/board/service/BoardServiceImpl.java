@@ -146,8 +146,12 @@ public class BoardServiceImpl implements BoardService {
             BoardDTO boardDTO = modelMapper.map(boardMember, BoardDTO.class);
             boardDTO.setViews(board.getViews());  // 최신 조회수 DTO에 반영
             boardDTO.setFilePathUrl(fileImgService.findFiles("board", id));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
+//            boardDTO.setFilePathUrl(fileImgService.findFiles("member", memberId));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
             return boardDTO;
         }).orElse(null);
+
+//        + 작성자 프로필 이미지 조회에 포함 필요
+
     }
 
 
