@@ -2,6 +2,7 @@ package com.luckyvicky.woosan.domain.board.controller;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
+import com.luckyvicky.woosan.domain.board.service.SummaryService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.domain.board.service.PapagoService;
@@ -20,6 +21,7 @@ public class BoardController {
 
     private final BoardService boardService;
     private final PapagoService papagoService;
+    private final SummaryService summaryService;
 
 
     /**
@@ -121,5 +123,25 @@ public class BoardController {
     }
 
 
+    /**
+     * 게시물 요약
+     */
+    @PostMapping("/{id}/summary")
+    public ResponseEntity<String> boardDetailSummary(@PathVariable("id") Long id, @RequestBody BoardDTO boardDTO) {
+        System.out.println("==========================================");
+        System.out.println("요약 기능");
+        System.out.println(boardDTO);
+        System.out.println("==========================================");
+
+        String summary = "";
+
+        try {
+            summary = summaryService.summaryBoardDetailPage(boardDTO);
+            System.out.println(summary);
+            return ResponseEntity.ok(summary);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
