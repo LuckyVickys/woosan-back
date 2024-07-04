@@ -82,6 +82,7 @@ public class LikesServiceImpl implements LikesService {
         }
     }
 
+
     /**
      * 추천 여부 확인
      */
@@ -90,6 +91,7 @@ public class LikesServiceImpl implements LikesService {
     public boolean isLiked(Long memberId, String type, Long targetId){
         return likesRepository.existsByMemberIdAndTypeAndTargetId(memberId, type, targetId);
     }
+
 
 
 }

@@ -45,8 +45,7 @@ public class Board {
     @Column(nullable = false, length = 255)
     private String categoryName;  // 카테고리 유형
 
-    @ColumnDefault("0")
-    private int replyCount; // 추천 수
+
 
     /**
      * 제목 수정
@@ -76,15 +75,22 @@ public class Board {
         this.views++;
     }
 
-
+//    /**
+//     * 추천수 증가
+//     */
+//    public void incrementLikesCount(){
+//        this.likesCount++;
+//    }
+//
+//    /**
+//     * 추천수 감소
+//     */
+//    public void decrementLikesCount(){
+//        this.likesCount--;
+//    }
 
     // 추천수 변경
     public void changeLikesCount(int likesCount){
         this.likesCount += likesCount;
-    }
-
-    // 댓글수 변경
-    public void changeReplyCount(int replyCount){
-        this.replyCount += replyCount;
     }
 }

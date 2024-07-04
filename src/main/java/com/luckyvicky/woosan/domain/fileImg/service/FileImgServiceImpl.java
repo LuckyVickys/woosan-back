@@ -17,7 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -109,7 +110,6 @@ public class FileImgServiceImpl implements FileImgService {
     @Override
     public void targetFilesDelete(String type, Long targetId) {
         List<FileImg> fileImgs = fileImgRepository.findByTypeAndTargetIdOrderByOrdAsc(type, targetId);
-
         for (FileImg fileImg : fileImgs) {
             String key = fileImg.getUuid().toString() + "_" + fileImg.getFileName();
             s3.deleteObject(bucketName + fileImg.getPath(), key);
@@ -117,45 +117,4 @@ public class FileImgServiceImpl implements FileImgService {
 
         fileImgRepository.deleteByTypeAndTargetId(type, targetId);
     }
-
-    @Override
-    public void deleteS3FileByUrl(Long id, String type, String beforeFile) {
-        String getKey = extractKeyFromUrl(beforeFile);
-        s3.deleteObject(bucketName, getKey);
-        List<FileImg> existFiles = fileImgRepository.findByTypeAndTargetIdOrderByOrdAsc(type, id);
-        Map<Long, String> targetMap = new HashMap<>();
-
-        String getFileName = getFileNameInUrl(beforeFile);
-        System.out.println(getFileName);
-        for (FileImg fileImg : existFiles) {
-            targetMap.put(fileImg.getId(), fileImg.getUuid() + "_" + fileImg.getFileName());
-        }
-
-        for (Map.Entry<Long, String> entry : targetMap.entrySet()) {
-            System.out.println(entry.getValue());
-            if (entry.getValue().equals(getFileName)) {
-                fileImgRepository.deleteById(entry.getKey());
-                break;
-            }
-        }
-    }
-
-    private String getFileNameInUrl(String url) {
-        int lastSlashIndex = url.lastIndexOf('/');
-        if (lastSlashIndex != -1) {
-            return url.substring(lastSlashIndex + 1);
-        }
-        return url;
-    }
-
-    private String extractKeyFromUrl(String fileUrl) {
-        String prefix = "woosan/board/";
-        int startIndex = fileUrl.indexOf(prefix) + prefix.length() - "board/".length();
-        if (startIndex == -1) {
-            throw new IllegalArgumentException("URL does not contain the expected prefix: " + prefix);
-        }
-        return fileUrl.substring(startIndex);
-    }
-
-
 }
