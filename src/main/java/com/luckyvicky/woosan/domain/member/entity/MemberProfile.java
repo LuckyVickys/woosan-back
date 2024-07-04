@@ -42,5 +42,19 @@ public class MemberProfile {
     @Column
     private int height;
 
+    public void setLocation(String location) {
+    }
+
+    public void setGender(String gender) {
+    }
+
+    public void setAge(int age) {
+    }
+
+    public void setHeight(int height) {
+    }
+
+    public void setMbti(MBTI mbti) {
+    }
 
 }
