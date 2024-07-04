@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public interface ReplyService {
-    ReplyDTO add(ReplyDTO replyDTO, Long parentId);
+    ReplyDTO add(ReplyDTO replyDTO);
 
     void remove(Long id);
 

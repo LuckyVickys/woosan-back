@@ -42,7 +42,7 @@ public class ReplyServiceImpl implements ReplyService {
      * 댓글 작성
      */
     @Override
-    public ReplyDTO add(ReplyDTO replyDTO, Long parentId) {
+    public ReplyDTO add(ReplyDTO replyDTO) {
 
         // 게시글과 작성자 조회
         Board board = boardRepository.findById(replyDTO.getBoardId())
@@ -57,10 +57,11 @@ public class ReplyServiceImpl implements ReplyService {
                 .content(replyDTO.getContent());
 
         // 부모 댓글이 있는 경우
-        if (parentId != null) {
+        if (replyDTO.getParentId() != null) {
             // 부모 댓글 존재 여부 확인
-            validationParentId(parentId);
-            replyBuilder.parentId(parentId);
+            validationParentId(replyDTO.getParentId());
+
+            replyBuilder.parentId(replyDTO.getParentId());
         }
 
         Reply reply = replyBuilder.build();
@@ -103,7 +104,7 @@ public class ReplyServiceImpl implements ReplyService {
     private ReplyDTO convertToReplyDTOWithChildren(IReply iReply) {
         ReplyDTO replyDTO = modelMapper.map(iReply, ReplyDTO.class);
         List<ReplyDTO> childReplyDTOs = replyRepository.findByParentId(iReply.getId()).stream()
-                .map(this::convertToReplyDTOWithChildren)
+                .map(childReply -> modelMapper.map(childReply, ReplyDTO.class))
                 .collect(Collectors.toList());
         replyDTO.setChildren(childReplyDTOs);
         return replyDTO;
@@ -114,17 +115,31 @@ public class ReplyServiceImpl implements ReplyService {
      * 댓글 삭제
      */
     @Override
+    @Transactional
     public void remove(Long id) {
         validationReplyId(id);
 
+        // 부모 댓글 조회
         Reply reply = replyRepository.findById(id)
-                        .orElseThrow(() -> new ReplyException(ErrorCode.REPLY_NOT_FOUND));
+                .orElseThrow(() -> new ReplyException(ErrorCode.REPLY_NOT_FOUND));
 
+        // 자식 댓글 삭제
+        List<Reply> childReplies = replyRepository.findByParentId(id).stream()
+                .map(childReply -> replyRepository.findById(childReply.getId())
+                        .orElseThrow(() -> new ReplyException(ErrorCode.REPLY_NOT_FOUND)))
+                .collect(Collectors.toList());
+
+        for (Reply child : childReplies) {
+            replyRepository.delete(child);
+        }
+
+        // 부모 댓글 삭제
         Board board = reply.getBoard();
-        board.changeReplyCount(-1);
-        replyRepository.deleteById(id);
-    }
+        board.changeReplyCount(-1 * (childReplies.size() + 1));  // 자식 댓글 수와 부모 댓글을 포함한 삭제
+        boardRepository.save(board);
 
+        replyRepository.delete(reply);
+    }
 
 //    <--------------------------------예외처리-------------------------------->
 
