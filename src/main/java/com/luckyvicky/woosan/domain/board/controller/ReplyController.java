@@ -24,9 +24,8 @@ public class ReplyController {
      * 댓글 작성
      */
     @PostMapping("/add")
-    public ResponseEntity<ReplyDTO> createReply(@RequestBody ReplyDTO replyDTO,
-                                                  @RequestParam(value = "parentId", required = false) Long parentId) {
-        ReplyDTO saveReply = replyService.add(replyDTO, parentId);
+    public ResponseEntity<ReplyDTO> createReply(@RequestBody ReplyDTO replyDTO){
+        ReplyDTO saveReply = replyService.add(replyDTO);
         return ResponseEntity.ok(saveReply);
     }
 

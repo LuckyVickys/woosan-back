@@ -15,14 +15,6 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
 
 
     /**
-     * <Test>
-     * 단일 인터페이스 프로젝션
-     */
-//    @Transactional
-//    <T> List<T> findAllProjectedBy(Class<T> className);
-
-
-    /**
      * 다이나믹 프로젝션
      * 게시물 단건 조회
      */
@@ -87,13 +79,8 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     List<IBoardMember> findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
 
 
-/**
- *      @Transactional
- *     @EntityGraph(attributePaths = {"writer"})
- *     Optional<IBoardMember> findByTitle(String title);
- */
 
-    // <--------------------------------------------미완-------------------------------------------->
+    // <--------------------------------------------예비-------------------------------------------->
 
 
 //    /** 공지사항 상단 고정

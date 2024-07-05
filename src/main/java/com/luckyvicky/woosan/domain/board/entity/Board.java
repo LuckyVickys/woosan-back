@@ -24,10 +24,10 @@ public class Board {
     @JoinColumn(name = "writerId", nullable = false)
     private Member writer;  // 작성자 (회원 엔티티와의 연관관계)
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 40)
     private String title;  // 제목
 
-    @Column(nullable = false, length = 3000)
+    @Column(nullable = false, length = 1960)
     private String content;  // 내용
 
     @CreationTimestamp
