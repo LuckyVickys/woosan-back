@@ -24,6 +24,9 @@ public enum ErrorCode {
 
     // 멤버 관련 오류
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원 정보를 찾을 수 없습니다."),
+    EMAIL_DUPLICATE(HttpStatus.BAD_REQUEST, "중복된 이메일입니다."),
+    NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "중복된 이메일입니다."),
+    PW_NOT_FOUND(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
 
     // 파일 업로드 오류
     IMAGE_FORMAT_ERROR(HttpStatus.BAD_REQUEST, "지원하지 않는 이미지 포맷입니다.");

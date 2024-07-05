@@ -5,6 +5,8 @@ import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import com.luckyvicky.woosan.domain.member.entity.SocialType;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.global.exception.ErrorCode;
+import com.luckyvicky.woosan.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -41,9 +43,9 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Member addMember(Member member) throws Exception {
         if(existEmail(member.getEmail()) == true) {
-            throw new Exception("중복된 이메일입니다.");
+            throw new MemberException(ErrorCode.EMAIL_DUPLICATE);
         } else if(existNickname(member.getNickname()) == true) {
-            throw new Exception("중복된 닉네임입니다.");
+            throw new MemberException(ErrorCode.NICKNAME_DUPLICATE);
         }
 
         member = Member.builder()
@@ -81,11 +83,10 @@ public class MemberServiceImpl implements MemberService {
     public void updateTempPw(String str, String email) throws Exception {
         Member member = memberRepository.findByEmail(email);
         if(member != null) {
-            member.changePassword(str);
-//        member.changePassword(bCryptPasswordEncoder.encode(str));
+            member.changePassword(bCryptPasswordEncoder.encode(str));
             memberRepository.save(member);
         } else {
-            throw new Exception("회원정보가 일치하지 않습니다.");
+            throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
         }
     }
 
@@ -126,13 +127,12 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findByEmail(email);
 
         if(member == null) {
-            throw new Exception("존재하지 않는 이메일입니다.");
+            throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
         } else if(!member.getPassword().equals(password)) {
-            throw new Exception("비밀번호가 틀립니다.");
+            throw new MemberException(ErrorCode.PW_NOT_FOUND);
         }
 
-        member.changePassword(newPassword);
-//                member.changePassword(bCryptPasswordEncoder.encode(newPassword));
+        member.changePassword(bCryptPasswordEncoder.encode(newPassword));
         memberRepository.save(member);
     }
 
