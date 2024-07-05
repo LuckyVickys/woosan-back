@@ -57,12 +57,14 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 	
-	//Object Storage
+	// 오브젝트 스토리지
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.58'
 
-	//언어 감지
+	// 언어 감지
 	implementation 'com.cybozu.labs:langdetect:1.1-20120112'
 
+	// json
+	implementation 'org.json:json:20230227'
 
 	annotationProcessor(
 			"com.querydsl:querydsl-apt:5.0.0:jakarta",
