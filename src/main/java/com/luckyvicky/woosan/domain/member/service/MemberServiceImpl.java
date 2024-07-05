@@ -5,6 +5,8 @@ import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import com.luckyvicky.woosan.domain.member.entity.SocialType;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.global.exception.ErrorCode;
+import com.luckyvicky.woosan.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -27,23 +29,31 @@ public class MemberServiceImpl implements MemberService {
 
     // 이메일 중복 체크
     @Override
-    public Boolean existEmail(String email) throws Exception {
-        return memberRepository.existsByEmail(email);
+    public Boolean existEmail(String email) {
+        if(memberRepository.existsByEmail(email) == true) {
+            throw new MemberException(ErrorCode.EMAIL_DUPLICATE);
+        } else {
+            return memberRepository.existsByEmail(email);
+        }
     }
 
     // 닉네임 중복 체크
     @Override
-    public Boolean existNickname(String nickname) throws Exception {
-        return memberRepository.existsByNickname(nickname);
+    public Boolean existNickname(String nickname) {
+        if(memberRepository.existsByNickname(nickname) == true) {
+            throw new MemberException(ErrorCode.NICKNAME_DUPLICATE);
+        } else {
+            return memberRepository.existsByEmail(nickname);
+        }
     }
 
     // 회원가입
     @Override
-    public Member addMember(Member member) throws Exception {
+    public Member addMember(Member member) {
         if(existEmail(member.getEmail()) == true) {
-            throw new Exception("중복된 이메일입니다.");
+            throw new MemberException(ErrorCode.EMAIL_DUPLICATE);
         } else if(existNickname(member.getNickname()) == true) {
-            throw new Exception("중복된 닉네임입니다.");
+            throw new MemberException(ErrorCode.NICKNAME_DUPLICATE);
         }
 
         member = Member.builder()
@@ -66,31 +76,32 @@ public class MemberServiceImpl implements MemberService {
      */
     //메일 내용 생성 및 임시 비밀번호로 회원 비밀번호 변경
     @Override
-    public MailDTO createMailAndChangePw(String email) throws Exception {
-        String str = getTempPassword();
-        MailDTO dto = new MailDTO(email,
-                "Woosan 임시비밀번호 안내 이메일입니다.",
-                "안녕하세요. Woosan 임시비밀번호 안내 관련 이메일 입니다." + " 회원님의 임시 비밀번호는 "
-                        + str + " 입니다." + "로그인 후에 비밀번호를 변경을 해주세요");
-        updateTempPw(str,email);
-        return dto;
+    public MailDTO createMailAndChangePw(String email) {
+        try {
+            String str = getTempPassword();
+            MailDTO dto = new MailDTO(email,
+                    "Woosan 임시비밀번호 안내 이메일입니다.",
+                    "안녕하세요. Woosan 임시비밀번호 안내 관련 이메일 입니다." + " 회원님의 임시 비밀번호는 "
+                            + str + " 입니다." + "로그인 후에 비밀번호를 변경을 해주세요");
+            updateTempPw(str,email);
+            return dto;
+        } catch (Exception e) {
+            throw new MemberException(ErrorCode.SERVER_ERROR);
+        }
     }
 
     // 임시 비밀번호로 업데이트
-    @Override
     public void updateTempPw(String str, String email) throws Exception {
         Member member = memberRepository.findByEmail(email);
         if(member != null) {
-            member.changePassword(str);
-//        member.changePassword(bCryptPasswordEncoder.encode(str));
+            member.changePassword(bCryptPasswordEncoder.encode(str));
             memberRepository.save(member);
         } else {
-            throw new Exception("회원정보가 일치하지 않습니다.");
+            throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
         }
     }
 
     // 랜덤함수로 임시 비밀번호 구문 만들기
-    @Override
     public String getTempPassword() throws Exception {
         char[] charSet = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
                 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
@@ -108,32 +119,39 @@ public class MemberServiceImpl implements MemberService {
 
      // 메일 전송
     @Override
-    public void mailSend(MailDTO mailDTO) throws Exception {
-        System.out.println("메일 전송 완료");
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(mailDTO.getEmail());
-        message.setSubject(mailDTO.getTitle());
-        message.setText(mailDTO.getMessage());
-        message.setFrom(fromEmail);
-        message.setReplyTo(fromEmail);
-        System.out.println("message" + message);
-        mailSender.send(message);
+    public void mailSend(MailDTO mailDTO) {
+        try {
+            System.out.println("메일 전송 완료");
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(mailDTO.getEmail());
+            message.setSubject(mailDTO.getTitle());
+            message.setText(mailDTO.getMessage());
+            message.setFrom(fromEmail);
+            message.setReplyTo(fromEmail);
+            System.out.println("message" + message);
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new MemberException(ErrorCode.SERVER_ERROR);
+        }
     }
 
     // 비밀번호 변경
     @Override
-    public void updatePassword(String email, String password, String newPassword) throws Exception {
+    public void updatePassword(String email, String password, String newPassword){
         Member member = memberRepository.findByEmail(email);
 
         if(member == null) {
-            throw new Exception("존재하지 않는 이메일입니다.");
+            throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
         } else if(!member.getPassword().equals(password)) {
-            throw new Exception("비밀번호가 틀립니다.");
+            throw new MemberException(ErrorCode.PW_NOT_FOUND);
         }
 
-        member.changePassword(newPassword);
-//                member.changePassword(bCryptPasswordEncoder.encode(newPassword));
-        memberRepository.save(member);
+        try {
+            member.changePassword(bCryptPasswordEncoder.encode(newPassword));
+            memberRepository.save(member);
+        } catch (Exception e) {
+            throw new MemberException(ErrorCode.SERVER_ERROR);
+        }
     }
 
 }

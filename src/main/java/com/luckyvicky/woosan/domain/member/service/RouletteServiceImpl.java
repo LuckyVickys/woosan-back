@@ -20,4 +20,5 @@ public class RouletteServiceImpl implements RouletteService {
 
         memberRepository.save(member);
     }
+
 }
