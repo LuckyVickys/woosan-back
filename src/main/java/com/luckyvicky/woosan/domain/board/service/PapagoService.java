@@ -1,10 +1,9 @@
 package com.luckyvicky.woosan.domain.board.service;
 
-import com.cybozu.labs.langdetect.LangDetectException;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 
 import java.io.IOException;
 
 public interface PapagoService {
-    BoardDTO tanslateBoardDetailPage(BoardDTO boardDTO) throws IOException, LangDetectException;
+    BoardDTO tanslateBoardDetailPage(BoardDTO boardDTO) throws IOException;
 }

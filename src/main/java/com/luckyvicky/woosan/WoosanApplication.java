@@ -8,6 +8,9 @@ public class WoosanApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(WoosanApplication.class, args);
+		System.out.println("======================================================");
+		System.out.println("CICD Test");
+		System.out.println("======================================================");
 	}
 
 }

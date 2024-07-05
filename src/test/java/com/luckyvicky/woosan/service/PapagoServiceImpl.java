@@ -1,8 +1,10 @@
-package com.luckyvicky.woosan.domain.board.service;
+package com.luckyvicky.woosan.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+import com.luckyvicky.woosan.domain.board.service.BoardService;
+import com.luckyvicky.woosan.domain.board.service.PapagoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,8 +22,6 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class PapagoServiceImpl implements PapagoService {
-
-    private final BoardService boardService;
 
     @Value("${ncp.papago.clientId}")
     private String clientId;
