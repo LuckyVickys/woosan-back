@@ -3,7 +3,7 @@ package com.luckyvicky.woosan.domain.messages.service;
 import com.luckyvicky.woosan.global.exception.MemberException;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
-import com.luckyvicky.woosan.domain.messages.dto.MessageDTO;
+import com.luckyvicky.woosan.domain.messages.dto.MessageAddDTO;
 import com.luckyvicky.woosan.domain.messages.entity.Message;
 import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
@@ -22,23 +22,23 @@ public class MessageServiceImpl implements MessageService {
 
     // 쪽지 전송
     @Override
-    public Long add(MessageDTO messageDTO) {
+    public Long add(MessageAddDTO messageAddDTO) {
 
         try {
-            Member sender = memberRepository.findById(messageDTO.getSenderId())
+            Member sender = memberRepository.findById(messageAddDTO.getSenderId())
                     .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-            Member receiver = memberRepository.findById(messageDTO.getReceiverId())
+            Member receiver = memberRepository.findByNickname(messageAddDTO.getReceiver())
                     .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-            if(messageDTO.getContent().trim().isEmpty()) {
+            if(messageAddDTO.getContent().trim().isEmpty()) {
                 throw new GlobalException(ErrorCode.NULL_OR_BLANK);
             }
 
             Message message = Message.builder()
                     .sender(sender)
                     .receiver(receiver)
-                    .content(messageDTO.getContent())
+                    .content(messageAddDTO.getContent())
                     .build();
 
             message = messageRepository.save(message);
