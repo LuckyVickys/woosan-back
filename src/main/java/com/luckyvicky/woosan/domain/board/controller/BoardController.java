@@ -121,5 +121,13 @@ public class BoardController {
         }
     }
 
+    //마이페이지에서 내가 쓴 게시물 조회
+    @PostMapping("/getBoard")
+    public ResponseEntity<List<BoardDTO>> getBoardsByWriterId(@RequestBody Long writerId) {
+
+        List<BoardDTO> boards = boardService.getBoardsByWriterId(writerId);
+        return ResponseEntity.ok(boards);
+    }
+
 
 }

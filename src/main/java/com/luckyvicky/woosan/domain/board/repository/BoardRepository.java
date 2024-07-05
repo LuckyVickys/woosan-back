@@ -78,6 +78,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     @EntityGraph(attributePaths = {"writer"})
     List<IBoardMember> findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
 
+    List<Board> findByWriterId(Long writerId);
 
 
     // <--------------------------------------------예비-------------------------------------------->

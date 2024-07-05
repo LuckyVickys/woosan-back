@@ -295,5 +295,31 @@ public class BoardServiceImpl implements BoardService {
         return true;
     }
 
+    //내가 작성한 게시글 조회(마이페이지)
+    @Override
+    public List<BoardDTO> getBoardsByWriterId(Long writerId) {
+        List<Board> boards = boardRepository.findByWriterId(writerId);
+
+        if (boards.isEmpty()) {
+            throw new IllegalArgumentException("Member not found");
+        }
+
+        WriterDTO writerDTO = new WriterDTO();
+        return boards.stream().map(board -> BoardDTO.builder()
+                .id(board.getId())
+                .writerId(writerDTO.builder()
+                        .id(board.getWriter().getId())
+                        .nickname(board.getWriter().getNickname())
+                        .build().getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .regDate(board.getRegDate())
+                .views(board.getViews())
+                .likesCount(board.getLikesCount())
+                .categoryName(board.getCategoryName())
+                // .images(null)  // 필요한 경우 적절히 매핑
+                // .filePathUrl(null)  // 필요한 경우 적절히 매핑
+                .build()).collect(Collectors.toList());
+    }
 
 }

@@ -39,6 +39,9 @@ public interface BoardService {
     List<BoardDTO> getBest();
 
     boolean validationBoardId(Long boardId);
+
+    //내가 작성한 게시글 조회(마이페이지)
+    List<BoardDTO> getBoardsByWriterId(Long writerId);
 }
 
 
