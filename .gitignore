@@ -19,7 +19,7 @@ src/main/generated/*
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-application.properties
+application-repo.properties
 
 ### IntelliJ IDEA ###
 .idea
