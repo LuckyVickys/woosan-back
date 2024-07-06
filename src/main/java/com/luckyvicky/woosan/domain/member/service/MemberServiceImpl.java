@@ -1,10 +1,14 @@
 package com.luckyvicky.woosan.domain.member.service;
 
+import com.luckyvicky.woosan.domain.member.dto.LoginRequestDTO;
 import com.luckyvicky.woosan.domain.member.dto.MailDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import com.luckyvicky.woosan.domain.member.entity.SocialType;
+import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.global.auth.dto.CustomUserInfoDTO;
+import com.luckyvicky.woosan.global.auth.filter.JWTUtil;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;

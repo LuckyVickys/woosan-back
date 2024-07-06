@@ -1,70 +1,105 @@
 package com.luckyvicky.woosan.global.auth.filter;
 
+import com.luckyvicky.woosan.global.auth.dto.CustomUserInfoDTO;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.Map;
 
+@Log4j2
 @Component
 public class JWTUtil {
 
-    private String key;
-    private SecretKey secretKey;
+    private final Key key;
+    private final long accessTokenExpTime;
 
-    public JWTUtil(@Value("${spring.jwt.secret}")String secret) {
-        this.key = secret;
-        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+    public JWTUtil(
+            @Value("${spring.jwt.secret}")String secretKey,
+            @Value("${spring.jwt.expirationTime}") long accessTokenExpTime
+    ) {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.accessTokenExpTime = accessTokenExpTime;
     }
 
-    public String getEmail(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
+    /**
+     * Access Token 생성
+     * @param member
+     * @return Access Token String
+     */
+    public String createAccessToken(CustomUserInfoDTO member) {
+        return createToken(member, accessTokenExpTime);
     }
 
-    public String getRoles(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("memberType", String.class);
-    }
+    /**
+     * JWT 생성
+     * @param member
+     * @param expireTime
+     * @return JWT String
+     */
+    private String createToken(CustomUserInfoDTO member, long expireTime) {
+        Claims claims = Jwts.claims();
+        claims.put("memberId", member.getId());
+        claims.put("email", member.getEmail());
+        claims.put("role", member.getMemberType());
 
-    public Boolean isExpired(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
-    }
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime tokenValidity = now.plusSeconds(expireTime);
 
-    public String generateToken(Map<String, Object> valueMap, int min) {
         return Jwts.builder()
-                .claims(valueMap)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + min))
-                .signWith(secretKey)
+                .setClaims(claims)
+                .setIssuedAt(Date.from(now.toInstant()))
+                .setExpiration(Date.from(tokenValidity.toInstant()))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public Map<String, Object> validateToken(String token) {
+    /**
+     * Token에서 User ID 추출
+     * @param token
+     * @return User ID
+     */
+    public String getEmail(String token) {
+        return parseClaims(token).get("email", String.class);
+    }
 
-        Map<String, Object> claim = null;
-
+    /**
+     * JWT 검증
+     * @param token
+     * @return IsValidate
+     */
+    public boolean validateToken(String token) {
         try {
-            claim = Jwts.parser()
-                    .setSigningKey(this.secretKey)
-                    .build()
-                    .parseSignedClaims(token)   // 검증, 실패 시 예외 발생
-                    .getBody();
-
-        } catch(MalformedJwtException malformedJwtException) {
-            throw new JwtException("잘못된 토큰 형식입니다.");
-        } catch (ExpiredJwtException expiredJwtException) {
-            throw new JwtException("토큰이 만료되었습니다.");
-        } catch (InvalidClaimException invalidClaimException) {
-            throw new JwtException("클레임이 유효하지 않습니다.");
-        } catch (JwtException jwtException) {
-            throw new JwtException("JWT ERROR");
-        } catch (Exception e) {
-            throw new JwtException("ERROR");
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT Token", e);
+        } catch (ExpiredJwtException e) {
+            log.info("Expired JWT Token", e);
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT Token", e);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT claims string is empty.", e);
         }
+        return false;
+    }
 
-        return claim;
+    /**
+     * JWT Claims 추출
+     * @param accessToken
+     * @return JWT Claims
+     */
+    public Claims parseClaims(String accessToken) {
+        try {
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJwt(accessToken).getBody();
+        } catch(ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 }
