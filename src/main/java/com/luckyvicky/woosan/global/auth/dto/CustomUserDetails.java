@@ -2,26 +2,29 @@ package com.luckyvicky.woosan.global.auth.dto;
 
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-@AllArgsConstructor
+@Getter
+@RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final Member member;
+    private final CustomUserInfoDTO member;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<String> roles = new ArrayList<>();
+        roles.add("ROLE_" + member.getMemberType().toString());
 
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(new SimpleGrantedAuthority("ROLE_" + member.getMemberType().toString()));
-        return collection;
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -51,18 +54,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        if(member.getIsActive().equals(false)) return false;
-        else return true;
+        return true;
     }
 
-    public Map<String, Object> getClaims() {
-        Map<String, Object> dataMap = new HashMap<>();
-
-        dataMap.put("member_id", member.getId());
-        dataMap.put("email", member.getEmail());
-        dataMap.put("role", member.getMemberType());
-        dataMap.put("social", member.getSocialType());
-
-        return dataMap;
-    }
 }

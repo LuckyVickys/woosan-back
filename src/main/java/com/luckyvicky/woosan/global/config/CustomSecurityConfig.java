@@ -1,96 +1,71 @@
 package com.luckyvicky.woosan.global.config;
 
 import com.luckyvicky.woosan.global.auth.filter.JWTUtil;
-import com.luckyvicky.woosan.global.auth.filter.LoginFilter;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import com.luckyvicky.woosan.global.auth.filter.JwtAuthFilter;
+import com.luckyvicky.woosan.global.auth.handler.CustomAccessDeniedHandler;
+import com.luckyvicky.woosan.global.auth.handler.CustomAuthenticationEntryPoint;
+import com.luckyvicky.woosan.global.auth.service.CustomUserDetailsService;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Collections;
 
 @Configuration
-@Log4j2
-@RequiredArgsConstructor
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@AllArgsConstructor
 public class CustomSecurityConfig {
 
-    // AuthenticationManager가 인자로 받을 AuthenticationConfiguration 객체 생성자 주입
-    private final AuthenticationConfiguration authenticationConfiguration;
+    private final CustomUserDetailsService customUserDetailsService;
     private final JWTUtil jwtUtil;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    // AuthenticationManager Bean 등록
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
+    private static final String[] PERMIT_ALL_LIST = {
+            "api/member/**", "/api/auth/login"
+    };
 
     @Bean
-    public BCryptPasswordEncoder passwordEncode() {
+    public BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // CSRF, CORS
+        http.csrf((csrf) -> csrf.disable());
+        http.cors(Customizer.withDefaults());
 
-        http.cors((cors) -> cors
-                .configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+        // 세션 관리 상태 없음으로 구성, Spring Security가 세션 생성 or 사용 x
+        http.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(
+                SessionCreationPolicy.STATELESS));
 
-                        CorsConfiguration configuration = new CorsConfiguration();
+        // FormLogin, BasicHttp 비활성화
+        http.formLogin((form) -> form.disable());
+        http.httpBasic(AbstractHttpConfigurer::disable);
 
-                        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
-                        configuration.setAllowedMethods(Collections.singletonList("*"));
-                        configuration.setAllowCredentials(true);
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
+        // JwtAuthFilter를 UsernamePasswordAuthenticationFilter 앞에 추가
+        http.addFilterBefore(new JwtAuthFilter(customUserDetailsService, jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+        http.exceptionHandling((exceptionHandling) -> exceptionHandling
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler));
 
-                        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // URL 기반의 CORS 설정 소스 생성
-                        source.registerCorsConfiguration("/**", configuration);
-
-                        return configuration;
-                    }
-                }));
-
-        // csrf disable
-        http.csrf((auth) -> auth.disable());
-
-        // form 로그인 방식 disable
-        http.formLogin((auth) -> auth.disable());
-
-        // http basic 인증방식 disable
-        http.httpBasic((auth) -> auth.disable());
-
-        // 경로별 인가 작업
-        http.authorizeHttpRequests((auth) -> auth
-//                .requestMatchers("/login", "/", "api/signUp").permitAll()
-                .requestMatchers("/**").permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
-                .anyRequest().authenticated());
-
-        // 필터 추가 LoginFilter()는 인자를 받음
-        // (AuthenticationManager() 메소드에  authenticationConfiguration 객체를 넣어야 함)
-        // 따라서 등록 필요
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
-        // 세션 설정
-        http.sessionManagement((session) -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        // 권한 규칙 작성
+        http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(PERMIT_ALL_LIST).permitAll()
+                .requestMatchers("/api/message/**").hasRole("USER")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().permitAll()
+        );
 
         return http.build();
     }

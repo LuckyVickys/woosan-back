@@ -1,34 +1,37 @@
 package com.luckyvicky.woosan.global.auth.service;
 
+import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.global.auth.dto.CustomUserDetails;
 import com.luckyvicky.woosan.domain.member.entity.Member;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import com.luckyvicky.woosan.global.auth.dto.CustomUserInfoDTO;
+import com.luckyvicky.woosan.global.exception.ErrorCode;
+import com.luckyvicky.woosan.global.exception.MemberException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@AllArgsConstructor
-@Log4j2
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+    private final MemberMapper mapper;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
-        // DB에서 조회
         Member member = memberRepository.findByEmail(email);
 
-        if(member != null) {
-            // UserDetails에 담아서 return 하면 AuthenticationManager가 검증함
-            return new CustomUserDetails(member);
+        if(member == null) {
+            throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
         }
 
-        log.info("User not found: {}", email);
-        throw new UsernameNotFoundException("존재하지 않는 이메일입니다.");
+        CustomUserInfoDTO dto = mapper.memberToCustomUserInfoDTO(member);
+
+        return new CustomUserDetails(dto);
     }
 }

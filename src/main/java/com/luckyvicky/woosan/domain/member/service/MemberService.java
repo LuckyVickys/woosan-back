@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.member.service;
 
+import com.luckyvicky.woosan.domain.member.dto.LoginRequestDTO;
 import com.luckyvicky.woosan.domain.member.dto.MailDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 
