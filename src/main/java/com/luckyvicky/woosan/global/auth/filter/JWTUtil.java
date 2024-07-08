@@ -18,14 +18,17 @@ public class JWTUtil {
 
     private final Key key;
     private final long accessTokenExpTime;
+    private final long refreshTokenExpTime;
 
     public JWTUtil(
             @Value("${spring.jwt.secret}")String secretKey,
-            @Value("${spring.jwt.expirationTime}") long accessTokenExpTime
+            @Value("${spring.jwt.access.expirationTime}") long accessTokenExpTime,
+            @Value("${spring.jwt.refresh.expirationTime}") long refreshTokenExpTime
     ) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpTime = accessTokenExpTime;
+        this.refreshTokenExpTime = refreshTokenExpTime;
     }
 
     /**
@@ -35,6 +38,10 @@ public class JWTUtil {
      */
     public String createAccessToken(CustomUserInfoDTO member) {
         return createToken(member, accessTokenExpTime);
+    }
+
+    public String createRefreshToken(CustomUserInfoDTO member) {
+        return createToken(member, refreshTokenExpTime);
     }
 
     /**
