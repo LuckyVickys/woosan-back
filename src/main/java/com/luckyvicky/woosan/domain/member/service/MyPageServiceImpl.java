@@ -1,9 +1,12 @@
 package com.luckyvicky.woosan.domain.member.service;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.dto.WriterDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
+import com.luckyvicky.woosan.domain.board.entity.Reply;
 import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
+import com.luckyvicky.woosan.domain.board.repository.ReplyRepository;
 import com.luckyvicky.woosan.domain.likes.dto.ToggleRequestDTO;
 import com.luckyvicky.woosan.domain.likes.entity.Likes;
 import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;
@@ -30,6 +33,8 @@ public class MyPageServiceImpl implements MyPageService{
     @Autowired
     private BoardRepository boardRepository;
 
+    @Autowired
+    private ReplyRepository replyRepository;
 
     //내가 작성한 게시글 조회(마이페이지)
     @Override
@@ -81,6 +86,26 @@ public class MyPageServiceImpl implements MyPageService{
                 ))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<ReplyDTO> getReplyByWriterId(Long writerId) {
+        List<Reply> replies = replyRepository.findByWriterId(writerId);
+
+        if (replies.isEmpty()) {
+            throw new IllegalArgumentException("reply not found");
+        }
+
+        return replies.stream().map(reply -> ReplyDTO.builder()
+                .id(reply.getId())
+                .writerId(reply.getWriter().getId())
+                .parentId(reply.getParentId())
+                .boardId(reply.getBoard().getId())
+                .content(reply.getContent())
+                .regDate(reply.getRegDate())
+                .likesCount(reply.getLikesCount())
+                .build()).collect(Collectors.toList());
+    }
+
 
 
 }

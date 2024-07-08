@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.member.controller;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.domain.member.service.MyPageService;
 import lombok.RequiredArgsConstructor;
@@ -33,4 +34,20 @@ public class MypageController {
         List<BoardDTO> boards = myPageService.getTargetIdByLikes(id);
         return ResponseEntity.ok(boards);
     }
+
+    //마이페이지 내가 쓴 댓글 조회
+    @GetMapping("/ViewComment")
+    public ResponseEntity<List<ReplyDTO>> getCommentsByBoardId(@RequestBody ReplyDTO replyDTO) {
+        Long writerId = replyDTO.getWriterId();
+        List<ReplyDTO> comments = myPageService.getReplyByWriterId(writerId);
+        return ResponseEntity.ok(comments);
+    }
+
+//    //마이페이지 내가 쓴 대댓글 조회
+//    @PostMapping("/ViewReply")
+//    public ResponseEntity<ReplyDTO> getCommentById(@PathVariable Long id) {
+//        ReplyDTO comment = ReplyService.getById(id);
+//        return ResponseEntity.ok(comment);
+//    }
+
 }
