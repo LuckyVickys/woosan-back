@@ -17,6 +17,7 @@ public class ReplyDTO {
 
     private Long writerId;  // 작성자 고유번호
     private String nickname;    //작성자 닉네임
+    private  List<String> writerProfile;
 
     private LocalDateTime regDate;  // 작성 날짜
     private Long parentId;  // 부모 댓글의 고유번호

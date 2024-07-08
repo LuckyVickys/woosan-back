@@ -181,7 +181,8 @@ public class BoardServiceImpl implements BoardService {
             BoardDTO boardDTO = modelMapper.map(boardMember, BoardDTO.class);
             boardDTO.setViews(board.getViews());  // 최신 조회수 DTO에 반영
             boardDTO.setFilePathUrl(fileImgService.findFiles("board", id));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
-//            boardDTO.setFilePathUrl(fileImgService.findFiles("member", memberId));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
+            boardDTO.setWriterProfile(fileImgService.findFiles("member", boardDTO.getWriterId()));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
+
             return boardDTO;
         }).orElse(null);
 
@@ -201,7 +202,6 @@ public class BoardServiceImpl implements BoardService {
 
         BoardDTO boardDTO = result.map(boardMember -> modelMapper.map(boardMember, BoardDTO.class)).orElse(null);
         boardDTO.setFilePathUrl(filesUrl);
-
         return boardDTO;
     }
 
