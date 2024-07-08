@@ -1,5 +1,7 @@
 package com.luckyvicky.woosan.global.config;
 
+import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
+import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.global.auth.filter.JWTUtil;
 import com.luckyvicky.woosan.global.auth.filter.JwtAuthFilter;
 import com.luckyvicky.woosan.global.auth.handler.CustomAccessDeniedHandler;
@@ -28,6 +30,8 @@ public class CustomSecurityConfig {
     private final JWTUtil jwtUtil;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final MemberRepository memberRepository;
+    private final MemberMapper memberMapper;
 
     private static final String[] PERMIT_ALL_LIST = {
             "api/member/**", "/api/auth/login", "/api/message/**", "/api/board/**", "/api/matching/**"
@@ -53,7 +57,7 @@ public class CustomSecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable);
 
         // JwtAuthFilter를 UsernamePasswordAuthenticationFilter 앞에 추가
-        http.addFilterBefore(new JwtAuthFilter(customUserDetailsService, jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthFilter(customUserDetailsService, jwtUtil, memberRepository, memberMapper), UsernamePasswordAuthenticationFilter.class);
 
         http.exceptionHandling((exceptionHandling) -> exceptionHandling
                 .authenticationEntryPoint(authenticationEntryPoint)

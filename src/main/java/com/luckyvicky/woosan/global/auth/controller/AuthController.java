@@ -1,9 +1,12 @@
 package com.luckyvicky.woosan.global.auth.controller;
 
 import com.luckyvicky.woosan.domain.member.dto.LoginRequestDTO;
+import com.luckyvicky.woosan.domain.member.dto.LoginResponseDTO;
 import com.luckyvicky.woosan.global.auth.service.AuthService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,10 +22,13 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> getMemberInfo(
-            @Valid @RequestBody LoginRequestDTO request
+    public ResponseEntity<LoginResponseDTO> getMemberInfo(
+            @Valid @RequestBody LoginRequestDTO request,
+            HttpServletResponse response
     ) {
-        String token = this.authService.login(request);
-        return ResponseEntity.status(HttpStatus.OK).body(token);
+        LoginResponseDTO dto = this.authService.login(request);
+        String accessToken = dto.getAccessToken();
+        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
 }

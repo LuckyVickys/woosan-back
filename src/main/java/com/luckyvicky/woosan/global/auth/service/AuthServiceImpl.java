@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.global.auth.service;
 
 import com.luckyvicky.woosan.domain.member.dto.LoginRequestDTO;
+import com.luckyvicky.woosan.domain.member.dto.LoginResponseDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
@@ -25,7 +26,7 @@ public class AuthServiceImpl implements AuthService {
 
     // 로그인
     @Override
-    public String login(LoginRequestDTO dto) {
+    public LoginResponseDTO login(LoginRequestDTO dto) {
         String email = dto.getEmail();
         String password = dto.getPassword();
         Member member = memberRepository.findByEmail(email);
@@ -42,6 +43,8 @@ public class AuthServiceImpl implements AuthService {
         CustomUserInfoDTO info = mapper.memberToCustomUserInfoDTO(member);
 
         String accessToken = jwtUtil.createAccessToken(info);
-        return accessToken;
+        String refreshToken = jwtUtil.createRefreshToken(info);
+
+        return new LoginResponseDTO(accessToken, refreshToken);
     }
 }

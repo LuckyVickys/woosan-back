@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.global.auth.dto;
 
 import com.luckyvicky.woosan.domain.member.entity.MemberType;
+import com.luckyvicky.woosan.domain.member.entity.SocialType;
 import lombok.*;
 
 @Data
@@ -14,4 +15,5 @@ public class CustomUserInfoDTO {
     private String email;
     private String password;
     private MemberType memberType;
+    private SocialType socialType;
 }
