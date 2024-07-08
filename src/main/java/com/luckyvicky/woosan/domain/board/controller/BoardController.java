@@ -6,6 +6,7 @@ import com.luckyvicky.woosan.domain.board.service.SummaryService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.domain.board.service.PapagoService;
+import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,16 @@ public class BoardController {
     public ResponseEntity<BoardPageResponseDTO> getList(PageRequestDTO pageRequestDTO,
                                                         @RequestParam(value = "categoryName", required = false) String categoryName) {
         BoardPageResponseDTO responseDTO = boardService.getBoardPage(pageRequestDTO, categoryName);
+        return ResponseEntity.ok(responseDTO);
+    }
+
+
+    /**
+     * 공지사항 다건 조회 (cs)
+     */
+    @GetMapping("/cs/notices")
+    public ResponseEntity<PageResponseDTO<BoardDTO>> getNoticePage(PageRequestDTO pageRequestDTO) {
+        PageResponseDTO<BoardDTO> responseDTO = boardService.getNoticePage(pageRequestDTO);
         return ResponseEntity.ok(responseDTO);
     }
 
