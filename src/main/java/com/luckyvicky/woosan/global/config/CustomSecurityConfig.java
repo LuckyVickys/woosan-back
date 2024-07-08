@@ -30,7 +30,7 @@ public class CustomSecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     private static final String[] PERMIT_ALL_LIST = {
-            "api/member/**", "/api/auth/login"
+            "api/member/**", "/api/auth/login", "/api/message/**", "/api/board/**", "/api/matching/**"
     };
 
     @Bean
@@ -62,7 +62,7 @@ public class CustomSecurityConfig {
         // 권한 규칙 작성
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(PERMIT_ALL_LIST).permitAll()
-                .requestMatchers("/api/message/**").hasRole("USER")
+//                .requestMatchers("/api/message/**").hasRole("USER")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
         );
