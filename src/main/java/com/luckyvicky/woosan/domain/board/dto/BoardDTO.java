@@ -18,6 +18,7 @@ public class BoardDTO {
     private Long id;
     private Long writerId;
     private String nickname;
+    private List<String> writerProfile;
 
     private String title;
     private String content;

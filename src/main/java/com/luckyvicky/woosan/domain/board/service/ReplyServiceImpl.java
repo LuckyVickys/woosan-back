@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.board.service;
 
+import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
@@ -37,6 +38,7 @@ public class ReplyServiceImpl implements ReplyService {
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
     private final BoardService boardService;
+    private final FileImgService fileImgService;
 
     private static final int MAX_CONTENT_LENGTH = 1000;     // 내용 최대 길이
     /**
@@ -98,6 +100,10 @@ public class ReplyServiceImpl implements ReplyService {
                 .map(this::convertToReplyDTOWithChildren)
                 .collect(Collectors.toList());
 
+        System.out.println("====================================");
+        System.out.println(parentReplyDTOs);
+        System.out.println("====================================");
+
         long totalCount = parentReplies.getTotalElements();
 
         return PageResponseDTO.<ReplyDTO>withAll()
@@ -109,13 +115,19 @@ public class ReplyServiceImpl implements ReplyService {
 
     private ReplyDTO convertToReplyDTOWithChildren(IReply iReply) {
         ReplyDTO replyDTO = modelMapper.map(iReply, ReplyDTO.class);
+        replyDTO.setWriterProfile(fileImgService.findFiles("member", iReply.getWriter().getId()));
+
         List<ReplyDTO> childReplyDTOs = replyRepository.findByParentId(iReply.getId()).stream()
-                .map(childReply -> modelMapper.map(childReply, ReplyDTO.class))
+                .map(childReply -> {
+                    ReplyDTO childReplyDTO = modelMapper.map(childReply, ReplyDTO.class);
+                    childReplyDTO.setWriterProfile(fileImgService.findFiles("member", childReply.getWriter().getId()));
+                    return childReplyDTO;
+                })
                 .collect(Collectors.toList());
+
         replyDTO.setChildren(childReplyDTOs);
         return replyDTO;
     }
-
 
     /**
      * 댓글 삭제
