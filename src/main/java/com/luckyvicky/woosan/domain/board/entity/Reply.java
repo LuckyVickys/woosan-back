@@ -1,7 +1,10 @@
 package com.luckyvicky.woosan.domain.board.entity;
 
+import com.luckyvicky.woosan.domain.likes.exception.LikeException;
 import com.luckyvicky.woosan.domain.member.entity.Member;
+import com.luckyvicky.woosan.global.exception.ErrorCode;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
@@ -38,6 +41,7 @@ public class Reply {
     private Long parentId;  // 부모 댓글 ID
     
     @ColumnDefault("0")
+    @Min(0)
     private int likesCount; // 추천 수
 
 
@@ -48,6 +52,9 @@ public class Reply {
 
     // 추천수 변경
     public void changeLikesCount(int likesCount){
+        if(this.likesCount + likesCount < 0) {
+            throw new LikeException(ErrorCode.LIKES_COUNT_NEGATIVE);
+        }
         this.likesCount += likesCount;
     }
 

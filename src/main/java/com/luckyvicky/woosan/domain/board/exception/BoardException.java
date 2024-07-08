@@ -1,4 +1,4 @@
-package com.luckyvicky.woosan.global.exception;
+package com.luckyvicky.woosan.domain.board.exception;
 
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.exception.GlobalException;

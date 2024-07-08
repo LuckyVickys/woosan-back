@@ -41,7 +41,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    Page<IBoardMember> findAllProjectedByCategoryNameAndIsDeletedFalse(String categoryName, Pageable pageable);
+    Page<IBoardMember> findAllProjectedByCategoryNameAndIsDeletedFalseOrderByIdDesc(String categoryName, Pageable pageable);
 
 
 
