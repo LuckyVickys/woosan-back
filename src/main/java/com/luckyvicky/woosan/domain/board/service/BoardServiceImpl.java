@@ -2,7 +2,7 @@ package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.entity.Board;
-import com.luckyvicky.woosan.global.exception.BoardException;
+import com.luckyvicky.woosan.domain.board.exception.BoardException;
 import com.luckyvicky.woosan.global.exception.MemberException;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
@@ -41,13 +41,21 @@ public class BoardServiceImpl implements BoardService {
     private final HttpSession session;
     private final FileImgService fileImgService;
 
+    private static final int MAX_TITLE_LENGTH = 40;     // 제목 최대 길이
+    private static final int MAX_CONTENT_LENGTH = 1960;     // 내용 최대 길이
+    private static final List<String> VALID_CATEGORIES = List.of("맛집", "청소", "요리", "재테크", "인테리어", "정책", "기타", "공지사항"); // 유효한 카테고리 목록
+
+
 
     /**
      * 게시물 작성
      */
     @Override
     public Long add(BoardDTO boardDTO) {
-        try {
+        validateBoardDTO(boardDTO); // 입력값 검증
+        validateWriterId(boardDTO.getWriterId()); // 작성자 검증
+
+
             // writer 정보를 통해 Member 엔티티를 조회
             Member writer = memberRepository.findById(boardDTO.getWriterId())
                     .orElseThrow(() ->  new MemberException(ErrorCode.MEMBER_NOT_FOUND));
@@ -72,9 +80,6 @@ public class BoardServiceImpl implements BoardService {
             }
 
             return board.getId();
-        } catch (IllegalArgumentException e) {
-            throw e;
-        }
     }
 
 
@@ -84,6 +89,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional(readOnly = true)
     public BoardPageResponseDTO getBoardPage(PageRequestDTO pageRequestDTO, String categoryName) {
+        pageRequestDTO.validate();
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").ascending());
 
         // 공지사항 조회
@@ -95,7 +101,7 @@ public class BoardServiceImpl implements BoardService {
         // 일반 게시물 조회
         Page<IBoardMember> result;
         if (categoryName != null && !categoryName.isEmpty()) {
-            result = boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalse(categoryName, pageable);
+            result = boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalseOrderByIdDesc(categoryName, pageable);
         } else {
             result = boardRepository.findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByIdDesc("공지사항", pageable);
         }
@@ -176,8 +182,15 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     public void modify(BoardDTO boardDTO) {
+        validateBoardDTO(boardDTO); // 입력값 검증
+
         Board board = boardRepository.findById(boardDTO.getId())
                 .orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
+
+        // 작성자 검증
+        if (!board.getWriter().getId().equals(boardDTO.getWriterId())) {
+            throw new BoardException(ErrorCode.ACCESS_DENIED);
+        }
 
         board.changeTitle(boardDTO.getTitle());
         board.changeContent(boardDTO.getContent());
@@ -211,8 +224,14 @@ public class BoardServiceImpl implements BoardService {
                 .orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
 
         if (board.isDeleted()) {
-            throw new BoardException(ErrorCode.BOARD_ALREADY_DELETED); // 이미 삭제된 게시물인 경우 예외 처리
+            throw new BoardException(ErrorCode.BOARD_ALREADY_DELETED); // 이미 삭제된 게시물인 경우
         }
+
+        // 작성자 검증
+//        Long userId = (Long) session.getAttribute("userId"); // 토큰으로 변경 필요
+//        if (!board.getWriter().getId().equals(userId)) {
+//            throw new BoardException(ErrorCode.ACCESS_DENIED);
+//        }
 
         board.changeIsDeleted(true);
         boardRepository.save(board);
@@ -281,19 +300,7 @@ public class BoardServiceImpl implements BoardService {
 //    }
 
 
-//    예외처리
 
-    /**
-     * 요청된 게시글이 존재하지 않을 때
-     */
-    @Override
-    public boolean validationBoardId(Long boardId) {
-        boolean exists = boardRepository.existsById(boardId);
-        if (!exists) {
-            throw new BoardException(ErrorCode.BOARD_NOT_FOUND);
-        }
-        return true;
-    }
 
     //내가 작성한 게시글 조회(마이페이지)
     @Override
@@ -321,5 +328,61 @@ public class BoardServiceImpl implements BoardService {
                 // .filePathUrl(null)  // 필요한 경우 적절히 매핑
                 .build()).collect(Collectors.toList());
     }
+
+
+
+
+//    <--------------------------------예외처리-------------------------------->
+
+    /**
+     * 요청된 게시글이 존재하지 않을 때
+     */
+    @Override
+    public boolean validationBoardId(Long boardId) {
+        boolean exists = boardRepository.existsById(boardId);
+        if (!exists) {
+            throw new BoardException(ErrorCode.BOARD_NOT_FOUND);
+        }
+        return true;
+    }
+
+    /**
+     * BoardDTO 입력값 검증
+     */
+    private void validateBoardDTO(BoardDTO boardDTO) {
+        if (boardDTO.getTitle() == null || boardDTO.getTitle().trim().isEmpty()) {
+            throw new BoardException(ErrorCode.NULL_OR_BLANK);
+        }
+        if (boardDTO.getTitle().length() > MAX_TITLE_LENGTH) {
+            throw new BoardException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        if (boardDTO.getContent() == null || boardDTO.getContent().trim().isEmpty()) {
+            throw new BoardException(ErrorCode.NULL_OR_BLANK);
+        }
+        if (boardDTO.getContent().length() > MAX_CONTENT_LENGTH) {
+            throw new BoardException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        if (boardDTO.getCategoryName() == null || boardDTO.getCategoryName().trim().isEmpty()) {
+            throw new BoardException(ErrorCode.NULL_OR_BLANK);
+        }
+        if (!VALID_CATEGORIES.contains(boardDTO.getCategoryName())) {
+            throw new BoardException(ErrorCode.INVALID_TYPE); // 유효하지 않은 카테고리일 경우
+        }
+    }
+
+    /**
+     * writerId 검증
+     */
+    private Member validateWriterId(Long writerId) {
+        if (writerId == null) {
+            throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        return memberRepository.findById(writerId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
 
 }

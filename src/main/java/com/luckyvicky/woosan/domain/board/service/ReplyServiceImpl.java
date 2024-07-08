@@ -5,9 +5,9 @@ import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.entity.Reply;
-import com.luckyvicky.woosan.global.exception.BoardException;
+import com.luckyvicky.woosan.domain.board.exception.BoardException;
 import com.luckyvicky.woosan.global.exception.MemberException;
-import com.luckyvicky.woosan.global.exception.ReplyException;
+import com.luckyvicky.woosan.domain.board.exception.ReplyException;
 import com.luckyvicky.woosan.domain.board.projection.IReply;
 import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.ReplyRepository;
@@ -38,11 +38,15 @@ public class ReplyServiceImpl implements ReplyService {
     private final ModelMapper modelMapper;
     private final BoardService boardService;
 
+    private static final int MAX_CONTENT_LENGTH = 1000;     // 내용 최대 길이
     /**
      * 댓글 작성
      */
     @Override
     public ReplyDTO add(ReplyDTO replyDTO) {
+
+        //필수 입력값 검증
+        validateReplyDTO(replyDTO);
 
         // 게시글과 작성자 조회
         Board board = boardRepository.findById(replyDTO.getBoardId())
@@ -85,6 +89,8 @@ public class ReplyServiceImpl implements ReplyService {
     @Transactional(readOnly = true)
     public PageResponseDTO<ReplyDTO> getRepliesByBoardId(Long boardId, PageRequestDTO pageRequestDTO) {
         boardService.validationBoardId(boardId);
+
+        pageRequestDTO.validate();
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
         Page<IReply> parentReplies = replyRepository.findByBoardIdAndParentIdIsNull(boardId, pageable);
 
@@ -123,22 +129,27 @@ public class ReplyServiceImpl implements ReplyService {
         Reply reply = replyRepository.findById(id)
                 .orElseThrow(() -> new ReplyException(ErrorCode.REPLY_NOT_FOUND));
 
-        // 자식 댓글 삭제
-        List<Reply> childReplies = replyRepository.findByParentId(id).stream()
-                .map(childReply -> replyRepository.findById(childReply.getId())
-                        .orElseThrow(() -> new ReplyException(ErrorCode.REPLY_NOT_FOUND)))
-                .collect(Collectors.toList());
-
-        for (Reply child : childReplies) {
-            replyRepository.delete(child);
-        }
+        // 자식 댓글 수 계산 및 삭제
+        int childReplyCount = deleteChildReplies(reply.getId());
 
         // 부모 댓글 삭제
         Board board = reply.getBoard();
-        board.changeReplyCount(-1 * (childReplies.size() + 1));  // 자식 댓글 수와 부모 댓글을 포함한 삭제
+        board.changeReplyCount(-(childReplyCount + 1));  // 자식 댓글 수와 부모 댓글을 포함한 삭제
         boardRepository.save(board);
 
         replyRepository.delete(reply);
+    }
+
+    private int deleteChildReplies(Long parentId) {
+        List<IReply> childReplies = replyRepository.findByParentId(parentId);
+        int count = 0;
+
+        for (IReply child : childReplies) {
+            count += deleteChildReplies(child.getId()) + 1;
+            replyRepository.deleteById(child.getId());
+        }
+
+        return count;
     }
 
 //    <--------------------------------예외처리-------------------------------->
@@ -160,9 +171,21 @@ public class ReplyServiceImpl implements ReplyService {
     public boolean validationParentId(Long parentId) {
         boolean exists = replyRepository.existsById(parentId);
         if (!exists) {
-            throw new ReplyException(ErrorCode.REPLY_NOT_FOUND);
+            throw new ReplyException(ErrorCode.PARENT_REPLY_NOT_FOUND);
         }
         return true;
+    }
+
+    /**
+     * 필수 입력값 검증
+     */
+    private void validateReplyDTO(ReplyDTO replyDTO) {
+        if (replyDTO.getBoardId() == null || replyDTO.getWriterId() == null || replyDTO.getContent() == null || replyDTO.getContent().trim().isEmpty()) {
+            throw new ReplyException(ErrorCode.NULL_OR_BLANK);
+        }
+        if (replyDTO.getContent().length() > MAX_CONTENT_LENGTH){
+            throw new ReplyException(ErrorCode.INVALID_INPUT_VALUE);
+        }
     }
 
 }
