@@ -1,0 +1,7 @@
+elasticsearch:
+  host: localhost
+  port: 9200
+
+spring:
+  profiles:
+    active: elk

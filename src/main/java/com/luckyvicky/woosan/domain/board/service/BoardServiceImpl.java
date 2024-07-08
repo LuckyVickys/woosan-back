@@ -5,7 +5,7 @@ import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.global.exception.BoardException;
 import com.luckyvicky.woosan.global.exception.MemberException;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
-import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
+import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;

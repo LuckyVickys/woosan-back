@@ -5,52 +5,89 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
+@Document(indexName = "board")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
 public class Board {
 
-    @Id
+    @jakarta.persistence.Id
+    @org.springframework.data.annotation.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writerId", nullable = false)
+    @Field(type = FieldType.Object)
     private Member writer;  // 작성자 (회원 엔티티와의 연관관계)
 
     @Column(nullable = false, length = 40)
+    @Field(type = FieldType.Text)
     private String title;  // 제목
 
     @Column(nullable = false, length = 1960)
+    @Field(type = FieldType.Text)
     private String content;  // 내용
 
     @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDateTime regDate;  // 작성 날짜
 
+    @LastModifiedDate
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updateTime;  // 수정 날짜
+
+    @Transient
+    @Field(type = FieldType.Date, format = DateFormat.date_time)
+    private String regDateString;
+
     @ColumnDefault("0")
+    @Field(type = FieldType.Integer)
     private int views;  // 조회수
 
     @ColumnDefault("0")
+    @Field(type = FieldType.Integer)
     private int likesCount; // 추천 수
 
     @ColumnDefault("false")
+    @Field(type = FieldType.Boolean)
     private boolean isDeleted;  // 삭제 상태
 
     @Column(nullable = false, length = 255)
+    @Field(type = FieldType.Text)
     private String categoryName;  // 카테고리 유형
 
     @ColumnDefault("0")
-    private int replyCount; // 추천 수
+    @Field(type = FieldType.Integer)
+    private int replyCount; // 댓글 수
+
+    @PostLoad
+    @PostPersist
+    @PostUpdate
+    public void updateRegDateString() {
+        this.regDateString = this.regDate != null ? this.regDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
+    }
 
     /**
      * 제목 수정
-    */
+     */
     public void changeTitle(String title){
         this.title = title;
     }
@@ -75,8 +112,6 @@ public class Board {
     public void addViewCount(){
         this.views++;
     }
-
-
 
     // 추천수 변경
     public void changeLikesCount(int likesCount){
