@@ -125,6 +125,35 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
+
+    /**
+     * 공지사항 다건 조회 (cs)
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponseDTO<BoardDTO> getNoticePage(PageRequestDTO pageRequestDTO) {
+        pageRequestDTO.validate();
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").descending());
+        Page<IBoardMember> result = boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalseOrderByIdDesc("공지사항", pageable);
+
+        List<BoardDTO> dtoList = result.getContent().stream()
+                .map(boardMember -> modelMapper.map(boardMember, BoardDTO.class))
+                .collect(Collectors.toList());
+
+        long totalCount = result.getTotalElements();
+
+        return PageResponseDTO.<BoardDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCount(totalCount)
+                .build();
+    }
+
+
+
+
+
+
     /**
      * 게시물 단건 조회 - 상세 페이지 (조회수 증가)
      */

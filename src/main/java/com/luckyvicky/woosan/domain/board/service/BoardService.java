@@ -2,6 +2,7 @@ package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
+import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -21,6 +22,9 @@ public interface BoardService {
     @Transactional(readOnly = true)
     BoardPageResponseDTO getBoardPage(PageRequestDTO pageRequestDTO, String categoryName);
 
+
+    @Transactional(readOnly = true)
+    PageResponseDTO<BoardDTO> getNoticePage(PageRequestDTO pageRequestDTO);
 
     @Transactional
     BoardDTO getBoard(Long id);
