@@ -8,19 +8,20 @@ import com.luckyvicky.woosan.domain.member.entity.SocialType;
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.global.auth.dto.CustomUserInfoDTO;
+import com.luckyvicky.woosan.global.auth.dto.RefreshTokenReqDTO;
+import com.luckyvicky.woosan.global.auth.dto.RefreshTokenResDTO;
+import com.luckyvicky.woosan.global.auth.exception.JWTException;
 import com.luckyvicky.woosan.global.auth.filter.JWTUtil;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -88,7 +89,7 @@ public class AuthServiceImpl implements AuthService {
         String kakaoGetUserURL = "https://kapi.kakao.com/v2/user/me";
 
         if(accessToken == null) {
-            throw new RuntimeException("Access Token is null");
+            throw new JWTException(ErrorCode.ACCESS_TOKEN_NOT_FOUND);
         }
         RestTemplate restTemplate = new RestTemplate();
 
@@ -148,5 +149,27 @@ public class AuthServiceImpl implements AuthService {
                 .isActive(true)
                 .level(MemberType.Level.LEVEL_1)
                 .build();
+    }
+
+    // 리프레시 토큰이 존재할 시 accessToken 재발급
+    @Override
+    public ResponseEntity<?> refreshAccessToken(String authHeader, RefreshTokenReqDTO request) {
+
+        String refreshToken = request.getRefreshToken();
+        String accessToken = authHeader.substring(7);
+
+        if(jwtUtil.validateToken(accessToken)) {
+            return ResponseEntity.ok(new RefreshTokenResDTO(accessToken, refreshToken));
+        }
+
+        if (jwtUtil.validateToken(refreshToken)) {
+            String email = jwtUtil.getEmail(refreshToken);
+            Member member = memberRepository.findByEmail(email);
+            if (member != null) {
+                String newAccessToken = jwtUtil.createAccessToken(mapper.memberToCustomUserInfoDTO(member));
+                return ResponseEntity.ok(new RefreshTokenResDTO(newAccessToken, refreshToken));
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
     }
 }

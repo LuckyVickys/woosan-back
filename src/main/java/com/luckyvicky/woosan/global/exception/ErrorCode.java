@@ -36,7 +36,12 @@ public enum ErrorCode {
     IMAGE_FORMAT_ERROR(HttpStatus.BAD_REQUEST, "지원하지 않는 이미지 포맷입니다."),
 
     // 추천 관련 오류
-    LIKES_COUNT_NEGATIVE(HttpStatus.BAD_REQUEST, "추천 수는 음수가 될 수 없습니다.");
+    LIKES_COUNT_NEGATIVE(HttpStatus.BAD_REQUEST, "추천 수는 음수가 될 수 없습니다."),
+
+    // jwt 관련 오류
+    ACCESS_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Access Token이 존재하지 않습니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Refresh Token이 존재하지 않습니다."),
+    INVALID_STRING(HttpStatus.BAD_REQUEST, "Invalid String");
 
     private final HttpStatus status;
     private final String message;

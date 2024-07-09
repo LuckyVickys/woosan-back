@@ -55,11 +55,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     // 현재 Request의 Security Context에 접근권한 설정
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                 }
-            } else {
-                String email = jwtUtil.getEmail(token);
-                Member member = memberRepository.findByEmail(email);
-                String newAccessToken = jwtUtil.createAccessToken(memberMapper.memberToCustomUserInfoDTO(member));
-                response.setHeader("Authorization", "Bearer " + newAccessToken);
             }
         }
 
