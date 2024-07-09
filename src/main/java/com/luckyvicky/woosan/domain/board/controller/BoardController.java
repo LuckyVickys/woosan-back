@@ -2,6 +2,7 @@ package com.luckyvicky.woosan.domain.board.controller;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
+import com.luckyvicky.woosan.domain.board.service.ElasticsearchBoardService;
 import com.luckyvicky.woosan.domain.board.service.SummaryService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
@@ -10,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -21,6 +22,7 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
+    private final ElasticsearchBoardService elasticsearchBoardService;
     private final PapagoService papagoService;
     private final SummaryService summaryService;
 
@@ -150,5 +152,18 @@ public class BoardController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    @GetMapping("/autocomplete")
+    public ResponseEntity<List<String>> autocomplete(
+            @RequestParam String keyword,
+            @RequestParam String searchType) {
+        System.out.println(keyword);
+        System.out.println(searchType);
+        System.out.println("===============자동완성 호출===================");
+        List<String> result = elasticsearchBoardService.autocomplete(keyword, searchType);
+        System.out.println("Autocomplete result: " + result);
+        return ResponseEntity.ok(result);
     }
 }

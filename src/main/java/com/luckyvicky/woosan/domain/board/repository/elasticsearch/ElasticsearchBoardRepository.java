@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.board.repository.elasticsearch;
 
 import com.luckyvicky.woosan.domain.board.entity.Board;
+import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 
@@ -50,4 +51,15 @@ public interface ElasticsearchBoardRepository extends ElasticsearchRepository<Bo
 
     // 제목, 내용, 작성자에 키워드가 모두 포함된 특정 카테고리의 게시물 검색
     List<Board> findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryName(String title, String content, String nickname, String categoryName);
+    // 공지사항을 제외한 모든 카테고리에서 제목, 내용, 작성자(닉네임) 모두로 검색
+    List<Board> findByCategoryNameNotAndTitleContainingAndContentContainingAndNicknameContaining(String excludedCategory, String title, String content, String nickname);
+
+    @Query("{\"bool\": {\"must\": [{\"match_phrase_prefix\": {\"title\": {\"query\": \"?0\"}}}]}}")
+    List<Board> autocompleteTitle(String keyword);
+
+    List<Board> findByContentContaining(String keyword);
+
+
+    @Query("{\"bool\": {\"must\": [{\"match_phrase_prefix\": {\"nickname\": {\"query\": \"?0\"}}}]}}")
+    List<Board> autocompleteWriter(String keyword);
 }
