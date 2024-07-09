@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.board.service;
 
+import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.repository.elasticsearch.ElasticsearchBoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -63,4 +65,30 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         }
     }
 
+    public List<String> autocomplete(String keyword, String searchType) {
+        List<Board> result;
+        if ("제목".equals(searchType)) {
+            System.out.println("title auto");
+            result = elasticsearchBoardRepository.autocompleteTitle(keyword);
+            return result.stream()
+                    .map(Board::getTitle)
+                    .distinct()
+                    .collect(Collectors.toList());
+        } else if ("내용".equals(searchType)) {
+            System.out.println("content auto");
+            result = elasticsearchBoardRepository.findByContentContaining(keyword);
+            return result.stream()
+                    .map(Board::getContent)
+                    .distinct()
+                    .collect(Collectors.toList());
+        } else if ("작성자".equals(searchType)) {
+            System.out.println("writer auto");
+            result = elasticsearchBoardRepository.autocompleteWriter(keyword);
+            return result.stream()
+                    .map(Board::getNickname)
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+        return List.of(); // 빈 리스트 반환
+    }
 }
