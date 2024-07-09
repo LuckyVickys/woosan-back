@@ -67,6 +67,9 @@ dependencies {
 	// json
 	implementation 'org.json:json:20230227'
 
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	annotationProcessor(
 			"com.querydsl:querydsl-apt:5.0.0:jakarta",
 
