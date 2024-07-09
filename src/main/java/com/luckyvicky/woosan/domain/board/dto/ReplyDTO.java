@@ -2,6 +2,7 @@ package com.luckyvicky.woosan.domain.board.dto;
 
 import lombok.*;
 
+import java.io.Writer;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,5 +24,4 @@ public class ReplyDTO {
     private Long parentId;  // 부모 댓글의 고유번호
 
     private List<ReplyDTO> children;  // 자식 댓글 리스트
-
 }
