@@ -27,4 +27,10 @@ public class MypageController {
         List<BoardDTO> boards = myPageService.getBoardsByWriterId(writerId);
         return ResponseEntity.ok(boards);
     }
+
+    @GetMapping("/ViewLikes")
+    public ResponseEntity<List<BoardDTO>> viewLikesByBoard(@RequestBody Long id) {
+        List<BoardDTO> boards = myPageService.getTargetIdByLikes(id);
+        return ResponseEntity.ok(boards);
+    }
 }
