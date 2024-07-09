@@ -22,6 +22,7 @@ public class BoardDTO {
     private String title;
     private String content;
     private LocalDateTime regDate;
+    private LocalDateTime updateDate;
     private int views;
     private int likesCount;
     private String categoryName;

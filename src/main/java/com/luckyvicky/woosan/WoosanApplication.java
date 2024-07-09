@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.luckyvicky.woosan.domain.likes.repository",
 		"com.luckyvicky.woosan.domain.report.repository",
 		"com.luckyvicky.woosan.domain.messages.repository",
-		"com.luckyvicky.woosan.domain.fileImg.repository" // MemberRepository가 있는 패키지 추가
+		"com.luckyvicky.woosan.domain.fileImg.repository"
 })
 @EnableElasticsearchRepositories(basePackages = "com.luckyvicky.woosan.domain.board.repository.elasticsearch")
 public class WoosanApplication {
