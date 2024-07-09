@@ -84,7 +84,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
                     break;
             }
         }
-      
+
         List<BoardDTO> dtoList = results.stream()
                 .map(board -> modelMapper.map(board, BoardDTO.class))
                 .collect(Collectors.toList());
@@ -99,24 +99,26 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         return BoardPageResponseDTO.builder()
                 .boardPage(boardPage)
                 .build();
+    }
+
 
     public List<String> autocomplete(String keyword, String searchType) {
         List<Board> result;
-        if ("제목".equals(searchType)) {
+        if ("title".equals(searchType)) {
             System.out.println("title auto");
             result = elasticsearchBoardRepository.autocompleteTitle(keyword);
             return result.stream()
                     .map(Board::getTitle)
                     .distinct()
                     .collect(Collectors.toList());
-        } else if ("내용".equals(searchType)) {
+        } else if ("content".equals(searchType)) {
             System.out.println("content auto");
             result = elasticsearchBoardRepository.findByContentContaining(keyword);
             return result.stream()
                     .map(Board::getContent)
                     .distinct()
                     .collect(Collectors.toList());
-        } else if ("작성자".equals(searchType)) {
+        } else if ("writer".equals(searchType)) {
             System.out.println("writer auto");
             result = elasticsearchBoardRepository.autocompleteWriter(keyword);
             return result.stream()
