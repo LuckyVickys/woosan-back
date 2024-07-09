@@ -28,6 +28,10 @@ public class MatchingBoardResponseDTO {
     private LocalDateTime meetDate;
     private String tag;
     private int headCount;
+    private LocalDateTime regDate;
+    private int views;
+    private Boolean isDeleted;
+
 
     //셀프소개팅 관련 추가 필드
     private String location;
