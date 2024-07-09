@@ -9,45 +9,45 @@ import java.util.List;
 @Repository
 public interface ElasticsearchBoardRepository extends ElasticsearchRepository<Board, Long> {
 
-    // 특정 카테고리에서 제목으로 검색
-    List<Board> findByCategoryNameAndTitleContaining(String categoryName, String title);
+    // 제목에 키워드가 포함된 게시물 검색
+    List<Board> findByTitleContainingAndCategoryNameNot(String title, String categoryName);
 
-    // 특정 카테고리에서 내용으로 검색
-    List<Board> findByCategoryNameAndContentContaining(String categoryName, String content);
+    // 내용에 키워드가 포함된 게시물 검색
+    List<Board> findByContentContainingAndCategoryNameNot(String content, String categoryName);
 
-    // 특정 카테고리에서 작성자(닉네임)로 검색
-    List<Board> findByCategoryNameAndNicknameContaining(String categoryName, String nickname);
+    // 작성자에 키워드가 포함된 게시물 검색
+    List<Board> findByNicknameContainingAndCategoryNameNot(String nickname, String categoryName);
 
-    // 특정 카테고리에서 제목 또는 내용으로 검색
-    List<Board> findByCategoryNameAndTitleContainingOrContentContaining(String categoryName, String title, String content);
+    // 제목이나 내용에 키워드가 포함된 게시물 검색
+    List<Board> findByTitleContainingOrContentContainingAndCategoryNameNot(String title, String content, String categoryName);
 
-    // 특정 카테고리에서 제목과 작성자(닉네임)로 검색
-    List<Board> findByCategoryNameAndTitleContainingAndNicknameContaining(String categoryName, String title, String nickname);
+    // 제목이나 작성자에 키워드가 포함된 게시물 검색
+    List<Board> findByTitleContainingOrNicknameContainingAndCategoryNameNot(String title, String nickname, String categoryName);
 
-    // 특정 카테고리에서 내용과 작성자(닉네임)로 검색
-    List<Board> findByCategoryNameAndContentContainingAndNicknameContaining(String categoryName, String content, String nickname);
+    // 내용이나 작성자에 키워드가 포함된 게시물 검색
+    List<Board> findByContentContainingOrNicknameContainingAndCategoryNameNot(String content, String nickname, String categoryName);
 
-    // 특정 카테고리에서 제목, 내용, 작성자(닉네임) 모두로 검색
-    List<Board> findByCategoryNameAndTitleContainingAndContentContainingAndNicknameContaining(String categoryName, String title, String content, String nickname);
+    // 제목, 내용, 작성자에 키워드가 모두 포함된 게시물 검색
+    List<Board> findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryNameNot(String title, String content, String nickname, String categoryName);
 
-    // 공지사항을 제외한 모든 카테고리에서 제목으로 검색
-    List<Board> findByCategoryNameNotAndTitleContaining(String excludedCategory, String title);
+    // 제목에 키워드가 포함된 특정 카테고리의 게시물 검색
+    List<Board> findByTitleContainingAndCategoryName(String title, String categoryName);
 
-    // 공지사항을 제외한 모든 카테고리에서 내용으로 검색
-    List<Board> findByCategoryNameNotAndContentContaining(String excludedCategory, String content);
+    // 내용에 키워드가 포함된 특정 카테고리의 게시물 검색
+    List<Board> findByContentContainingAndCategoryName(String content, String categoryName);
 
-    // 공지사항을 제외한 모든 카테고리에서 작성자(닉네임)로 검색
-    List<Board> findByCategoryNameNotAndNicknameContaining(String excludedCategory, String nickname);
+    // 작성자에 키워드가 포함된 특정 카테고리의 게시물 검색
+    List<Board> findByNicknameContainingAndCategoryName(String nickname, String categoryName);
 
-    // 공지사항을 제외한 모든 카테고리에서 제목 또는 내용으로 검색
-    List<Board> findByCategoryNameNotAndTitleContainingOrContentContaining(String excludedCategory, String title, String content);
+    // 제목이나 내용에 키워드가 포함된 특정 카테고리의 게시물 검색
+    List<Board> findByTitleContainingOrContentContainingAndCategoryName(String title, String content, String categoryName);
 
-    // 공지사항을 제외한 모든 카테고리에서 제목과 작성자(닉네임)로 검색
-    List<Board> findByCategoryNameNotAndTitleContainingAndNicknameContaining(String excludedCategory, String title, String nickname);
+    // 제목이나 작성자에 키워드가 포함된 특정 카테고리의 게시물 검색
+    List<Board> findByTitleContainingOrNicknameContainingAndCategoryName(String title, String nickname, String categoryName);
 
-    // 공지사항을 제외한 모든 카테고리에서 내용과 작성자(닉네임)로 검색
-    List<Board> findByCategoryNameNotAndContentContainingAndNicknameContaining(String excludedCategory, String content, String nickname);
+    // 내용이나 작성자에 키워드가 포함된 특정 카테고리의 게시물 검색
+    List<Board> findByContentContainingOrNicknameContainingAndCategoryName(String content, String nickname, String categoryName);
 
-    // 공지사항을 제외한 모든 카테고리에서 제목, 내용, 작성자(닉네임) 모두로 검색
-    List<Board> findByCategoryNameNotAndTitleContainingAndContentContainingAndNicknameContaining(String excludedCategory, String title, String content, String nickname);
+    // 제목, 내용, 작성자에 키워드가 모두 포함된 특정 카테고리의 게시물 검색
+    List<Board> findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryName(String title, String content, String nickname, String categoryName);
 }
