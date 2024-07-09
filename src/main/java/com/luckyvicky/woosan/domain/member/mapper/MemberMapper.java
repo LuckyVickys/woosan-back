@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.member.mapper;
 
+import com.luckyvicky.woosan.domain.member.dto.MemberInfoDTO;
 import com.luckyvicky.woosan.domain.member.dto.SignUpReqDTO;
 import com.luckyvicky.woosan.domain.member.dto.SignUpResDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
@@ -14,4 +15,5 @@ public interface MemberMapper {
     Member singUpReqDTOToMember(SignUpReqDTO signUpReqDTO);
     SignUpResDTO memberToSignUpResDTO(Member member);
     CustomUserInfoDTO memberToCustomUserInfoDTO(Member member);
+    MemberInfoDTO memberToMemberInfoDTO(Member member);
 }
