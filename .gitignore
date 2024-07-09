@@ -222,3 +222,15 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,intellij+all,intellij+iml,visualstudiocode,gradle,java
+node_modules/.bin/mime
+/node_modules
+src/main/java/.DS_Store
+src/main/.DS_Store
+src/.DS_Store
+package-lock.json
+package-lock.json
+src/main/java/com/.DS_Store
+src/main/java/com/luckyvicky/.DS_Store
+src/main/java/com/luckyvicky/woosan/.DS_Store
+src/main/java/com/luckyvicky/woosan/domain/.DS_Store
+src/main/java/com/luckyvicky/woosan/domain/board/.DS_Store

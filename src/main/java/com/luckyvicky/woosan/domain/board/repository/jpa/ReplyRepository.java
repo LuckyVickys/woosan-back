@@ -1,4 +1,4 @@
-package com.luckyvicky.woosan.domain.board.repository;
+package com.luckyvicky.woosan.domain.board.repository.jpa;
 
 import com.luckyvicky.woosan.domain.board.entity.Reply;
 import com.luckyvicky.woosan.domain.board.projection.IReply;
@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
 

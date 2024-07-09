@@ -2,8 +2,8 @@ package com.luckyvicky.woosan.domain.report.service;
 
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.entity.Reply;
-import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
-import com.luckyvicky.woosan.domain.board.repository.ReplyRepository;
+import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
+import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;

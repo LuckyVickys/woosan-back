@@ -1,12 +1,10 @@
 package com.luckyvicky.woosan.service;
 
-import com.luckyvicky.woosan.domain.board.entity.Reply;
-import com.luckyvicky.woosan.domain.board.service.ReplyServiceImpl;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
-import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
-import com.luckyvicky.woosan.domain.board.repository.ReplyRepository;
+import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
+import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
 import com.luckyvicky.woosan.domain.board.service.ReplyService;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import lombok.extern.log4j.Log4j2;

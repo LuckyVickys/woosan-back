@@ -1,7 +1,7 @@
 package com.luckyvicky.woosan.repository;
 
 import com.luckyvicky.woosan.domain.board.entity.Board;
-import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
+import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;

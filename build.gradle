@@ -70,6 +70,21 @@ dependencies {
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+// Elasticsearch dependencies
+//	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+//	implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.7.0'
+//	implementation 'co.elastic.clients:elasticsearch-java:7.17.0'
+//	implementation 'org.elasticsearch.client:elasticsearch-rest-client:7.7.0'
+
+	implementation 'com.internetitem:logback-elasticsearch-appender:1.6'
+	implementation 'dev.akkinoc.spring.boot:logback-access-spring-boot-starter:3.2.1'
+
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+	implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.10.0'
+	implementation 'org.springframework.data:spring-data-elasticsearch:4.1.6'
+	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+
 	annotationProcessor(
 			"com.querydsl:querydsl-apt:5.0.0:jakarta",
 

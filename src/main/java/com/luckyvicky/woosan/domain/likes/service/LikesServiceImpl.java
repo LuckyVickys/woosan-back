@@ -1,12 +1,11 @@
 package com.luckyvicky.woosan.domain.likes.service;
 
-
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.entity.Reply;
 import com.luckyvicky.woosan.domain.board.exception.BoardException;
 import com.luckyvicky.woosan.domain.board.exception.ReplyException;
-import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
-import com.luckyvicky.woosan.domain.board.repository.ReplyRepository;
+import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
+import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
 import com.luckyvicky.woosan.domain.likes.entity.Likes;
 import com.luckyvicky.woosan.domain.likes.exception.LikeException;
 import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;

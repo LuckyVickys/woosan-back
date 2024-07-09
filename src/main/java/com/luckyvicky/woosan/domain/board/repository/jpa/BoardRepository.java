@@ -1,4 +1,4 @@
-package com.luckyvicky.woosan.domain.board.repository;
+package com.luckyvicky.woosan.domain.board.repository.jpa;
 
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
