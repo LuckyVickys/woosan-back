@@ -65,9 +65,9 @@ public class MatchingBoardReplyController {
             List<MatchingBoardReplyResponseDTO> replies = matchingBoardReplyService.getRepliesByParentId(parentId);
             return ResponseEntity.ok(replies);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("대댓글 목록을 가져오는데 실패하였습니다: " + e.getMessage());
+            return ResponseEntity.badRequest().body("답글 목록을 가져오는데 실패하였습니다: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("알 수 없는 오류로 대댓글 목록을 가져오는데 실패하였습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body("알 수 없는 오류로 답글 목록을 가져오는데 실패하였습니다: " + e.getMessage());
         }
     }
 }

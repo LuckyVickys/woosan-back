@@ -23,6 +23,9 @@ public class MatchingBoardRequestDTO {
     private LocalDateTime meetDate;
     private String tag;
     private int headCount;
+    private LocalDateTime regDate;
+    private int views;
+    private Boolean isDeleted;
 
     // 셀프 소개팅 관련 필드 추가
     private String location;
