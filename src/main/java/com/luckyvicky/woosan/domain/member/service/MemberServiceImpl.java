@@ -2,6 +2,7 @@ package com.luckyvicky.woosan.domain.member.service;
 
 import com.luckyvicky.woosan.domain.member.dto.LoginRequestDTO;
 import com.luckyvicky.woosan.domain.member.dto.MailDTO;
+import com.luckyvicky.woosan.domain.member.dto.MemberInfoDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import com.luckyvicky.woosan.domain.member.entity.SocialType;
@@ -27,6 +28,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JavaMailSender mailSender;
+    private final MemberMapper mapper;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -156,6 +158,13 @@ public class MemberServiceImpl implements MemberService {
         } catch (Exception e) {
             throw new MemberException(ErrorCode.SERVER_ERROR);
         }
+    }
+
+    @Override
+    public MemberInfoDTO getMemberInfo(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        return mapper.memberToMemberInfoDTO(member);
     }
 
 }

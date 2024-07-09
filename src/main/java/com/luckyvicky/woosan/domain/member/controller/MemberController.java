@@ -5,6 +5,7 @@ import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
 import com.luckyvicky.woosan.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,5 +52,11 @@ public class MemberController {
     public ResponseEntity<Object> updatePw(@RequestBody UpdatePwDTO updatePwDTO) {
         memberService.updatePassword(updatePwDTO.getEmail(), updatePwDTO.getPassword(), updatePwDTO.getNewPassword());
         return new ResponseEntity<>(true, HttpStatus.CREATED);
+    }
+
+    // 프로필 사진 클릭 시 멤버 정보 보여주기
+    @GetMapping("/info")
+    public ResponseEntity<Object> memberInfo(@RequestParam("memberId") Long memberId) {
+        return new ResponseEntity(memberService.getMemberInfo(memberId), HttpStatus.OK);
     }
 }

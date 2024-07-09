@@ -2,6 +2,7 @@ package com.luckyvicky.woosan.domain.member.service;
 
 import com.luckyvicky.woosan.domain.member.dto.LoginRequestDTO;
 import com.luckyvicky.woosan.domain.member.dto.MailDTO;
+import com.luckyvicky.woosan.domain.member.dto.MemberInfoDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 
 public interface MemberService {
@@ -15,4 +16,5 @@ public interface MemberService {
     MailDTO createMailAndChangePw(String email);
     void mailSend(MailDTO mailDTO);
     void updatePassword(String email, String password, String newPassword);
+    MemberInfoDTO getMemberInfo(Long memberId);
 }
