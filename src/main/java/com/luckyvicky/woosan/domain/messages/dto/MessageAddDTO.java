@@ -15,9 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class MessageAddDTO {
 
-//    private Long id;
     private Long senderId;
-//    private Long receiverId;
     private String receiver;
 
     @NotBlank(message = "쪽지 내용은 필수 항목입니다.")

@@ -39,11 +39,13 @@ public class MessageServiceImpl implements MessageService {
                     .sender(sender)
                     .receiver(receiver)
                     .content(messageAddDTO.getContent())
+                    .delBySender(false)
+                    .delByReceiver(false)
                     .build();
 
-            message = messageRepository.save(message);
+            Message msg = messageRepository.save(message);
 
-            return message.getId();
+            return msg.getId();
 
         } catch (IllegalArgumentException e) {
             e.printStackTrace();

@@ -18,6 +18,7 @@ public class MessageController {
     // 쪽지 작성
     @PostMapping("/add")
     public ResponseEntity<Long> register(@RequestBody MessageAddDTO messageAddDTO) {
+
         Long messageId = messageService.add(messageAddDTO);
         return ResponseEntity.ok(messageId);
     }
