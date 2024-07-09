@@ -5,9 +5,8 @@ import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.dto.WriterDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.entity.Reply;
-import com.luckyvicky.woosan.domain.board.repository.BoardRepository;
-import com.luckyvicky.woosan.domain.board.repository.ReplyRepository;
-import com.luckyvicky.woosan.domain.likes.dto.ToggleRequestDTO;
+import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
+import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
 import com.luckyvicky.woosan.domain.likes.entity.Likes;
 import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +60,8 @@ public class MyPageServiceImpl implements MyPageService{
                 .build()).collect(Collectors.toList());
     }
 
+
+
     @Override
     public List<BoardDTO> getTargetIdByLikes(Long targetId) {
         List<Likes> likesList = likesRepository.findByTargetIdAndType(targetId, "게시물");
@@ -70,19 +71,19 @@ public class MyPageServiceImpl implements MyPageService{
         List<Board> boards = boardRepository.findByWriterIdIn(writerIds);
         return boards.stream()
                 .map(board -> new BoardDTO(
-                        board.getId(),
-                        board.getWriter().getId(),
-                        board.getWriter().getNickname(),
-                        null, // Assuming writerProfile is not available directly
-                        board.getTitle(),
-                        board.getContent(),
-                        board.getRegDate(),
-                        board.getViews(),
-                        board.getLikesCount(),
-                        board.getCategoryName(),
-                        board.getReplyCount(),
-                        null, // Assuming images are not available directly
-                        null  // Assuming filePathUrl is not available directly
+//                        board.getId(),
+//                        board.getWriter().getId(),
+//                        board.getWriter().getNickname(),
+//                        null, // Assuming writerProfile is not available directly
+//                        board.getTitle(),
+//                        board.getContent(),
+//                        board.getRegDate(),
+//                        board.getViews(),
+//                        board.getLikesCount(),
+//                        board.getCategoryName(),
+//                        board.getReplyCount(),
+//                        null, // Assuming images are not available directly
+//                        null  // Assuming filePathUrl is not available directly
                 ))
                 .collect(Collectors.toList());
     }

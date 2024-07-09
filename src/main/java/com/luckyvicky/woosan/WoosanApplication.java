@@ -12,7 +12,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"com.luckyvicky.woosan.domain.likes.repository",
 		"com.luckyvicky.woosan.domain.report.repository",
 		"com.luckyvicky.woosan.domain.messages.repository",
-		"com.luckyvicky.woosan.domain.fileImg.repository"
+		"com.luckyvicky.woosan.domain.fileImg.repository",
+		"com.luckyvicky.woosan.domain.matching.repository"
 })
 @EnableElasticsearchRepositories(basePackages = "com.luckyvicky.woosan.domain.board.repository.elasticsearch")
 public class WoosanApplication {
@@ -20,7 +21,7 @@ public class WoosanApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(WoosanApplication.class, args);
 		System.out.println("======================================================");
-		System.out.println("es Test");
+		System.out.println("es complete ");
 		System.out.println("======================================================");
 	}
 }
