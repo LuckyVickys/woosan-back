@@ -12,6 +12,6 @@ public class LoginResponseDTO {
     public LoginResponseDTO(String accessToken, String refreshToken) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-        this.expirationTime = 3600000;
+        this.expirationTime = 60000;
     }
 }
