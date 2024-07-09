@@ -1,10 +1,14 @@
 package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.repository.elasticsearch.ElasticsearchBoardRepository;
+import com.luckyvicky.woosan.global.util.PageRequestDTO;
+import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,54 +20,85 @@ import java.util.stream.Collectors;
 public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService {
 
     private final ElasticsearchBoardRepository elasticsearchBoardRepository;
+    private final ModelMapper modelMapper;
 
     @Override
-    public List<Board> searchByCategoryAndFilter(String categoryName, String filterType, String keyword) {
-        // categoryName이 null인 경우 "전체"로 기본 설정
+    public BoardPageResponseDTO searchByCategoryAndFilter(String categoryName, String filterType, String keyword, PageRequestDTO pageRequestDTO) {
         if (categoryName == null || categoryName.isEmpty()) {
             categoryName = "전체";
         }
 
+        List<Board> results;
         if (categoryName.equals("전체")) {
             switch (filterType) {
                 case "title":
-                    return elasticsearchBoardRepository.findByTitleContainingAndCategoryNameNot(keyword, "공지사항");
+                    results = elasticsearchBoardRepository.findByTitleContainingAndCategoryNameNot(keyword, "공지사항");
+                    break;
                 case "content":
-                    return elasticsearchBoardRepository.findByContentContainingAndCategoryNameNot(keyword, "공지사항");
+                    results = elasticsearchBoardRepository.findByContentContainingAndCategoryNameNot(keyword, "공지사항");
+                    break;
                 case "writer":
-                    return elasticsearchBoardRepository.findByNicknameContainingAndCategoryNameNot(keyword, "공지사항");
+                    results = elasticsearchBoardRepository.findByNicknameContainingAndCategoryNameNot(keyword, "공지사항");
+                    break;
                 case "titleOrContent":
-                    return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryNameNot(keyword, keyword, "공지사항");
+                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryNameNot(keyword, keyword, "공지사항");
+                    break;
                 case "titleOrWriter":
-                    return elasticsearchBoardRepository.findByTitleContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, "공지사항");
+                    results = elasticsearchBoardRepository.findByTitleContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, "공지사항");
+                    break;
                 case "contentOrWriter":
-                    return elasticsearchBoardRepository.findByContentContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, "공지사항");
+                    results = elasticsearchBoardRepository.findByContentContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, "공지사항");
+                    break;
                 case "titleOrContentOrWriter":
-                    return elasticsearchBoardRepository.findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, keyword, "공지사항");
+                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, keyword, "공지사항");
+                    break;
                 default:
-                    return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryNameNot(keyword, keyword, "공지사항");
+                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryNameNot(keyword, keyword, "공지사항");
+                    break;
             }
         } else {
             switch (filterType) {
                 case "title":
-                    return elasticsearchBoardRepository.findByTitleContainingAndCategoryName(keyword, categoryName);
+                    results = elasticsearchBoardRepository.findByTitleContainingAndCategoryName(keyword, categoryName);
+                    break;
                 case "content":
-                    return elasticsearchBoardRepository.findByContentContainingAndCategoryName(keyword, categoryName);
+                    results = elasticsearchBoardRepository.findByContentContainingAndCategoryName(keyword, categoryName);
+                    break;
                 case "writer":
-                    return elasticsearchBoardRepository.findByNicknameContainingAndCategoryName(keyword, categoryName);
+                    results = elasticsearchBoardRepository.findByNicknameContainingAndCategoryName(keyword, categoryName);
+                    break;
                 case "titleOrContent":
-                    return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryName(keyword, keyword, categoryName);
+                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryName(keyword, keyword, categoryName);
+                    break;
                 case "titleOrWriter":
-                    return elasticsearchBoardRepository.findByTitleContainingOrNicknameContainingAndCategoryName(keyword, keyword, categoryName);
+                    results = elasticsearchBoardRepository.findByTitleContainingOrNicknameContainingAndCategoryName(keyword, keyword, categoryName);
+                    break;
                 case "contentOrWriter":
-                    return elasticsearchBoardRepository.findByContentContainingOrNicknameContainingAndCategoryName(keyword, keyword, categoryName);
+                    results = elasticsearchBoardRepository.findByContentContainingOrNicknameContainingAndCategoryName(keyword, keyword, categoryName);
+                    break;
                 case "titleOrContentOrWriter":
-                    return elasticsearchBoardRepository.findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryName(keyword, keyword, keyword, categoryName);
+                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryName(keyword, keyword, keyword, categoryName);
+                    break;
                 default:
-                    return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryName(keyword, keyword, categoryName);
+                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryName(keyword, keyword, categoryName);
+                    break;
             }
         }
-    }
+      
+        List<BoardDTO> dtoList = results.stream()
+                .map(board -> modelMapper.map(board, BoardDTO.class))
+                .collect(Collectors.toList());
+
+        long totalCount = results.size();
+        PageResponseDTO<BoardDTO> boardPage = PageResponseDTO.<BoardDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCount(totalCount)
+                .build();
+
+        return BoardPageResponseDTO.builder()
+                .boardPage(boardPage)
+                .build();
 
     public List<String> autocomplete(String keyword, String searchType) {
         List<Board> result;
@@ -91,4 +126,5 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         }
         return List.of(); // 빈 리스트 반환
     }
+      
 }
