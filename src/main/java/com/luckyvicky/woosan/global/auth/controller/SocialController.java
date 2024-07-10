@@ -35,10 +35,11 @@ public class SocialController {
         authService.getKakaoMember(accessToken);
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("memberId", user.getId());
+        claims.put("id", user.getId());
         claims.put("email", user.getEmail());
-        claims.put("password", user.getPassword());
-        claims.put("role", user.getMemberType());
+        claims.put("nickname", user.getNickname());
+        claims.put("isActive", user.getIsActive());
+        claims.put("memberType", user.getMemberType());
         claims.put("socialType", user.getSocialType());
         claims.put("accessToken", jwtAccessToken);
         claims.put("refreshToken", jwtRefreshToken);

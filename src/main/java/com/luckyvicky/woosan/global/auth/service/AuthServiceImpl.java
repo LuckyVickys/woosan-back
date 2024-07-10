@@ -151,6 +151,8 @@ public class AuthServiceImpl implements AuthService {
                 .socialType(SocialType.KAKAO)
                 .isActive(true)
                 .level(MemberType.Level.LEVEL_1)
+                .point(0)
+                .nextPoint(100)
                 .build();
     }
 
