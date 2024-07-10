@@ -119,25 +119,19 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         if (categoryName.equals("전체")) {
             switch (filterType) {
                 case "title":
-                    System.out.println("Searching for titles containing keyword (전체)");
                     result = elasticsearchBoardRepository.findByTitleOrKoreanTitleContainingAndCategoryNameNot(keyword);
-                    System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getTitle)
                             .distinct()
                             .collect(Collectors.toList());
                 case "content":
-                    System.out.println("Searching for content containing keyword (전체)");
                     result = elasticsearchBoardRepository.findByContentOrKoreanContentContainingAndCategoryNameNot(keyword);
-                    System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getContent)
                             .distinct()
                             .collect(Collectors.toList());
                 case "writer":
-                    System.out.println("Searching for writers containing keyword (전체)");
                     result = elasticsearchBoardRepository.autocompleteWriter(keyword);
-                    System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getNickname)
                             .distinct()
@@ -149,35 +143,24 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         } else {
             switch (filterType) {
                 case "title":
-                    System.out.println("==========================제테크 제목 검색ㅁㄴㅇㄹ=============================");
-                    System.out.println(categoryName);
-                    System.out.println(filterType);
-                    System.out.println(keyword);
-                    System.out.println("==========================================================");
                     result = elasticsearchBoardRepository.findByTitleContainingOrKoreanTitleContainingAndCategoryNameEquals(keyword, keyword, categoryName);
-                    System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getTitle)
                             .distinct()
                             .collect(Collectors.toList());
                 case "content":
-                    System.out.println("Searching for content containing keyword (카테고리: " + categoryName + ")");
                     result = elasticsearchBoardRepository.findByContentContainingAndCategoryName(keyword, categoryName);
-                    System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getContent)
                             .distinct()
                             .collect(Collectors.toList());
                 case "writer":
-                    System.out.println("Searching for writers containing keyword (카테고리: " + categoryName + ")");
                     result = elasticsearchBoardRepository.autocompleteWriterAndCategoryName(keyword, categoryName);
-                    System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getNickname)
                             .distinct()
                             .collect(Collectors.toList());
                 default:
-                    System.out.println("Invalid filter type (카테고리: " + categoryName + ")");
                     return List.of(); // 빈 리스트 반환
             }
         }

@@ -68,6 +68,4 @@ public interface ElasticsearchBoardRepository extends ElasticsearchRepository<Bo
     @Query("{\"bool\": {\"must\": [{\"match\": {\"category_name\": \"?2\"}}], \"should\": [{\"wildcard\": {\"title\": \"*?0*\"}}, {\"wildcard\": {\"korean_title\": \"*?1*\"}}], \"minimum_should_match\": 1}}")
     List<Board> findByTitleContainingOrKoreanTitleContainingAndCategoryNameEquals(String titleKeyword, String koreanTitleKeyword, String categoryName);
 
-    // 내용이나 한글 내용에 키워드가 포함되고 특정 카테고리인 게시물 검색
-
 }
