@@ -59,7 +59,10 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtUtil.createAccessToken(info);
         String refreshToken = jwtUtil.createRefreshToken(info);
 
-        return new LoginResponseDTO(accessToken, refreshToken);
+        return new LoginResponseDTO(member.getId(), member.getEmail(),
+                member.getNickname(), member.getPoint(), member.getNextPoint(),
+                member.getMemberType().toString(), member.getLevel().toString(),
+                accessToken, refreshToken);
     }
 
     // accessToken으로 member 가져오기
