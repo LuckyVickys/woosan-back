@@ -16,5 +16,6 @@ public interface MemberService {
     MailDTO createMailAndChangePw(String email);
     void mailSend(MailDTO mailDTO);
     void updatePassword(String email, String password, String newPassword);
-    MemberInfoDTO getMemberInfo(Long memberId);
+    MemberInfoDTO getMemberInfo(String email);
+//    MemberInfoDTO getMemberInfo(Long memberId);
 }
