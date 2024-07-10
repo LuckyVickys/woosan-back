@@ -12,6 +12,7 @@ import net.bytebuddy.implementation.bytecode.ShiftRight;
 @ToString
 public class MemberInfoDTO {
 
+    private Long id;
     private String email;
     private String nickname;
     private int point;
