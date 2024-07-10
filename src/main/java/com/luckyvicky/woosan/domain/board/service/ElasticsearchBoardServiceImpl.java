@@ -115,38 +115,23 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     public List<String> autocomplete(String categoryName, String filterType, String keyword) {
         List<Board> result;
 
-        System.out.println("=============================================================================");
-        System.out.println("Category: " + categoryName);
-        System.out.println("FilterType: " + filterType);
-        System.out.println("Keyword: " + keyword);
-        System.out.println("=============================================================================");
-
-        if (categoryName == null || categoryName.isEmpty()) {
-            categoryName = "전체";
-        }
 
         if (categoryName.equals("전체")) {
             switch (filterType) {
                 case "title":
-                    System.out.println("Searching for titles containing keyword (전체)");
-                    result = elasticsearchBoardRepository.findByTitleContaining(keyword);
-                    System.out.println("Results: " + result);
+                    result = elasticsearchBoardRepository.findByTitleOrKoreanTitleContainingAndCategoryNameNot(keyword);
                     return result.stream()
                             .map(Board::getTitle)
                             .distinct()
                             .collect(Collectors.toList());
                 case "content":
-                    System.out.println("Searching for content containing keyword (전체)");
-                    result = elasticsearchBoardRepository.findByContentContainingAndCategoryNameNot(keyword, "공지사항");
-                    System.out.println("Results: " + result);
+                    result = elasticsearchBoardRepository.findByContentOrKoreanContentContainingAndCategoryNameNot(keyword);
                     return result.stream()
                             .map(Board::getContent)
                             .distinct()
                             .collect(Collectors.toList());
                 case "writer":
-                    System.out.println("Searching for writers containing keyword (전체)");
                     result = elasticsearchBoardRepository.autocompleteWriter(keyword);
-                    System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getNickname)
                             .distinct()
@@ -158,36 +143,28 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         } else {
             switch (filterType) {
                 case "title":
-                    System.out.println("Searching for titles containing keyword (카테고리: " + categoryName + ")");
-                    result = elasticsearchBoardRepository.findByTitleContainingAndCategoryName(keyword, categoryName);
-                    System.out.println("Results: " + result);
+                    result = elasticsearchBoardRepository.findByTitleContainingOrKoreanTitleContainingAndCategoryNameEquals(keyword, keyword, categoryName);
                     return result.stream()
                             .map(Board::getTitle)
                             .distinct()
                             .collect(Collectors.toList());
                 case "content":
-                    System.out.println("Searching for content containing keyword (카테고리: " + categoryName + ")");
                     result = elasticsearchBoardRepository.findByContentContainingAndCategoryName(keyword, categoryName);
-                    System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getContent)
                             .distinct()
                             .collect(Collectors.toList());
                 case "writer":
-                    System.out.println("Searching for writers containing keyword (카테고리: " + categoryName + ")");
                     result = elasticsearchBoardRepository.autocompleteWriterAndCategoryName(keyword, categoryName);
-                    System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getNickname)
                             .distinct()
                             .collect(Collectors.toList());
                 default:
-                    System.out.println("Invalid filter type (카테고리: " + categoryName + ")");
                     return List.of(); // 빈 리스트 반환
             }
         }
     }
-
 
 
 
