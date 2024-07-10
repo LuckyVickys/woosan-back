@@ -42,13 +42,8 @@ public class Board {
     private String nickname;
 
     @Transient
-    @Field(type = FieldType.Text, name = "nickname")
+    @Field(type = FieldType.Text, name = "korean_nickname")
     private String koreanNickname;
-
-    @Transient
-    @Field(type = FieldType.Text, name = "nickname")
-    private String synonymNickname;
-
 
     @Column(nullable = false, length = 40)
     @Field(type = FieldType.Text, name = "title")
@@ -73,7 +68,7 @@ public class Board {
 
     @Transient
     @Field(type = FieldType.Text, name = "synomym_content")
-    private String SynonymContent;
+    private String synonymContent;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

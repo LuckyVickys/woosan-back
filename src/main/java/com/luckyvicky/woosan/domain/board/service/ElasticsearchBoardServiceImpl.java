@@ -191,10 +191,16 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
 
 
 
+
+
+
+    /**
+     * 동의/유의어 검색
+     */
     @Override
     public List<Board> searchWithSynonyms(String keyword) {
         Query searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.multiMatchQuery(keyword, "title", "content")
+                .withQuery(QueryBuilders.multiMatchQuery(keyword, "synonym_title", "synonym_content")
                         .analyzer("synonym_analyzer"))
                 .build();
         SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
@@ -202,5 +208,6 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
                 .map(hit -> hit.getContent())
                 .collect(Collectors.toList());
     }
+
 
 }
