@@ -120,7 +120,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
             switch (filterType) {
                 case "title":
                     System.out.println("Searching for titles containing keyword (전체)");
-                    result = elasticsearchBoardRepository.autocompleteTitle(keyword);
+                    result = elasticsearchBoardRepository.findByTitleContaining(keyword);
                     System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getTitle)
@@ -150,7 +150,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
             switch (filterType) {
                 case "title":
                     System.out.println("Searching for titles containing keyword (카테고리: " + categoryName + ")");
-                    result = elasticsearchBoardRepository.autocompleteTitleAndCategoryName(keyword, categoryName);
+                    result = elasticsearchBoardRepository.findByTitleContainingAndCategoryName(keyword, categoryName);
                     System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getTitle)

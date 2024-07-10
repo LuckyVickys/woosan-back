@@ -66,4 +66,6 @@ public interface ElasticsearchBoardRepository extends ElasticsearchRepository<Bo
 
     @Query("{\"bool\": {\"must\": [{\"match_phrase_prefix\": {\"nickname\": {\"query\": \"?0\"}}}, {\"term\": {\"category_name\": \"?1\"}}]}}")
     List<Board> autocompleteWriterAndCategoryName(String writer, String categoryName);
+
+    List<Board> findByTitleContaining(String keyword);
 }
