@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ElasticsearchBoardService {
 
-    List<String> autocomplete(String keyword, String searchType);
+    List<String> autocomplete(String category,String filterType, String keyword);
     BoardPageResponseDTO searchByCategoryAndFilter(String categoryName, String filterType, String keyword, PageRequestDTO pageRequestDTO);
 }

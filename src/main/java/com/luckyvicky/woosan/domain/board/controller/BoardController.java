@@ -23,7 +23,6 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
-    private final ElasticsearchBoardService elasticsearchBoardService;
     private final PapagoService papagoService;
     private final SummaryService summaryService;
 
@@ -158,15 +157,4 @@ public class BoardController {
     }
 
 
-    @GetMapping("/autocomplete")
-    public ResponseEntity<List<String>> autocomplete(
-            @RequestParam String keyword,
-            @RequestParam String searchType) {
-        System.out.println(keyword);
-        System.out.println(searchType);
-        System.out.println("===============자동완성 호출===================");
-        List<String> result = elasticsearchBoardService.autocomplete(keyword, searchType);
-        System.out.println("Autocomplete result: " + result);
-        return ResponseEntity.ok(result);
-    }
 }
