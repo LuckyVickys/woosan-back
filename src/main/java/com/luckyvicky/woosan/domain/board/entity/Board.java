@@ -39,17 +39,36 @@ public class Board {
 
     @Transient
     @Field(type = FieldType.Text, name = "nickname")
-
     private String nickname;
 
+    @Transient
+    @Field(type = FieldType.Text, name = "korean_nickname")
+    private String koreanNickname;
 
     @Column(nullable = false, length = 40)
     @Field(type = FieldType.Text, name = "title")
     private String title;
 
+    @Transient
+    @Field(type = FieldType.Text, name = "korean_title")
+    private String koreanTitle;
+
+    @Transient
+    @Field(type = FieldType.Text, name = "synonym_title")
+    private String synonymTitle;
+
+
     @Column(nullable = false, length = 1960)
     @Field(type = FieldType.Text, name = "content")
     private String content;
+
+    @Transient
+    @Field(type = FieldType.Text, name = "korean_content")
+    private String koreanContent;
+
+    @Transient
+    @Field(type = FieldType.Text, name = "synomym_content")
+    private String synonymContent;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

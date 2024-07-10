@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.board.controller;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
+import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.service.ElasticsearchBoardService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,9 @@ public class ElasticsearchBoardController {
 
     private final ElasticsearchBoardService elasticsearchBoardService;
 
+    /**
+     * 일반 검색
+     */
     @GetMapping("/search")
     public ResponseEntity<BoardPageResponseDTO> search(
             @RequestParam(value = "category", required = false) String categoryName,
@@ -37,6 +41,16 @@ public class ElasticsearchBoardController {
             @RequestParam(value = "keyword", required = false) String keyword) {
         List<String> result = elasticsearchBoardService.autocomplete(categoryName, filterType, keyword);
         return ResponseEntity.ok(result);
+    }
+
+
+    /**
+     * 동의/유의어 검색
+     */
+    @GetMapping("/search/synonyms")
+    public ResponseEntity<List<Board>> searchWithSynonyms(@RequestParam String keyword) {
+        List<Board> results = elasticsearchBoardService.searchWithSynonyms(keyword);
+        return ResponseEntity.ok(results);
     }
 }
 

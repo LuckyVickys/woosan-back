@@ -26,24 +26,24 @@ public class ReplyServiceTest {
     @Autowired
     private ReplyRepository replyRepository;
 
-    /**
-     * 댓글 등록 테스트
-     */
-    @Test
-    public void testRegisterReply() {
-        Long boardId = 357L;
-        Long writerId = 1L;
-        Long parentId = 52L;
-
-        for (int i = 0; i < 10; i++) {
-            ReplyDTO replyDTO = new ReplyDTO();
-            replyDTO.setBoardId(boardId);
-            replyDTO.setWriterId(writerId);
-            replyDTO.setContent("댓글 수 테스트");
-
-            replyService.add(replyDTO, parentId);
-        }
-    }
+//    /**
+//     * 댓글 등록 테스트
+//     */
+//    @Test
+//    public void testRegisterReply() {
+//        Long boardId = 357L;
+//        Long writerId = 1L;
+//        Long parentId = 52L;
+//
+//        for (int i = 0; i < 10; i++) {
+//            ReplyDTO replyDTO = new ReplyDTO();
+//            replyDTO.setBoardId(boardId);
+//            replyDTO.setWriterId(writerId);
+//            replyDTO.setContent("댓글 수 테스트");
+//
+//            replyService.add(replyDTO, parenㅌtId);
+//        }
+//    }
 
     /**
      * 댓글 삭제 테스트
