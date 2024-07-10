@@ -43,6 +43,10 @@ public class ElasticsearchBoardController {
         return ResponseEntity.ok(result);
     }
 
+
+    /**
+     * 동의/유의어 검색
+     */
     @GetMapping("/search/synonyms")
     public ResponseEntity<List<Board>> searchWithSynonyms(@RequestParam String keyword) {
         List<Board> results = elasticsearchBoardService.searchWithSynonyms(keyword);
