@@ -149,7 +149,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
                             .distinct()
                             .collect(Collectors.toList());
                 case "content":
-                    result = elasticsearchBoardRepository.findByContentContainingAndCategoryName(keyword, categoryName);
+                    result = elasticsearchBoardRepository.findByContentContainingOrKoreanContentContainingAndCategoryNameEquals(keyword, keyword, categoryName);
                     return result.stream()
                             .map(Board::getContent)
                             .distinct()

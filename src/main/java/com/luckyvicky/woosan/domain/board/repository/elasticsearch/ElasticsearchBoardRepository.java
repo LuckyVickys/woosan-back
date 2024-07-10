@@ -67,5 +67,6 @@ public interface ElasticsearchBoardRepository extends ElasticsearchRepository<Bo
 
     @Query("{\"bool\": {\"must\": [{\"match\": {\"category_name\": \"?2\"}}], \"should\": [{\"wildcard\": {\"title\": \"*?0*\"}}, {\"wildcard\": {\"korean_title\": \"*?1*\"}}], \"minimum_should_match\": 1}}")
     List<Board> findByTitleContainingOrKoreanTitleContainingAndCategoryNameEquals(String titleKeyword, String koreanTitleKeyword, String categoryName);
-
+    @Query("{\"bool\": {\"must\": [{\"match\": {\"category_name\": \"?2\"}}], \"should\": [{\"wildcard\": {\"content\": \"*?0*\"}}, {\"wildcard\": {\"korean_content\": \"*?1*\"}}], \"minimum_should_match\": 1}}")
+    List<Board> findByContentContainingOrKoreanContentContainingAndCategoryNameEquals(String keyword, String keyword1, String categoryName);
 }
