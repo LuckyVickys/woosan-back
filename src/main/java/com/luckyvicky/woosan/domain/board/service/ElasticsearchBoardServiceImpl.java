@@ -8,6 +8,7 @@ import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -174,11 +175,23 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     /**
      * 동의/유의어 검색
      */
-    @Override
+//    @Override
+//    public List<Board> searchWithSynonyms(String keyword) {
+//        Query searchQuery = new NativeSearchQueryBuilder()
+//                .withQuery(QueryBuilders.multiMatchQuery(keyword, "synonym_title", "synonym_content")
+//                        .analyzer("synonym_ngram_analyzer"))
+//                .build();
+//        SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
+//        return searchHits.getSearchHits().stream()
+//                .map(hit -> hit.getContent())
+//                .collect(Collectors.toList());
+//    }
+
     public List<Board> searchWithSynonyms(String keyword) {
         Query searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.multiMatchQuery(keyword, "synonym_title", "synonym_content")
-                        .analyzer("synonym_analyzer"))
+                        .type(MultiMatchQueryBuilder.Type.BEST_FIELDS)
+                        .analyzer("synonym_ngram_analyzer"))
                 .build();
         SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
         return searchHits.getSearchHits().stream()
