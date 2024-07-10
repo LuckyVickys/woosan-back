@@ -157,12 +157,21 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-    // 멤버 정보
+    // 로그인 한 멤버 정보
     @Override
-    public MemberInfoDTO getMemberInfo(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+    public MemberInfoDTO getMemberInfo(String email) {
+        Member member = memberRepository.findByEmail(email);
+        if(member == null) {
+            throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
+        }
         return mapper.memberToMemberInfoDTO(member);
     }
+
+//    @Override
+//    public MemberInfoDTO getMemberInfo(Long memberId) {
+//        Member member = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+//        return mapper.memberToMemberInfoDTO(member);
+//    }
 
 }

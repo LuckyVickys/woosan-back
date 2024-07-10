@@ -54,9 +54,14 @@ public class MemberController {
         return new ResponseEntity<>(true, HttpStatus.CREATED);
     }
 
-    // 프로필 사진 클릭 시 멤버 정보 보여주기
+    // 로그인 한 멤버 정보
     @GetMapping("/info")
-    public ResponseEntity<Object> memberInfo(@RequestParam("memberId") Long memberId) {
-        return new ResponseEntity(memberService.getMemberInfo(memberId), HttpStatus.OK);
+    public ResponseEntity<Object> memberInfo(@RequestParam("email") String email) {
+        return new ResponseEntity(memberService.getMemberInfo(email), HttpStatus.OK);
     }
+
+//    @GetMapping("/info")
+//    public ResponseEntity<Object> memberInfo(@RequestParam("memberId") Long memberId) {
+//        return new ResponseEntity(memberService.getMemberInfo(memberId), HttpStatus.OK);
+//    }
 }
