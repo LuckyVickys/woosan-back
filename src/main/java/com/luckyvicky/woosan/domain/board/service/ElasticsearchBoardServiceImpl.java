@@ -115,21 +115,12 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     public List<String> autocomplete(String categoryName, String filterType, String keyword) {
         List<Board> result;
 
-        System.out.println("=============================================================================");
-        System.out.println("Category: " + categoryName);
-        System.out.println("FilterType: " + filterType);
-        System.out.println("Keyword: " + keyword);
-        System.out.println("=============================================================================");
-
-        if (categoryName == null || categoryName.isEmpty()) {
-            categoryName = "전체";
-        }
 
         if (categoryName.equals("전체")) {
             switch (filterType) {
                 case "title":
                     System.out.println("Searching for titles containing keyword (전체)");
-                    result = elasticsearchBoardRepository.findByTitleContaining(keyword);
+                    result = elasticsearchBoardRepository.findByTitleOrKoreanTitleContainingAndCategoryNameNot(keyword);
                     System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getTitle)
@@ -137,7 +128,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
                             .collect(Collectors.toList());
                 case "content":
                     System.out.println("Searching for content containing keyword (전체)");
-                    result = elasticsearchBoardRepository.findByContentContainingAndCategoryNameNot(keyword, "공지사항");
+                    result = elasticsearchBoardRepository.findByContentOrKoreanContentContainingAndCategoryNameNot(keyword);
                     System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getContent)
@@ -158,8 +149,12 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         } else {
             switch (filterType) {
                 case "title":
-                    System.out.println("Searching for titles containing keyword (카테고리: " + categoryName + ")");
-                    result = elasticsearchBoardRepository.findByTitleContainingAndCategoryName(keyword, categoryName);
+                    System.out.println("==========================제테크 제목 검색ㅁㄴㅇㄹ=============================");
+                    System.out.println(categoryName);
+                    System.out.println(filterType);
+                    System.out.println(keyword);
+                    System.out.println("==========================================================");
+                    result = elasticsearchBoardRepository.findByTitleContainingOrKoreanTitleContainingAndCategoryNameEquals(keyword, keyword, categoryName);
                     System.out.println("Results: " + result);
                     return result.stream()
                             .map(Board::getTitle)
@@ -187,8 +182,6 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
             }
         }
     }
-
-
 
 
     @Override
