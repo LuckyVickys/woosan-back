@@ -8,7 +8,12 @@ import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +25,12 @@ import java.util.stream.Collectors;
 public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService {
 
     private final ElasticsearchBoardRepository elasticsearchBoardRepository;
+    private final ElasticsearchRestTemplate elasticsearchRestTemplate;
     private final ModelMapper modelMapper;
 
+    /**
+     * 기본 검색
+     */
     @Override
     public BoardPageResponseDTO searchByCategoryAndFilter(String categoryName, String filterType, String keyword, PageRequestDTO pageRequestDTO) {
         if (categoryName == null || categoryName.isEmpty()) {
@@ -179,5 +188,19 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         }
     }
 
+
+
+
+    @Override
+    public List<Board> searchWithSynonyms(String keyword) {
+        Query searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.multiMatchQuery(keyword, "title", "content")
+                        .analyzer("synonym_analyzer"))
+                .build();
+        SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
+        return searchHits.getSearchHits().stream()
+                .map(hit -> hit.getContent())
+                .collect(Collectors.toList());
+    }
 
 }
