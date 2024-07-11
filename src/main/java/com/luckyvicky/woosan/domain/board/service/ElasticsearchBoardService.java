@@ -12,4 +12,8 @@ public interface ElasticsearchBoardService {
     BoardPageResponseDTO searchByCategoryAndFilter(String categoryName, String filterType, String keyword, PageRequestDTO pageRequestDTO);
 
     List<Board> searchWithSynonyms(String keyword);
+
+    List<String> getRealTimeSearchRankings();
+
+    void saveSearchKeyword(String keyword);
 }
