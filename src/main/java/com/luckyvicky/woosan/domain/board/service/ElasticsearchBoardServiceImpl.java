@@ -3,20 +3,34 @@ package com.luckyvicky.woosan.domain.board.service;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
+import com.luckyvicky.woosan.domain.board.entity.SearchKeyword;
 import com.luckyvicky.woosan.domain.board.repository.elasticsearch.ElasticsearchBoardRepository;
+import com.luckyvicky.woosan.domain.board.repository.elasticsearch.SearchKeywordRepository;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
+
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +41,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
 
     private final ElasticsearchBoardRepository elasticsearchBoardRepository;
     private final ElasticsearchRestTemplate elasticsearchRestTemplate;
+    private final SearchKeywordRepository searchKeywordRepository;
     private final ModelMapper modelMapper;
 
     /**
@@ -168,25 +183,10 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     }
 
 
-
-
-
-
     /**
      * 동의/유의어 검색
      */
-//    @Override
-//    public List<Board> searchWithSynonyms(String keyword) {
-//        Query searchQuery = new NativeSearchQueryBuilder()
-//                .withQuery(QueryBuilders.multiMatchQuery(keyword, "synonym_title", "synonym_content")
-//                        .analyzer("synonym_ngram_analyzer"))
-//                .build();
-//        SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
-//        return searchHits.getSearchHits().stream()
-//                .map(hit -> hit.getContent())
-//                .collect(Collectors.toList());
-//    }
-
+    @Override
     public List<Board> searchWithSynonyms(String keyword) {
         Query searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.multiMatchQuery(keyword, "synonym_title", "synonym_content")
@@ -197,6 +197,48 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         return searchHits.getSearchHits().stream()
                 .map(hit -> hit.getContent())
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 검색 키워드 저장
+     */
+    @Override
+    public void saveSearchKeyword(String keyword) {
+        SearchKeyword searchKeyword = new SearchKeyword();
+        searchKeyword.setKeyword(keyword);
+
+        // 현재 시간을 명시적으로 설정
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
+        searchKeyword.setTimestamp(now);
+
+        log.info("Saving keyword: {}", searchKeyword);
+        searchKeywordRepository.save(searchKeyword);
+    }
+
+    /**
+     * 검색 키워드를 1시간 동안 집계
+     */
+    @Override
+    public List<String> getRealTimeSearchRankings() {
+        // Elasticsearch 쿼리 생성
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.rangeQuery("timestamp").gte("now-1h"))
+                .addAggregation(AggregationBuilders.terms("popular_keywords").field("keyword").size(10).order(BucketOrder.count(false)))
+                .build();
+
+        // 검색 실행 및 집계 결과 추출
+        SearchHits<SearchKeyword> searchHits = elasticsearchRestTemplate.search(searchQuery, SearchKeyword.class, IndexCoordinates.of("search_keywords"));
+
+        // 집계 데이터 추출
+        Aggregations aggregations = searchHits.getAggregations();
+        Terms popularKeywords = aggregations.get("popular_keywords");
+
+        List<String> rankings = new ArrayList<>();
+        for (Terms.Bucket bucket : popularKeywords.getBuckets()) {
+            rankings.add(bucket.getKeyAsString());
+        }
+
+        return rankings;
     }
 
 
