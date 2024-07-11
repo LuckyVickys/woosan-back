@@ -14,6 +14,11 @@ public class CustomUserInfoDTO {
     private Long id;
     private String email;
     private String password;
-    private MemberType memberType;
-    private SocialType socialType;
+    private String nickname;
+    private Boolean isActive;
+    private int point;
+    private int nextPoint;
+    private String level;
+    private String memberType;
+    private String socialType;
 }
