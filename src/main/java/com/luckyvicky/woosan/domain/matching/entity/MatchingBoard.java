@@ -4,6 +4,7 @@ import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.entity.MemberProfile;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

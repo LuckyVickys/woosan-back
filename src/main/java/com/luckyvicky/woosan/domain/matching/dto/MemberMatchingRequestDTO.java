@@ -2,7 +2,7 @@ package com.luckyvicky.woosan.domain.matching.dto;
 
 import lombok.*;
 
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

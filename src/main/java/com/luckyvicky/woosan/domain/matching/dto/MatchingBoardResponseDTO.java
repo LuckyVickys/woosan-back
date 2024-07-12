@@ -1,15 +1,14 @@
 package com.luckyvicky.woosan.domain.matching.dto;
 
 import com.luckyvicky.woosan.domain.member.entity.MBTI;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Getter
+@Data
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,4 +39,6 @@ public class MatchingBoardResponseDTO {
     private String gender;
     private int age;
     private int height;
+
+    private List<String> filePathUrl;
 }

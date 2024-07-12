@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.matching.service;
 
+import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardResponseDTO;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
@@ -21,13 +22,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MatchingBoardServiceImpl implements MatchingBoardService {
 
     private final MatchingBoardRepository matchingBoardRepository;
-    private final MemberMatchingRepository memberMatchingRepository; // 추가된 부분
+    private final MemberMatchingRepository memberMatchingRepository;
     private final MemberRepository memberRepository;
     private final MemberProfileRepository memberProfileRepository;
     private final MatchingBoardMapper matchingBoardMapper;
+    private final FileImgService fileImgService;
 
     // 모든 매칭 게시글을 가져오는 메서드
     @Override
@@ -70,7 +73,11 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
                 throw new IllegalArgumentException("잘못된 매칭 타입입니다.");
         }
 
-        return mapToResponseDTO(matchingBoard);
+        // 파일 업로드 및 DB 저장
+        if (requestDTO.getImages() != null) {
+            fileImgService.fileUploadMultiple("matchingBoard", matchingBoard.getId(), requestDTO.getImages());
+        }
+        return mapToResponseDTO(matchingBoardRepository.save(matchingBoard));
     }
 
     // 정기 모임 생성
@@ -139,12 +146,11 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         return matchingBoardRepository.save(matchingBoard); // DB에 저장
     }
 
-    // 특정 매칭 게시글을 ID로 가져오는 메서드
     @Override
-    public MatchingBoardResponseDTO getMatchingBoardById(Long id) {
-        MatchingBoard matchingBoard = matchingBoardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
-        return mapToResponseDTO(matchingBoard);
+    public List<MatchingBoardResponseDTO> getMatchingBoardsByMemberId(Long memberId) {
+        return matchingBoardRepository.findByMemberId(memberId).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     // 매칭 보드 엔티티를 업데이트하는 메서드
@@ -160,7 +166,12 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         }
 
         MatchingBoard updatedMatchingBoard = updateMatchingBoardEntity(matchingBoard, requestDTO);
-        return mapToResponseDTO(matchingBoardRepository.save(updatedMatchingBoard));
+
+        // 파일 업로드 및 DB 저장
+        if (requestDTO.getImages() != null) {
+            fileImgService.fileUploadMultiple("matchingBoard", matchingBoard.getId(), requestDTO.getImages());
+        }
+        return mapToResponseDTO(matchingBoardRepository.save(matchingBoard));
     }
 
     // 특정 매칭 게시글을 삭제하는 메서드
@@ -177,6 +188,9 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
 
         // 먼저 관련된 member_matching 행 삭제
         memberMatchingRepository.deleteByMatchingBoard_Id(id);
+
+        // 이미지 파일 삭제
+        fileImgService.targetFilesDelete("matchingBoard", matchingBoard.getId());
 
         matchingBoardRepository.delete(matchingBoard);
     }
@@ -260,6 +274,17 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     // 매일 자정에 번개 모임 자동 삭제
     @Scheduled(cron = "0 0 0 * * ?")
     public void cleanupTemporaryBoards() {
-        matchingBoardRepository.deleteByMatchingTypeAndMeetDateBefore(2, LocalDateTime.now());
+        List<MatchingBoard> boardsToDelete = matchingBoardRepository.findByMatchingTypeAndMeetDateBefore(2, LocalDateTime.now());
+
+        for (MatchingBoard board : boardsToDelete) {
+            // 먼저 관련된 member_matching 행 삭제
+            memberMatchingRepository.deleteByMatchingBoard_Id(board.getId());
+
+            // 이미지 파일 삭제
+            fileImgService.targetFilesDelete("matchingBoard", board.getId());
+
+            // 매칭 보드 삭제
+            matchingBoardRepository.delete(board);
+        }
     }
 }

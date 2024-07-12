@@ -2,10 +2,8 @@ package com.luckyvicky.woosan.domain.matching.controller;
 
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardReplyRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardReplyResponseDTO;
-import com.luckyvicky.woosan.domain.matching.entity.MatchingBoardReply;
 import com.luckyvicky.woosan.domain.matching.service.MatchingBoardReplyService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
