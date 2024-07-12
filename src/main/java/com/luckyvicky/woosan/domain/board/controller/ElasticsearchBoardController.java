@@ -20,26 +20,10 @@ public class ElasticsearchBoardController {
 
     private final ElasticsearchBoardService elasticsearchBoardService;
 
-    /**
-     * 일반 검색
-     */
-//    @GetMapping("/search")
-//    public ResponseEntity<PageResponseDTO> search(
-//            @RequestParam(value = "category", required = false) String categoryName,
-//            @RequestParam(value = "filter", required = false, defaultValue = "titleOrContent") String filterType,
-//            @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
-//            PageRequestDTO pageRequestDTO) {
-//
-//        // 검색 키워드 저장
-//        elasticsearchBoardService.saveSearchKeyword(keyword);
-//
-//        PageResponseDTO results = elasticsearchBoardService.searchByCategoryAndFilter(pageRequestDTO, categoryName, filterType, keyword);
-//        return ResponseEntity.ok(results);
-//    }
 
 
     /**
-     *  검색 (기본 + 유의)
+     *  일반/유의어 검색 
      */
     @GetMapping("/search")
     public ResponseEntity<SearchPageResponseDTO> search(
@@ -73,16 +57,6 @@ public class ElasticsearchBoardController {
         return ResponseEntity.ok(result);
     }
 
-
-    /**
-     * 동의/유의어 검색
-     */
-//    @GetMapping("/search/synonyms")
-//    public ResponseEntity<List<Board>> searchWithSynonyms(@RequestParam String keyword) {
-//        List<Board> results = elasticsearchBoardService.searchWithSynonyms(keyword);
-//        log.info(results+"^^^^^^^^^^^^^");
-//        return ResponseEntity.ok(results);
-//    }
 
     /**
      * 검색 키워드 1시간 집계
