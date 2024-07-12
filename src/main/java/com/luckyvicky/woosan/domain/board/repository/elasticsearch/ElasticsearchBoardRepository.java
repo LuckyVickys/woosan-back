@@ -59,14 +59,15 @@ public interface ElasticsearchBoardRepository extends ElasticsearchRepository<Bo
     @Query("{\"bool\": {\"must\": [{\"match_phrase_prefix\": {\"nickname\": {\"query\": \"?0\"}}}, {\"term\": {\"category_name\": \"?1\"}}]}}")
     List<Board> autocompleteWriterAndCategoryName(String writer, String categoryName);
 
-    @Query("{\"bool\": {\"should\": [{\"wildcard\": {\"title\": \"*?0*\"}}, {\"wildcard\": {\"korean_title\": \"*?0*\"}}], \"must_not\": [{\"term\": {\"category_name\": \"공지사항\"}}]}}")
-    List<Board> findByTitleOrKoreanTitleContainingAndCategoryNameNot(String keyword);
+    @Query("{\"bool\": {\"must_not\": [{\"term\": {\"category_name\": \"공지사항\"}}], \"should\": [?0]}}")
+    List<Board> findByTitleOrKoreanTitleContainingAndCategoryNameNot(String shouldQuery);
 
-    @Query("{\"bool\": {\"should\": [{\"wildcard\": {\"content\": \"*?0*\"}}, {\"wildcard\": {\"korean_content\": \"*?0*\"}}], \"must_not\": [{\"term\": {\"category_name\": \"공지사항\"}}]}}")
-    List<Board> findByContentOrKoreanContentContainingAndCategoryNameNot(String keyword);
+    @Query("{\"bool\": {\"must_not\": [{\"term\": {\"category_name\": \"공지사항\"}}], \"should\": [?0]}}")
+    List<Board> findByContentOrKoreanContentContainingAndCategoryNameNot(String shouldQuery);
 
-    @Query("{\"bool\": {\"must\": [{\"match\": {\"category_name\": \"?2\"}}], \"should\": [{\"wildcard\": {\"title\": \"*?0*\"}}, {\"wildcard\": {\"korean_title\": \"*?1*\"}}], \"minimum_should_match\": 1}}")
-    List<Board> findByTitleContainingOrKoreanTitleContainingAndCategoryNameEquals(String titleKeyword, String koreanTitleKeyword, String categoryName);
-    @Query("{\"bool\": {\"must\": [{\"match\": {\"category_name\": \"?2\"}}], \"should\": [{\"wildcard\": {\"content\": \"*?0*\"}}, {\"wildcard\": {\"korean_content\": \"*?1*\"}}], \"minimum_should_match\": 1}}")
-    List<Board> findByContentContainingOrKoreanContentContainingAndCategoryNameEquals(String keyword, String keyword1, String categoryName);
+    @Query("{\"bool\": {\"must\": [{\"term\": {\"category_name\": \"?1\"}}], \"should\": [?0], \"minimum_should_match\": 1}}")
+    List<Board> findByTitleContainingOrKoreanTitleContainingAndCategoryNameEquals(String shouldQuery, String categoryName);
+
+    @Query("{\"bool\": {\"must\": [{\"term\": {\"category_name\": \"?1\"}}], \"should\": [?0], \"minimum_should_match\": 1}}")
+    List<Board> findByContentContainingOrKoreanContentContainingAndCategoryNameEquals(String shouldQuery, String categoryName);
 }

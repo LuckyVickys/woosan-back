@@ -81,7 +81,8 @@ public class ReplyServiceImpl implements ReplyService {
 
         Reply savedReply = replyRepository.save(reply);
 
-        return modelMapper.map(savedReply, ReplyDTO.class);
+        return null;
+//                modelMapper.map(savedReply, ReplyDTO.class);
     }
 
 
