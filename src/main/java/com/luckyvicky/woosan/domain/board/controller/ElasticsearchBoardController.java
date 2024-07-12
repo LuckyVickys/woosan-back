@@ -1,9 +1,10 @@
 package com.luckyvicky.woosan.domain.board.controller;
 
-import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
+import com.luckyvicky.woosan.domain.board.dto.SearchPageResponseDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.service.ElasticsearchBoardService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
+import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -19,21 +20,29 @@ public class ElasticsearchBoardController {
 
     private final ElasticsearchBoardService elasticsearchBoardService;
 
+
+
     /**
-     * 일반 검색
+     *  일반/유의어 검색 
      */
     @GetMapping("/search")
-    public ResponseEntity<BoardPageResponseDTO> search(
+    public ResponseEntity<SearchPageResponseDTO> search(
             @RequestParam(value = "category", required = false) String categoryName,
-            @RequestParam(value = "filter", required = false, defaultValue = "titleOrContent") String filterType,
-            @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
-            PageRequestDTO pageRequestDTO) {
+            @RequestParam(value = "filter", required = false) String filterType,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "standardPage", required = false, defaultValue = "1") int standardPage,
+            @RequestParam(value = "synonymPage", required = false, defaultValue = "1") int synonymPage,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
 
-        // 검색 키워드 저장
+        PageRequestDTO standardPageRequest = new PageRequestDTO(standardPage, size);
+        PageRequestDTO synonymPageRequest = new PageRequestDTO(synonymPage, size);
+
+//         검색 키워드 저장
         elasticsearchBoardService.saveSearchKeyword(keyword);
 
-        BoardPageResponseDTO results = elasticsearchBoardService.searchByCategoryAndFilter(categoryName, filterType, keyword, pageRequestDTO);
-        return ResponseEntity.ok(results);
+        SearchPageResponseDTO result = elasticsearchBoardService.searchWithStandardAndSynonyms(standardPageRequest, synonymPageRequest, categoryName, filterType, keyword);
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -48,15 +57,6 @@ public class ElasticsearchBoardController {
         return ResponseEntity.ok(result);
     }
 
-
-    /**
-     * 동의/유의어 검색
-     */
-    @GetMapping("/search/synonyms")
-    public ResponseEntity<List<Board>> searchWithSynonyms(@RequestParam String keyword) {
-        List<Board> results = elasticsearchBoardService.searchWithSynonyms(keyword);
-        return ResponseEntity.ok(results);
-    }
 
     /**
      * 검색 키워드 1시간 집계
