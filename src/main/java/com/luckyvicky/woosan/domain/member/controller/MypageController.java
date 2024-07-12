@@ -4,6 +4,7 @@ import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.domain.member.service.MyPageService;
+import com.luckyvicky.woosan.domain.messages.dto.MessageAddDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class MypageController {
     }
 
     @GetMapping("/ViewLikes")
-    public ResponseEntity<List<BoardDTO>> viewLikesByBoard(@RequestBody Long id) {
+    public ResponseEntity<List<BoardDTO>> viewLikesById(@RequestBody Long id) {
         List<BoardDTO> boards = myPageService.getTargetIdByLikes(id);
         return ResponseEntity.ok(boards);
     }
@@ -42,6 +43,25 @@ public class MypageController {
         List<ReplyDTO> comments = myPageService.getReplyByWriterId(writerId);
         return ResponseEntity.ok(comments);
     }
+
+    //마이페이지 보낸 쪽지함
+    @GetMapping("/ViewSendMessage")
+    public ResponseEntity<List<MessageAddDTO>> getSendMessageById(@RequestBody Long id) {
+
+        List<MessageAddDTO> sendMessage = myPageService.getSendMessageById(id);
+        return ResponseEntity.ok(sendMessage);
+    }
+
+    //마이페이지 받은 쪽지함
+    @GetMapping("/ViewReceiveMessage")
+    public ResponseEntity<List<MessageAddDTO>> getReceiveMessageById(@RequestBody Long id) {
+
+        List<MessageAddDTO> receiveMessage = myPageService.getReceiveMessageById(id);
+        return ResponseEntity.ok(receiveMessage);
+    }
+
+
+
 
 //    //마이페이지 내가 쓴 대댓글 조회
 //    @PostMapping("/ViewReply")

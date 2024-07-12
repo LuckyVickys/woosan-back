@@ -9,6 +9,9 @@ import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
 import com.luckyvicky.woosan.domain.likes.entity.Likes;
 import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;
+import com.luckyvicky.woosan.domain.messages.dto.MessageAddDTO;
+import com.luckyvicky.woosan.domain.messages.entity.Message;
+import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,10 @@ public class MyPageServiceImpl implements MyPageService{
 
     @Autowired
     private ReplyRepository replyRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
+
 
     //내가 작성한 게시글 조회(마이페이지)
     @Override
@@ -61,7 +68,7 @@ public class MyPageServiceImpl implements MyPageService{
     }
 
 
-
+    //추천 게시물 조회(마이페이지)
     @Override
     public List<BoardDTO> getTargetIdByLikes(Long targetId) {
         List<Likes> likesList = likesRepository.findByTargetIdAndType(targetId, "게시물");
@@ -71,23 +78,25 @@ public class MyPageServiceImpl implements MyPageService{
         List<Board> boards = boardRepository.findByWriterIdIn(writerIds);
         return boards.stream()
                 .map(board -> new BoardDTO(
-//                        board.getId(),
-//                        board.getWriter().getId(),
-//                        board.getWriter().getNickname(),
-//                        null, // Assuming writerProfile is not available directly
-//                        board.getTitle(),
-//                        board.getContent(),
-//                        board.getRegDate(),
-//                        board.getViews(),
-//                        board.getLikesCount(),
-//                        board.getCategoryName(),
-//                        board.getReplyCount(),
-//                        null, // Assuming images are not available directly
-//                        null  // Assuming filePathUrl is not available directly
+                        board.getId(),
+                        board.getWriter().getId(),
+                        board.getWriter().getNickname(),
+                        null,
+                        board.getTitle(),
+                        board.getContent(),
+                        board.getRegDate(),
+                        board.getUpdateTime(),
+                        board.getViews(),
+                        board.getLikesCount(),
+                        board.getCategoryName(),
+                        board.getReplyCount(),
+                        null,
+                        null
                 ))
                 .collect(Collectors.toList());
     }
 
+    //작성한 댓글 조회(마이페이지)
     @Override
     public List<ReplyDTO> getReplyByWriterId(Long writerId) {
         List<Reply> replies = replyRepository.findByWriterId(writerId);
@@ -107,6 +116,43 @@ public class MyPageServiceImpl implements MyPageService{
                 .build()).collect(Collectors.toList());
     }
 
+    //보낸 쪽지함
+    @Override
+    public List<MessageAddDTO> getSendMessageById(Long senderId) {
+        List<Message> messages = messageRepository.findBySenderId(senderId);
+
+        if (messages.isEmpty()) {
+            throw new IllegalArgumentException("reply not found");
+        }
+
+        return messages.stream()
+                .filter(message -> message.getSender().getId().equals(senderId))
+                .map(message -> MessageAddDTO.builder()
+                        .senderId(message.getSender().getId())
+                        .receiver(String.valueOf(message.getReceiver().getId())) // Assuming there is a getUsername() method in Member class
+                        .content(message.getContent())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    //보낸 쪽지함
+    @Override
+    public List<MessageAddDTO> getReceiveMessageById(Long senderId) {
+        List<Message> messages = messageRepository.findBySenderId(senderId);
+
+        if (messages.isEmpty()) {
+            throw new IllegalArgumentException("reply not found");
+        }
+
+        return messages.stream()
+                .filter(message -> message.getSender().getId().equals(senderId))
+                .map(message -> MessageAddDTO.builder()
+                        .senderId(message.getSender().getId())
+                        .receiver(String.valueOf(message.getReceiver().getId()))
+                        .content(message.getContent())
+                        .build())
+                .collect(Collectors.toList());
+    }
 
 
 }
