@@ -9,6 +9,10 @@ import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
 import com.luckyvicky.woosan.domain.likes.entity.Likes;
 import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;
+import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
+import com.luckyvicky.woosan.domain.matching.entity.MemberMatching;
+import com.luckyvicky.woosan.domain.matching.repository.MemberMatchingRepository;
+import com.luckyvicky.woosan.domain.member.dto.MatchingMyPageDTO;
 import com.luckyvicky.woosan.domain.messages.dto.MessageAddDTO;
 import com.luckyvicky.woosan.domain.messages.entity.Message;
 import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;
@@ -40,6 +44,10 @@ public class MyPageServiceImpl implements MyPageService{
 
     @Autowired
     private MessageRepository messageRepository;
+
+    @Autowired
+    private MemberMatchingRepository memberMatchingRepository;
+
 
 
     //내가 작성한 게시글 조회(마이페이지)
@@ -153,6 +161,36 @@ public class MyPageServiceImpl implements MyPageService{
                         .build())
                 .collect(Collectors.toList());
     }
+
+    //매칭 조회
+    @Override
+    public List<MatchingMyPageDTO> getMatchingById(Long memberId) {
+        // member_matching에서 사람 찾기
+        List<MemberMatching> memberMatchings = memberMatchingRepository.findByMemberId(memberId);
+
+        if (memberMatchings.isEmpty()) {
+            throw new IllegalArgumentException("Matching not found for member id: " + memberId);
+        }
+
+        // 찾은 사람의 matching_board 정보 가져오기
+        List<MatchingMyPageDTO> matchingMyPageDTOs = memberMatchings.stream()
+                .map(memberMatching -> {
+                    MatchingBoard matchingBoard = memberMatching.getMatchingBoard();
+                    return MatchingMyPageDTO.builder()
+                            .memberId(memberMatching.getMember().getId())
+                            .matchingType(matchingBoard.getMatchingType())
+                            .title(matchingBoard.getTitle())
+                            .placeName(matchingBoard.getPlaceName())
+                            .meetDate(matchingBoard.getMeetDate())
+                            .headCount(matchingBoard.getHeadCount())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return matchingMyPageDTOs;
+    }
+
+
 
 
 }

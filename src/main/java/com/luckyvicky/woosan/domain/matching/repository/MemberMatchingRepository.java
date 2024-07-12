@@ -26,4 +26,5 @@ public interface MemberMatchingRepository extends JpaRepository<MemberMatching, 
     // 특정 보드 ID로 삭제
     void deleteByMatchingBoard_Id(Long matchingId);
 
+    List<MemberMatching> findByMemberId(Long id);
 }
