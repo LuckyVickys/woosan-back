@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -129,32 +130,47 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         return boardPage;
     }
 
+    /**
+     * 키워드 자동완성
+     */
+
+    private String generateShouldQuery(String[] keywords, String filterType) {
+        StringBuilder shouldQuery = new StringBuilder();
+        for (String keyword : keywords) {
+            String sanitizedKeyword = keyword.replaceAll("\\s+", "");
+            switch (filterType) {
+                case "title":
+                    shouldQuery.append("{\"match_phrase_prefix\": {\"title\": \"").append(sanitizedKeyword).append("\"}},");
+                    shouldQuery.append("{\"match_phrase_prefix\": {\"korean_title\": \"").append(sanitizedKeyword).append("\"}},");
+                    break;
+                case "content":
+                    shouldQuery.append("{\"match_phrase_prefix\": {\"content\": \"").append(sanitizedKeyword).append("\"}},");
+                    shouldQuery.append("{\"match_phrase_prefix\": {\"korean_content\": \"").append(sanitizedKeyword).append("\"}},");
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid filter type: " + filterType);
+            }
+        }
+        return shouldQuery.substring(0, shouldQuery.length() - 1); // 마지막 쉼표 제거
+    }
 
     @Override
     public List<String> autocomplete(String categoryName, String filterType, String keyword) {
         List<Board> result;
-
+        String[] keywords = keyword.split("\\s+");
+        String shouldQuery = generateShouldQuery(keywords, filterType);
 
         if (categoryName.equals("전체")) {
             switch (filterType) {
                 case "title":
-                    result = elasticsearchBoardRepository.findByTitleOrKoreanTitleContainingAndCategoryNameNot(keyword);
-                    return result.stream()
-                            .map(Board::getTitle)
-                            .distinct()
-                            .collect(Collectors.toList());
+                    result = elasticsearchBoardRepository.findByTitleOrKoreanTitleContainingAndCategoryNameNot(shouldQuery);
+                    return filterResults(result, keywords);
                 case "content":
-                    result = elasticsearchBoardRepository.findByContentOrKoreanContentContainingAndCategoryNameNot(keyword);
-                    return result.stream()
-                            .map(Board::getContent)
-                            .distinct()
-                            .collect(Collectors.toList());
+                    result = elasticsearchBoardRepository.findByContentOrKoreanContentContainingAndCategoryNameNot(shouldQuery);
+                    return filterResults(result, keywords);
                 case "writer":
-                    result = elasticsearchBoardRepository.autocompleteWriter(keyword);
-                    return result.stream()
-                            .map(Board::getNickname)
-                            .distinct()
-                            .collect(Collectors.toList());
+                    result = elasticsearchBoardRepository.autocompleteWriter(shouldQuery);
+                    return filterResults(result, keywords);
                 default:
                     System.out.println("Invalid filter type (전체)");
                     return List.of(); // 빈 리스트 반환
@@ -162,27 +178,42 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         } else {
             switch (filterType) {
                 case "title":
-                    result = elasticsearchBoardRepository.findByTitleContainingOrKoreanTitleContainingAndCategoryNameEquals(keyword, keyword, categoryName);
-                    return result.stream()
-                            .map(Board::getTitle)
-                            .distinct()
-                            .collect(Collectors.toList());
+                    result = elasticsearchBoardRepository.findByTitleContainingOrKoreanTitleContainingAndCategoryNameEquals(shouldQuery, categoryName);
+                    return filterResults(result, keywords);
                 case "content":
-                    result = elasticsearchBoardRepository.findByContentContainingOrKoreanContentContainingAndCategoryNameEquals(keyword, keyword, categoryName);
-                    return result.stream()
-                            .map(Board::getContent)
-                            .distinct()
-                            .collect(Collectors.toList());
+                    result = elasticsearchBoardRepository.findByContentContainingOrKoreanContentContainingAndCategoryNameEquals(shouldQuery, categoryName);
+                    return filterResults(result, keywords);
                 case "writer":
-                    result = elasticsearchBoardRepository.autocompleteWriterAndCategoryName(keyword, categoryName);
-                    return result.stream()
-                            .map(Board::getNickname)
-                            .distinct()
-                            .collect(Collectors.toList());
+                    result = elasticsearchBoardRepository.autocompleteWriterAndCategoryName(shouldQuery, categoryName);
+                    return filterResults(result, keywords);
                 default:
                     return List.of(); // 빈 리스트 반환
             }
         }
+    }
+
+    private List<String> filterResults(List<Board> results, String[] keywords) {
+        return results.stream()
+                .filter(board -> containsAllKeywords(board, keywords))
+                .map(board -> board.getTitle().trim())
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private boolean containsAllKeywords(Board board, String[] keywords) {
+        String content = board.getTitle().replaceAll("\\s+", "") +
+                board.getKoreanTitle().replaceAll("\\s+", "") +
+                board.getContent().replaceAll("\\s+", "") +
+                board.getKoreanContent().replaceAll("\\s+", "");
+        return Arrays.stream(keywords)
+                .map(keyword -> keyword.replaceAll("\\s+", ""))
+                .allMatch(keyword -> containsKeyword(content, keyword));
+    }
+
+    private boolean containsKeyword(String content, String keyword) {
+        // 정확히 일치하는 초성 검색을 위해 정규식을 사용
+        String regex = "(?i).*" + keyword + ".*";
+        return content.matches(regex);
     }
 
 
