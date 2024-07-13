@@ -24,7 +24,7 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
 
     @Transactional(readOnly = true)
-    @EntityGraph(attributePaths = {"board"})
+    @EntityGraph(attributePaths = {"board", "board.title", "board.categoryName"})
     Page<IMyReply> findByWriterId(Long writerId, Pageable pageable);
 
 

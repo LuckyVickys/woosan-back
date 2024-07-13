@@ -2,8 +2,13 @@ package com.luckyvicky.woosan.domain.board.repository.jpa;
 
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import com.luckyvicky.woosan.domain.board.projection.IMyBoard;
+import com.luckyvicky.woosan.domain.board.projection.IMyReply;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -80,9 +85,6 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     @EntityGraph(attributePaths = {"writer"})
     List<IBoardMember> findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
 
-    List<Board> findByWriterId(Long writerId);
-
-
     // <--------------------------------------------예비-------------------------------------------->
 
 
@@ -92,6 +94,12 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
 //    @Transactional(readOnly = true)
 //    @EntityGraph(attributePaths = {"writer"})
 //    <T> Optional<T> findFirstByIdAndCategoryNameAndIsDeletedFalse(Long id, String categoryName, Class<T> className);
+
+    // <--------------------------------------------예비-------------------------------------------->
+
+    @Transactional(readOnly = true)
+    Page<IMyBoard> findByWriterId(Long writerId, Pageable pageable);
+
 
 
     /**

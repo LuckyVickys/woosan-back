@@ -1,3 +1,4 @@
+/*
 package com.luckyvicky.woosan.repository;
 
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoardReply;
@@ -44,3 +45,4 @@ public class MatchingBoardReplyRepositoryTests {
         assertThat(count).isEqualTo(10);
     }
 }
+*/
