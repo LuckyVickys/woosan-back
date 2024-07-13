@@ -1,12 +1,8 @@
 package com.luckyvicky.woosan.domain.member.service;
 
-
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
-import com.luckyvicky.woosan.domain.board.dto.MyReplyDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
-
 import com.luckyvicky.woosan.domain.board.projection.IMyBoard;
-
 import com.luckyvicky.woosan.domain.board.projection.IMyReply;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
@@ -42,11 +38,11 @@ public class MyPageServiceImpl implements MyPageService {
     private final BoardService boardService;
     private final ModelMapper modelMapper;
 
-
-      @Transactional
+    @Override
+    @Transactional
     public PageResponseDTO<MyBoardDTO> getMyBoard(MyPageDTO myPageDTO) {
         Long memberId = myPageDTO.getMemberId();
-        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO();
+        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
         boardService.validateWriterId(memberId);
 
         pageRequestDTO.validate();
@@ -67,19 +63,11 @@ public class MyPageServiceImpl implements MyPageService {
                 .build();
     }
 
-
-        return PageResponseDTO.<BoardDTO>withAll()
-                .dtoList(dtoList)
-                .pageRequestDTO(myPageDTO.getPageRequestDTO())
-                .totalCount(totalCount)
-                .build();
-    }
-    
     @Override
     @Transactional(readOnly = true)
     public PageResponseDTO<MyReplyDTO> getMyReply(MyPageDTO myPageDTO) {
         Long memberId = myPageDTO.getMemberId();
-        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO();
+        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
         boardService.validateWriterId(memberId);
 
         pageRequestDTO.validate();
@@ -102,14 +90,22 @@ public class MyPageServiceImpl implements MyPageService {
 
     @Override
     public PageResponseDTO<BoardDTO> myLikeBoardList(MyPageDTO myPageDTO) {
-        myPageDTO.getPageRequestDTO().validate();
-        Pageable pageable = PageRequest.of(myPageDTO.getPageRequestDTO().getPage() - 1, myPageDTO.getPageRequestDTO().getSize(), Sort.by("id").descending());
+        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
+        pageRequestDTO.validate();
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").descending());
+
         Page<Board> result = boardRepository.findLikedBoards(myPageDTO.getMemberId(), pageable);
 
         List<BoardDTO> dtoList = result.getContent().stream()
-                .map(boardMember -> modelMapper.map(boardMember, BoardDTO.class))
+                .map(board -> modelMapper.map(board, BoardDTO.class))
                 .collect(Collectors.toList());
+
         long totalCount = result.getTotalElements();
 
-
+        return PageResponseDTO.<BoardDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCount(totalCount)
+                .build();
+    }
 }
