@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.*;
+import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +47,8 @@ public interface BoardService {
 
     //내가 작성한 게시글 조회(마이페이지)
     List<BoardDTO> getBoardsByWriterId(Long writerId);
+
+    Member validateWriterId(Long writerId);
 }
 
 
