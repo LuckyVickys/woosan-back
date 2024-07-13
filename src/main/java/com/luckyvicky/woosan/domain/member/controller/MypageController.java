@@ -1,8 +1,12 @@
 package com.luckyvicky.woosan.domain.member.controller;
 
+
+import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+
 import com.luckyvicky.woosan.domain.member.dto.MyBoardDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyPageDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyReplyDTO;
+
 import com.luckyvicky.woosan.domain.member.service.MyPageService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
@@ -36,5 +40,20 @@ public class MypageController {
         PageResponseDTO<MyReplyDTO> myReplyDTO = myPageService.getMyReply(myPageDTO);
         return ResponseEntity.ok(myReplyDTO);
     }
+
+
+
+    /**
+     * 추천한 게시글
+     * */
+    @PostMapping("like/{memberId}")
+    public ResponseEntity<PageResponseDTO<BoardDTO>> myLikedBoard(@RequestBody MyPageDTO myPageDTO) {
+        PageResponseDTO<BoardDTO> responseDTO = myPageService.myLikeBoardList(myPageDTO);
+        return ResponseEntity.ok(responseDTO);
+    }
+
+
+
+
 }
 
