@@ -45,9 +45,6 @@ public interface BoardService {
 
     boolean validationBoardId(Long boardId);
 
-    //내가 작성한 게시글 조회(마이페이지)
-    List<BoardDTO> getBoardsByWriterId(Long writerId);
-
     Member validateWriterId(Long writerId);
 }
 
