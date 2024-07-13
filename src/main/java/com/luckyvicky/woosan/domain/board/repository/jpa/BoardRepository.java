@@ -80,8 +80,6 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
 
     List<Board> findByWriterId(Long writerId);
 
-    List<Board> findByWriterIdIn(List<Long> writerIds);
-
 
     // <--------------------------------------------예비-------------------------------------------->
 

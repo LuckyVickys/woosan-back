@@ -20,7 +20,6 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"board", "writer"})
     List<IReply> findByParentId(Long parentId);
-    List<Reply> findByWriterId(Long writerId);
 
 
 
