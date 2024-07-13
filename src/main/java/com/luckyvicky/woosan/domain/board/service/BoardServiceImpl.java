@@ -404,7 +404,8 @@ public class BoardServiceImpl implements BoardService {
     /**
      * writerId 검증
      */
-    private Member validateWriterId(Long writerId) {
+    @Override
+    public Member validateWriterId(Long writerId) {
         if (writerId == null) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
         }

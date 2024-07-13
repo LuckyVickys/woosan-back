@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.board.repository.jpa;
 
 import com.luckyvicky.woosan.domain.board.entity.Reply;
+import com.luckyvicky.woosan.domain.board.projection.IMyReply;
 import com.luckyvicky.woosan.domain.board.projection.IReply;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,9 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     List<IReply> findByParentId(Long parentId);
 
 
-
+    @Transactional(readOnly = true)
+    @EntityGraph(attributePaths = {"board"})
+    Page<IMyReply> findByWriterId(Long writerId, Pageable pageable);
 
 
 
