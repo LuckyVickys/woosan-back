@@ -1,4 +1,4 @@
-package com.luckyvicky.woosan.domain.board.dto;
+package com.luckyvicky.woosan.domain.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
