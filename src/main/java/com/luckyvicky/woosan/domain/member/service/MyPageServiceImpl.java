@@ -2,7 +2,7 @@ package com.luckyvicky.woosan.domain.member.service;
 
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
-import com.luckyvicky.woosan.domain.board.dto.MyReplyDTO;
+import com.luckyvicky.woosan.domain.member.dto.MyReplyDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 
 import com.luckyvicky.woosan.domain.board.projection.IMyBoard;
@@ -68,13 +68,7 @@ public class MyPageServiceImpl implements MyPageService {
     }
 
 
-        return PageResponseDTO.<BoardDTO>withAll()
-                .dtoList(dtoList)
-                .pageRequestDTO(myPageDTO.getPageRequestDTO())
-                .totalCount(totalCount)
-                .build();
-    }
-    
+
     @Override
     @Transactional(readOnly = true)
     public PageResponseDTO<MyReplyDTO> getMyReply(MyPageDTO myPageDTO) {
@@ -111,5 +105,11 @@ public class MyPageServiceImpl implements MyPageService {
                 .collect(Collectors.toList());
         long totalCount = result.getTotalElements();
 
+        return PageResponseDTO.<BoardDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(myPageDTO.getPageRequestDTO())
+                .totalCount(totalCount)
+                .build();
+    }
 
 }

@@ -28,8 +28,8 @@ public class MypageController {
      */
     @PostMapping("board")
     public ResponseEntity<PageResponseDTO<MyBoardDTO>> getBoard(@RequestBody MyPageDTO myPageDTO) {
-        PageResponseDTO<MyBoardDTO> myBoardDTO = myPageService.getMyBoard(myPageDTO);
-        return ResponseEntity.ok(myBoardDTO);
+        PageResponseDTO<MyBoardDTO> responseDTO = myPageService.getMyBoard(myPageDTO);
+        return ResponseEntity.ok(responseDTO);
     }
 
     /**
@@ -37,8 +37,8 @@ public class MypageController {
      */
     @PostMapping("replies")
     public ResponseEntity<PageResponseDTO<MyReplyDTO>> getReply(@RequestBody MyPageDTO myPageDTO) {
-        PageResponseDTO<MyReplyDTO> myReplyDTO = myPageService.getMyReply(myPageDTO);
-        return ResponseEntity.ok(myReplyDTO);
+        PageResponseDTO<MyReplyDTO> responseDTO = myPageService.getMyReply(myPageDTO);
+        return ResponseEntity.ok(responseDTO);
     }
 
 
@@ -46,7 +46,7 @@ public class MypageController {
     /**
      * 추천한 게시글
      * */
-    @PostMapping("like/{memberId}")
+    @PostMapping("like")
     public ResponseEntity<PageResponseDTO<BoardDTO>> myLikedBoard(@RequestBody MyPageDTO myPageDTO) {
         PageResponseDTO<BoardDTO> responseDTO = myPageService.myLikeBoardList(myPageDTO);
         return ResponseEntity.ok(responseDTO);
