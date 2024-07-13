@@ -5,13 +5,20 @@ import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
 import com.luckyvicky.woosan.domain.board.dto.WriterDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.entity.Reply;
+import com.luckyvicky.woosan.domain.board.projection.IReply;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
+import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.domain.likes.entity.Likes;
 import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;
+import com.luckyvicky.woosan.global.util.PageRequestDTO;
+import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,87 +32,28 @@ import java.util.stream.Collectors;
 @Transactional
 public class MyPageServiceImpl implements MyPageService{
 
+    private final BoardRepository boardRepository;
+    private final ReplyRepository replyRepository;
+    private final LikesRepository likesRepository;
+    private final BoardService boardService;
 
-    @Autowired
-    private LikesRepository likesRepository;
 
-    @Autowired
-    private BoardRepository boardRepository;
-
-    @Autowired
-    private ReplyRepository replyRepository;
-
-    //내가 작성한 게시글 조회(마이페이지)
-    @Override
-    public List<BoardDTO> getBoardsByWriterId(Long writerId) {
-        List<Board> boards = boardRepository.findByWriterId(writerId);
-
-        if (boards.isEmpty()) {
-            throw new IllegalArgumentException("Member not found");
-        }
-
-        WriterDTO writerDTO = new WriterDTO();
-        return boards.stream().map(board -> BoardDTO.builder()
-                .id(board.getId())
-                .writerId(writerDTO.builder()
-                        .id(board.getWriter().getId())
-                        .nickname(board.getWriter().getNickname())
-                        .build().getId())
-                .title(board.getTitle())
-                .content(board.getContent())
-                .regDate(board.getRegDate())
-                .views(board.getViews())
-                .likesCount(board.getLikesCount())
-                .categoryName(board.getCategoryName())
-                .build()).collect(Collectors.toList());
-    }
+//    @Transactional
+//    public PageResponseDTO<ReplyDTO> getMyReply(Long writerId, PageRequestDTO pageRequestDTO) {
+//        boardService.validateWriterId(writerId);
+//
+//        pageRequestDTO.validate();
+//        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
+//
+//        Page<IReply> myReplies = replyRepository.findByWriterId(writerId, pageable);
+//
+//        List<ReplyDTO>
+//
+//
+//    }
 
 
 
-    @Override
-    public List<BoardDTO> getTargetIdByLikes(Long targetId) {
-        List<Likes> likesList = likesRepository.findByTargetIdAndType(targetId, "게시물");
-        List<Long> writerIds = likesList.stream()
-                .map(likes -> likes.getMember().getId())
-                .collect(Collectors.toList());
-        List<Board> boards = boardRepository.findByWriterIdIn(writerIds);
-        return boards.stream()
-                .map(board -> new BoardDTO(
-//                        board.getId(),
-//                        board.getWriter().getId(),
-//                        board.getWriter().getNickname(),
-//                        null, // Assuming writerProfile is not available directly
-//                        board.getTitle(),
-//                        board.getContent(),
-//                        board.getRegDate(),
-//                        board.getViews(),
-//                        board.getLikesCount(),
-//                        board.getCategoryName(),
-//                        board.getReplyCount(),
-//                        null, // Assuming images are not available directly
-//                        null  // Assuming filePathUrl is not available directly
-                ))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ReplyDTO> getReplyByWriterId(Long writerId) {
-        List<Reply> replies = replyRepository.findByWriterId(writerId);
-
-        if (replies.isEmpty()) {
-            throw new IllegalArgumentException("reply not found");
-        }
-
-        return replies.stream().map(reply -> ReplyDTO.builder()
-                .id(reply.getId())
-                .writerId(reply.getWriter().getId())
-                .parentId(reply.getParentId())
-                .boardId(reply.getBoard().getId())
-                .content(reply.getContent())
-                .regDate(reply.getRegDate())
-                .likesCount(reply.getLikesCount())
-                .build()).collect(Collectors.toList());
-    }
 
 
 
