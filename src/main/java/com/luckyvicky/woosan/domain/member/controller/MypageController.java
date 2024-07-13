@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.member.controller;
 
+import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.MyReplyDTO;
 import com.luckyvicky.woosan.domain.member.service.MyPageService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
@@ -8,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @Log4j2
@@ -28,6 +27,17 @@ public class MypageController {
         PageResponseDTO<MyReplyDTO> myReplyDTO  = myPageService.getMyReply(writerId, pageRequestDTO);
         return ResponseEntity.ok(myReplyDTO);
     }
+
+
+    /**
+     * 추천한 게시글
+     * */
+    @PostMapping("like/{memberId}")
+    public ResponseEntity<PageResponseDTO<BoardDTO>> myLikedBoard(@RequestBody MyPageDTO myPageDTO) {
+        PageResponseDTO<BoardDTO> responseDTO = myPageService.myLikeBoardList(myPageDTO);
+        return ResponseEntity.ok(responseDTO);
+    }
+
 
 }
 

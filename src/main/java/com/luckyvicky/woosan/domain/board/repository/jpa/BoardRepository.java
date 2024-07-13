@@ -2,6 +2,8 @@ package com.luckyvicky.woosan.domain.board.repository.jpa;
 
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -92,6 +94,13 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
 //    <T> Optional<T> findFirstByIdAndCategoryNameAndIsDeletedFalse(Long id, String categoryName, Class<T> className);
 
 
+    /**
+     * 내가 추천한 게시물 조회
+     * */
+    @Query("SELECT b " +
+            "FROM Likes l JOIN Board b ON l.targetId = b.id " +
+            "WHERE l.type = '게시물' AND l.member.id = :memberId")
+    Page<Board> findLikedBoards(@Param("memberId") Long memberId, Pageable pageable);
 
 
 }
