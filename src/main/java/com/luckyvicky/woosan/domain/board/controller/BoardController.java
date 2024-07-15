@@ -2,6 +2,7 @@ package com.luckyvicky.woosan.domain.board.controller;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
+import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
 import com.luckyvicky.woosan.domain.board.service.ElasticsearchBoardService;
 import com.luckyvicky.woosan.domain.board.service.SummaryService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
@@ -114,9 +115,9 @@ public class BoardController {
     /**
      * 게시물 삭제
      */
-    @PatchMapping("/delete/{id}")
-    public ResponseEntity<String> deleteBoard(@PathVariable Long id) {
-        boardService.remove(id);
+    @PatchMapping("/delete")
+    public ResponseEntity<String> deleteBoard(@RequestBody RemoveDTO removeDTO ) {
+        boardService.remove(removeDTO);
         return ResponseEntity.ok("삭제 완료");
     }
 

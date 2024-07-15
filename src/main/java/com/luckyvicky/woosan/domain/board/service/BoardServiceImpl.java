@@ -248,8 +248,8 @@ public class BoardServiceImpl implements BoardService {
      * 게시물 삭제
      */
     @Override
-    public void remove(Long id) {
-        Board board = boardRepository.findById(id)
+    public void remove(RemoveDTO removeDTO) {
+        Board board = boardRepository.findById(removeDTO.getId())
                 .orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
 
         if (board.isDeleted()) {
@@ -257,10 +257,10 @@ public class BoardServiceImpl implements BoardService {
         }
 
         // 작성자 검증
-//        Long userId = (Long) session.getAttribute("userId"); // 토큰으로 변경 필요
-//        if (!board.getWriter().getId().equals(userId)) {
-//            throw new BoardException(ErrorCode.ACCESS_DENIED);
-//        }
+        if (!removeDTO.getWriterId().equals(board.getWriter().getId())) {
+            throw new MemberException(ErrorCode.ACCESS_DENIED);
+        }
+
 
         board.changeIsDeleted(true);
         boardRepository.save(board);

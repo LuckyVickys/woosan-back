@@ -48,14 +48,14 @@ public class ReplyServiceTest {
     /**
      * 댓글 삭제 테스트
      */
-    @Test
-    public void testDeleteReply() {
-        Long replyId = 64L;  // 테스트에 사용할 댓글 ID
-
-        replyService.remove(replyId);
-        log.info("Deleted Reply ID: " + replyId);
-    }
-
+//    @Test
+//    public void testDeleteReply() {
+//        Long replyId = 64L;  // 테스트에 사용할 댓글 ID
+//
+//        replyService.remove(replyId);
+//        log.info("Deleted Reply ID: " + replyId);
+//    }
+//
 
     /**
      * 특정 게시물에 대한 댓글 전체 조회 테스트

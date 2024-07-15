@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.board.service;
 
+import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
@@ -135,12 +136,17 @@ public class ReplyServiceImpl implements ReplyService {
      */
     @Override
     @Transactional
-    public void remove(Long id) {
-        validationReplyId(id);
+    public void remove(RemoveDTO removeDTO) {
+        validationReplyId(removeDTO.getId());
 
         // 부모 댓글 조회
-        Reply reply = replyRepository.findById(id)
+        Reply reply = replyRepository.findById(removeDTO.getId())
                 .orElseThrow(() -> new ReplyException(ErrorCode.REPLY_NOT_FOUND));
+
+        // 작성자 검증
+        if (!removeDTO.getWriterId().equals(reply.getWriter().getId())) {
+            throw new MemberException(ErrorCode.ACCESS_DENIED);
+        }
 
         // 자식 댓글 수 계산 및 삭제
         int childReplyCount = deleteChildReplies(reply.getId());

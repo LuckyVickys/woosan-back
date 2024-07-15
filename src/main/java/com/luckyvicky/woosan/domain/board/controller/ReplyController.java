@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.board.controller;
 
+import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.ReplyDTO;
@@ -41,9 +42,9 @@ public class ReplyController {
     /**
      * 댓글 삭제
      */
-    @DeleteMapping("/{replyId}")
-    public ResponseEntity<Void>  deleteReply(@PathVariable Long replyId){
-        replyService.remove(replyId);
+    @DeleteMapping
+    public ResponseEntity<Void>  deleteReply(@RequestBody RemoveDTO removeDTO ) {
+        replyService.remove(removeDTO);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

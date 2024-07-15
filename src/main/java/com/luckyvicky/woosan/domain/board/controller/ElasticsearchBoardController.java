@@ -31,8 +31,8 @@ public class ElasticsearchBoardController {
             @RequestParam(value = "category", required = false) String categoryName,
             @RequestParam(value = "filter", required = false) String filterType,
             @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "standardPage", required = false, defaultValue = "1") int standardPage,
-            @RequestParam(value = "synonymPage", required = false, defaultValue = "1") int synonymPage,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int standardPage,
+            @RequestParam(value = "rpage", required = false, defaultValue = "1") int synonymPage,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
 
         PageRequestDTO standardPageRequest = new PageRequestDTO(standardPage, size);
