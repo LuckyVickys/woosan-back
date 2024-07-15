@@ -74,7 +74,7 @@ public class MypageController {
     /**
      * 보낸 쪽지 삭제
      */
-    @DeleteMapping("/message/del/send")
+    @PutMapping("/message/del/send")
     public ResponseEntity<String> deleteSendMessage(@RequestParam Long id) {
         myPageService.removeSendMessage(id);
         return ResponseEntity.ok("삭제 완료");
@@ -83,7 +83,7 @@ public class MypageController {
     /**
      * 받은 쪽지 삭제
      */
-    @DeleteMapping("/message/del/receive")
+    @PutMapping("/message/del/receive")
     public ResponseEntity<String> deleteReceiveMessage(@RequestParam Long id) {
         myPageService.removeReceiveMessage(id);
         return ResponseEntity.ok("삭제 완료");

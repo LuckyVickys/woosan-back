@@ -179,6 +179,7 @@ public class MyPageServiceImpl implements MyPageService {
         }
 
         message.changeIsDelBySender();
+        messageRepository.save(message);
 
         return "보낸 메시지 삭제 완료";
     }
@@ -193,6 +194,7 @@ public class MyPageServiceImpl implements MyPageService {
         }
 
         message.changeIsDelByReceiver();
+        messageRepository.save(message);
 
         return "받은 메시지 삭제 완료";
     }
