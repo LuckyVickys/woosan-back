@@ -145,7 +145,7 @@ public class MemberServiceImpl implements MemberService {
 
         if(member == null) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
-        } else if(!member.getPassword().equals(password)) {
+        } else if(!bCryptPasswordEncoder.matches(password, member.getPassword())) {
             throw new MemberException(ErrorCode.PW_NOT_FOUND);
         }
 
