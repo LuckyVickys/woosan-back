@@ -14,7 +14,7 @@ public interface BoardService {
 
     void modify(BoardDTO boardDTO);
 
-    void remove(Long id);
+    void remove(RemoveDTO removeDTO);
 
     BoardDTO get(Long id);
 
