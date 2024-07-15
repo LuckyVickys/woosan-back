@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 public class MessageDTO {
 
     private Long id;
-    private String sender;
-    private String receiver;
+    private String senderNickname;
+    private String receiverNickname;
     private String content;
     private LocalDateTime regDate;
     private Boolean delBySender;
