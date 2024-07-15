@@ -8,6 +8,7 @@ import com.luckyvicky.woosan.domain.member.dto.MyPageDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyReplyDTO;
 
 import com.luckyvicky.woosan.domain.member.service.MyPageService;
+import com.luckyvicky.woosan.domain.messages.dto.MessageDTO;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +53,23 @@ public class MypageController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    /**
+     * 보낸 쪽지함
+     */
+    @PostMapping("/message/list/send")
+    public ResponseEntity<PageResponseDTO<MessageDTO>> mySendMessages(@RequestBody MyPageDTO myPageDTO) {
+        PageResponseDTO<MessageDTO> responseDTO = myPageService.mySendMessages(myPageDTO);
+        return ResponseEntity.ok(responseDTO);
+    }
 
-
+    /**
+     * 받은 쪽지함
+     */
+    @PostMapping("/message/list/receive")
+    public ResponseEntity<PageResponseDTO<MessageDTO>> myReceiveMessages(@RequestBody MyPageDTO myPageDTO) {
+        PageResponseDTO<MessageDTO> responseDTO = myPageService.myReceiveMessages(myPageDTO);
+        return ResponseEntity.ok(responseDTO);
+    }
 
 }
 

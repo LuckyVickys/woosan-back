@@ -11,6 +11,13 @@ import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;
 import com.luckyvicky.woosan.domain.member.dto.MyBoardDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyPageDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyReplyDTO;
+import com.luckyvicky.woosan.domain.member.entity.Member;
+import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.messages.dto.MessageDTO;
+import com.luckyvicky.woosan.domain.messages.entity.Message;
+import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;
+import com.luckyvicky.woosan.global.exception.ErrorCode;
+import com.luckyvicky.woosan.global.exception.MemberException;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +42,8 @@ public class MyPageServiceImpl implements MyPageService {
     private final BoardRepository boardRepository;
     private final ReplyRepository replyRepository;
     private final LikesRepository likesRepository;
+    private final MemberRepository memberRepository;
+    private final MessageRepository messageRepository;
     private final BoardService boardService;
     private final ModelMapper modelMapper;
 
@@ -103,6 +112,54 @@ public class MyPageServiceImpl implements MyPageService {
         long totalCount = result.getTotalElements();
 
         return PageResponseDTO.<BoardDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCount(totalCount)
+                .build();
+    }
+
+    @Override
+    public PageResponseDTO<MessageDTO> mySendMessages(MyPageDTO myPageDTO) {
+        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
+        pageRequestDTO.validate();
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").descending());
+
+        Member sender = memberRepository.findById(myPageDTO.getMemberId())
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Page<Message> result = messageRepository.findBySenderAndDelBySender(sender, pageable, false);
+
+        List<MessageDTO> dtoList = result.getContent().stream()
+                .map(message -> modelMapper.map(message, MessageDTO.class))
+                .collect(Collectors.toList());
+
+        long totalCount = result.getTotalElements();
+
+        return PageResponseDTO.<MessageDTO>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCount(totalCount)
+                .build();
+    }
+
+    @Override
+    public PageResponseDTO<MessageDTO> myReceiveMessages(MyPageDTO myPageDTO) {
+        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
+        pageRequestDTO.validate();
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").descending());
+
+        Member receiver = memberRepository.findById(myPageDTO.getMemberId())
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Page<Message> result = messageRepository.findByReceiverAndDelByReceiver(receiver, pageable, false);
+
+        List<MessageDTO> dtoList = result.getContent().stream()
+                .map(message -> modelMapper.map(message, MessageDTO.class))
+                .collect(Collectors.toList());
+
+        long totalCount = result.getTotalElements();
+
+        return PageResponseDTO.<MessageDTO>withAll()
                 .dtoList(dtoList)
                 .pageRequestDTO(pageRequestDTO)
                 .totalCount(totalCount)
