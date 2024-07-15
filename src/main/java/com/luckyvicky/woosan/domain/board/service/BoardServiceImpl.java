@@ -3,7 +3,6 @@ package com.luckyvicky.woosan.domain.board.service;
 import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.exception.BoardException;
-import com.luckyvicky.woosan.domain.board.projection.IMyBoard;
 import com.luckyvicky.woosan.global.exception.MemberException;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
