@@ -5,6 +5,9 @@ import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -12,12 +15,18 @@ import lombok.NoArgsConstructor;
 public class ProfileUpdateDTO {
     private long memberId;
     private String nickname;
-    private MemberType.Level level;
+    private String level;
+
+    private int nextPoint;
     private int point;
+
     private String gender;
     private String location;
     private int age;
     private int height;
     private MBTI mbti;
+
+    private List<MultipartFile> image;
+    private List<String> fileImg;
 
 }
