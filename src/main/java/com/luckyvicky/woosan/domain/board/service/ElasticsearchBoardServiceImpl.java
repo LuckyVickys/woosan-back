@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+import com.luckyvicky.woosan.domain.board.dto.RankingDTO;
 import com.luckyvicky.woosan.domain.board.dto.SearchDTO;
 import com.luckyvicky.woosan.domain.board.dto.SearchPageResponseDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
@@ -263,14 +264,49 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         searchKeywordRepository.save(searchKeyword);
     }
 
-    /**
-     * 검색 키워드를 1시간 동안 집계
-     */
     @Override
-    public List<String> getRealTimeSearchRankings() {
+    public List<RankingDTO> getRankingChanges() {
+        List<String> currentRankings = getCurrentRankings(); // 현재 순위 가져오기
+        List<String> pastRankings = getPastRankings(); // 이전 순위 가져오기
+
+        List<RankingDTO> changes = new ArrayList<>();
+        for (int i = 0; i < currentRankings.size(); i++) {
+            String currentKeyword = currentRankings.get(i);
+            int pastIndex = pastRankings.indexOf(currentKeyword);
+            String symbol = " "; // 순위 변동 없음
+
+            if (pastIndex == -1) { // 이전 순위에 없는 경우, 새로운 키워드
+                symbol = "+";
+            } else if (i < pastIndex) { // 순위 상승
+                symbol = "+";
+            } else if (i > pastIndex) { // 순위 하락
+                symbol = "-";
+            }
+
+            changes.add(new RankingDTO(i + 1, currentKeyword, symbol));
+        }
+
+        // 이전 순위에 있었지만 현재 순위에 없는 키워드 찾기
+        for (int i = 0; i < pastRankings.size(); i++) {
+            String pastKeyword = pastRankings.get(i);
+            if (!currentRankings.contains(pastKeyword) && changes.size() < 10) {
+                changes.add(new RankingDTO(i + 1, pastKeyword, "-"));
+            }
+        }
+
+        // 최종 결과의 길이가 10을 초과하지 않도록 제한
+        if (changes.size() > 10) {
+            changes = changes.subList(0, 10);
+        }
+
+        return changes;
+    }
+
+    // 현재 순위 가져오기
+    private List<String> getCurrentRankings() {
         // Elasticsearch 쿼리 생성
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.rangeQuery("timestamp").gte("now-30m"))
+                .withQuery(QueryBuilders.rangeQuery("timestamp").gte("now-1h/h"))
                 .addAggregation(AggregationBuilders.terms("popular_keywords").field("keyword").size(10).order(BucketOrder.count(false)))
                 .build();
 
@@ -288,6 +324,30 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
 
         return rankings;
     }
+
+    // 이전 순위 가져오기
+    private List<String> getPastRankings() {
+        // Elasticsearch 쿼리 생성
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.rangeQuery("timestamp").gte("now-2h/h").lt("now-1h/h"))
+                .addAggregation(AggregationBuilders.terms("popular_keywords").field("keyword").size(10).order(BucketOrder.count(false)))
+                .build();
+
+        // 검색 실행 및 집계 결과 추출
+        SearchHits<SearchKeyword> searchHits = elasticsearchRestTemplate.search(searchQuery, SearchKeyword.class, IndexCoordinates.of("search_keywords"));
+
+        // 집계 데이터 추출
+        Aggregations aggregations = searchHits.getAggregations();
+        Terms popularKeywords = aggregations.get("popular_keywords");
+
+        List<String> rankings = new ArrayList<>();
+        for (Terms.Bucket bucket : popularKeywords.getBuckets()) {
+            rankings.add(bucket.getKeyAsString());
+        }
+
+        return rankings;
+    }
+
 
 
     @Override
