@@ -16,6 +16,7 @@ import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.domain.messages.dto.MessageDTO;
 import com.luckyvicky.woosan.domain.messages.entity.Message;
 import com.luckyvicky.woosan.domain.messages.exception.MessageException;
+import com.luckyvicky.woosan.domain.messages.mapper.MessageMapper;
 import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.exception.MemberException;
@@ -45,6 +46,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final LikesRepository likesRepository;
     private final MemberRepository memberRepository;
     private final MessageRepository messageRepository;
+    private final MessageMapper messageMapper;
     private final BoardService boardService;
     private final ModelMapper modelMapper;
 
@@ -193,5 +195,24 @@ public class MyPageServiceImpl implements MyPageService {
         message.changeIsDelByReceiver();
 
         return "받은 메시지 삭제 완료";
+    }
+
+    @Override
+    public MessageDTO getMyMessage(Long id) {
+        Message message = messageRepository.findById(id)
+                .orElseThrow(() -> new MessageException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        MessageDTO messageDTO = messageMapper.messageToMessageDTO(message);
+
+        Member receiver = memberRepository.findById(message.getReceiver().getId())
+                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Member sender = memberRepository.findById(message.getReceiver().getId())
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+
+        messageDTO.setReceiverNickname(receiver.getNickname());
+        messageDTO.setSenderNickname(sender.getNickname());
+
+        return messageDTO;
     }
 }
