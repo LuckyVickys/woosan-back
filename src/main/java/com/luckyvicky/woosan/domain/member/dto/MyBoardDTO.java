@@ -18,7 +18,6 @@ public class MyBoardDTO {
     private Long id;
     private String title;
     private LocalDateTime regDate;
-    private LocalDateTime updateDate;
     private int views;
     private int likesCount;
     private String categoryName;
