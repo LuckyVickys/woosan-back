@@ -1,60 +1,87 @@
 package com.luckyvicky.woosan.domain.member.service;
 
+import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.member.dto.ProfileUpdateDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.entity.MemberProfile;
 import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import com.luckyvicky.woosan.domain.member.repository.MemberProfileRepository;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class MemberProfileServiceImpl implements MemberProfileService {
 
-    private final MemberRepository memberRepository;
     private final MemberProfileRepository memberProfileRepository;
+    private final MemberRepository memberRepository;
+    private final FileImgService fileImgService;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    public MemberProfileServiceImpl(MemberRepository memberRepository, MemberProfileRepository memberProfileRepository) {
-        this.memberRepository = memberRepository;
-        this.memberProfileRepository = memberProfileRepository;
+    @Override
+    public ProfileUpdateDTO get(Long id) {
+        Optional<Member> memberOptional = memberRepository.findById(id);
+        Optional<MemberProfile> memberProfileOptional = memberProfileRepository.findByMemberId(id);
+        ProfileUpdateDTO profileUpdateDTO = new ProfileUpdateDTO();
+        Member member = memberOptional.get();
+
+        if (!memberProfileOptional.isEmpty()) {
+            MemberProfile memberProfile = memberProfileOptional.get();
+
+            profileUpdateDTO.setGender(memberProfile.getGender());
+            profileUpdateDTO.setLocation(memberProfile.getLocation());
+            profileUpdateDTO.setAge(memberProfile.getAge());
+            profileUpdateDTO.setHeight(memberProfile.getHeight());
+            profileUpdateDTO.setMbti(memberProfile.getMbti());
+
+            if(fileImgService.findFiles("member",member.getId()) != null) {
+                profileUpdateDTO.setFileImg(fileImgService.findFiles("member",member.getId()));
+            }
+
+        }
+        profileUpdateDTO.setMemberId(member.getId());
+        profileUpdateDTO.setNickname(member.getNickname());
+        profileUpdateDTO.setLevel(member.getLevel().toString());
+        profileUpdateDTO.setNextPoint(member.getNextPoint());
+        profileUpdateDTO.setPoint(member.getPoint());
+
+        return profileUpdateDTO;
     }
 
-    //회원정보 업데이트
+
     @Override
-    public void updateProfile(ProfileUpdateDTO profileUpdateDTO) {
-
-        Member member = memberRepository.findById(profileUpdateDTO.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-
+    @Transactional
+    public void update(ProfileUpdateDTO profileUpdateDTO) {
+        // Member 엔티티를 업데이트
+        Member member = memberRepository.findById(profileUpdateDTO.getMemberId()).orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
         member.setNickname(profileUpdateDTO.getNickname());
         memberRepository.save(member);
 
-        MemberProfile memberProfile = memberProfileRepository.findById(profileUpdateDTO.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        // MemberProfile 조회
+        MemberProfile existingProfile = memberProfileRepository.findByMemberId(profileUpdateDTO.getMemberId()).orElse(null);
 
-        memberProfile.setLocation(profileUpdateDTO.getLocation());
-        memberProfile.setGender(profileUpdateDTO.getGender());
-        memberProfile.setAge(profileUpdateDTO.getAge());
-        memberProfile.setHeight(profileUpdateDTO.getHeight());
-        memberProfile.setMbti(profileUpdateDTO.getMbti());
+        if (existingProfile != null) {
+            existingProfile.setAge(profileUpdateDTO.getAge());
+            existingProfile.setGender(profileUpdateDTO.getGender());
+            existingProfile.setHeight(profileUpdateDTO.getHeight());
+            existingProfile.setLocation(profileUpdateDTO.getLocation());
+            existingProfile.setMbti(profileUpdateDTO.getMbti());
+            memberProfileRepository.save(existingProfile);
+        } else {
+            MemberProfile memberProfile = modelMapper.map(profileUpdateDTO, MemberProfile.class);
+            memberProfileRepository.save(memberProfile);
+        }
 
-        memberProfileRepository.save(memberProfile);
-    }
-
-    //포인트 확인란
-    @Override
-    public ProfileUpdateDTO getPointLevel(ProfileUpdateDTO profileUpdateDTO) {
-        Member member = memberRepository.findById(profileUpdateDTO.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-
-        int point = member.getPoint();
-        MemberType.Level level = member.getLevel();
-
-        profileUpdateDTO.setLevel(level);
-        profileUpdateDTO.setPoint(point);
-
-        return profileUpdateDTO;
+        if (profileUpdateDTO.getImage() != null) {
+            fileImgService.targetFilesDelete("member", profileUpdateDTO.getMemberId());
+            fileImgService.fileUploadMultiple("member", profileUpdateDTO.getMemberId(), profileUpdateDTO.getImage());
+        }
     }
 }
