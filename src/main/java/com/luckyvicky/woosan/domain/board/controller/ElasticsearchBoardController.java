@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.board.controller;
 
+import com.luckyvicky.woosan.domain.board.dto.RankingDTO;
 import com.luckyvicky.woosan.domain.board.dto.SearchPageResponseDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.service.ElasticsearchBoardService;
@@ -59,11 +60,12 @@ public class ElasticsearchBoardController {
 
 
     /**
-     * 검색 키워드 1시간 집계
+     * 검색 순위
      */
     @GetMapping("/ranking")
-    public List<String> getRealTimeSearchRankings() {
-        return elasticsearchBoardService.getRealTimeSearchRankings();
+    public ResponseEntity<List<RankingDTO>> getRanking() {
+        List<RankingDTO> result = elasticsearchBoardService.getRankingChanges();
+        return ResponseEntity.ok(result);
     }
 }
 
