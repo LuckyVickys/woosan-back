@@ -41,7 +41,11 @@ public enum ErrorCode {
     // jwt 관련 오류
     ACCESS_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Access Token이 존재하지 않습니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Refresh Token이 존재하지 않습니다."),
-    INVALID_STRING(HttpStatus.BAD_REQUEST, "Invalid String");
+    INVALID_STRING(HttpStatus.BAD_REQUEST, "Invalid String"),
+
+    // 쪽지 관련 오류
+    MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "쪽지를 찾을 수 없습니다."),
+    MESSAGE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 쪽지입니다.");
 
     private final HttpStatus status;
     private final String message;

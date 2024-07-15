@@ -39,4 +39,12 @@ public class Message {
 
     @ColumnDefault("false")
     private Boolean delByReceiver;
+
+    public void changeIsDelBySender() {
+        this.delBySender = true;
+    }
+
+    public void changeIsDelByReceiver() {
+        this.delByReceiver = true;
+    }
 }

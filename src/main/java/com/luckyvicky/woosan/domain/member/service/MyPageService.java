@@ -27,4 +27,10 @@ public interface MyPageService {
 
     @Transactional(readOnly = true)
     PageResponseDTO<MessageDTO> myReceiveMessages(MyPageDTO myPageDTO);
+
+    @Transactional
+    String removeSendMessage(Long id);
+
+    @Transactional
+    String removeReceiveMessage(Long id);
 }
