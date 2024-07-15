@@ -127,7 +127,7 @@ public class MyPageServiceImpl implements MyPageService {
         Member sender = memberRepository.findById(myPageDTO.getMemberId())
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Page<Message> result = messageRepository.findBySender(sender, pageable);
+        Page<Message> result = messageRepository.findBySenderAndDelBySender(sender, pageable, false);
 
         List<MessageDTO> dtoList = result.getContent().stream()
                 .map(message -> modelMapper.map(message, MessageDTO.class))
@@ -151,7 +151,7 @@ public class MyPageServiceImpl implements MyPageService {
         Member receiver = memberRepository.findById(myPageDTO.getMemberId())
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Page<Message> result = messageRepository.findByReceiver(receiver, pageable);
+        Page<Message> result = messageRepository.findByReceiverAndDelByReceiver(receiver, pageable, false);
 
         List<MessageDTO> dtoList = result.getContent().stream()
                 .map(message -> modelMapper.map(message, MessageDTO.class))

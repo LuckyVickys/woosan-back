@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    Page<Message> findBySender(Member sender, Pageable pageable);
-    Page<Message> findByReceiver(Member receiver, Pageable pageable);
+    Page<Message> findBySenderAndDelBySender(Member sender, Pageable pageable, Boolean delBySender);
+    Page<Message> findByReceiverAndDelByReceiver(Member receiver, Pageable pageable, Boolean delByReceiver);
 }

@@ -56,7 +56,7 @@ public class MypageController {
     /**
      * 보낸 쪽지함
      */
-    @GetMapping("/message/sendList")
+    @PostMapping("/message/list/send")
     public ResponseEntity<PageResponseDTO<MessageDTO>> mySendMessages(@RequestBody MyPageDTO myPageDTO) {
         PageResponseDTO<MessageDTO> responseDTO = myPageService.mySendMessages(myPageDTO);
         return ResponseEntity.ok(responseDTO);
@@ -65,7 +65,7 @@ public class MypageController {
     /**
      * 받은 쪽지함
      */
-    @GetMapping("/message/receiveList")
+    @PostMapping("/message/list/receive")
     public ResponseEntity<PageResponseDTO<MessageDTO>> myReceiveMessages(@RequestBody MyPageDTO myPageDTO) {
         PageResponseDTO<MessageDTO> responseDTO = myPageService.myReceiveMessages(myPageDTO);
         return ResponseEntity.ok(responseDTO);

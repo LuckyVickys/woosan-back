@@ -34,7 +34,7 @@ public class CustomSecurityConfig {
     private final MemberMapper memberMapper;
 
     private static final String[] PERMIT_ALL_LIST = {
-            "api/member/**", "/api/auth/login", "/api/message/**", "/api/board/**", "/api/matching/**", "/api/admin/**"
+            "api/member/**", "/api/auth/login", "/api/message/**", "/api/board/**", "/api/matching/**", "/api/admin/**", "/api/my/**"
     };
 
     @Bean
