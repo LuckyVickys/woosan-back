@@ -3,21 +3,22 @@ package com.luckyvicky.woosan.domain.admin.controller;
 import com.luckyvicky.woosan.domain.admin.service.AdminService;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
+import com.luckyvicky.woosan.domain.report.dto.ReportDTO;
+import com.luckyvicky.woosan.domain.report.service.ReportService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Log4j2
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
 public class AdminController {
 
     private final AdminService adminService;
     private final BoardService boardService;
+    private final ReportService reportService;
 
     /**
      * 게시물 작성
@@ -68,6 +69,20 @@ public class AdminController {
         adminService.remove(id, writerId);
         return ResponseEntity.ok("삭제 완료");
     }
+
+
+    @GetMapping("/report")
+    public ResponseEntity<PageResponseDTO<ReportDTO>> myLikedBoard(PageRequestDTO pageRequestDTO) {
+        PageResponseDTO<ReportDTO> responseDTO = reportService.reportList(pageRequestDTO);
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @GetMapping("/report/{id}")
+    public ResponseEntity<ReportDTO> myLikedBoard(@PathVariable Long id) {
+        ReportDTO result = reportService.getReport(id);
+        return ResponseEntity.ok(result);
+    }
+
 
 
 }
