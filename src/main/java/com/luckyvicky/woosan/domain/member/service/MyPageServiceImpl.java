@@ -15,6 +15,7 @@ import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.domain.messages.dto.MessageDTO;
 import com.luckyvicky.woosan.domain.messages.entity.Message;
+import com.luckyvicky.woosan.domain.messages.exception.MessageException;
 import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.exception.MemberException;
@@ -164,5 +165,33 @@ public class MyPageServiceImpl implements MyPageService {
                 .pageRequestDTO(pageRequestDTO)
                 .totalCount(totalCount)
                 .build();
+    }
+
+    @Override
+    public String removeSendMessage(Long id) {
+        Message message = messageRepository.findById(id)
+                .orElseThrow(() -> new MessageException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        if(message.getDelBySender() == true) {
+            throw new MessageException(ErrorCode.MESSAGE_ALREADY_DELETED);
+        }
+
+        message.changeIsDelBySender();
+
+        return "보낸 메시지 삭제 완료";
+    }
+
+    @Override
+    public String removeReceiveMessage(Long id) {
+        Message message = messageRepository.findById(id)
+                .orElseThrow(() -> new MessageException(ErrorCode.MESSAGE_NOT_FOUND));
+
+        if(message.getDelByReceiver() == true) {
+            throw new MessageException(ErrorCode.MESSAGE_ALREADY_DELETED);
+        }
+
+        message.changeIsDelByReceiver();
+
+        return "받은 메시지 삭제 완료";
     }
 }
