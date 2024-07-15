@@ -35,7 +35,7 @@ public class Report {
     private LocalDateTime regDate = LocalDateTime.now();
 
     @Builder.Default
-    private Boolean isChecked=false;
+    private Boolean isChecked = false;
 
     @ManyToOne
     @JoinColumn(name = "reported_member_id", nullable = false)
@@ -43,5 +43,9 @@ public class Report {
 
     public void change(String complaintReason) {
         this.complaintReason = complaintReason;
+    }
+
+    public void setIsChecked(boolean isChecked) {
+        this.isChecked = isChecked;
     }
 }

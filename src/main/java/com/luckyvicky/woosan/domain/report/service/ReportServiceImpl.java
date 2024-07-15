@@ -5,18 +5,28 @@ import com.luckyvicky.woosan.domain.board.entity.Reply;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
+import com.luckyvicky.woosan.domain.member.dto.MyBoardDTO;
+import com.luckyvicky.woosan.domain.member.dto.MyReplyDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.domain.report.dto.ReportDTO;
 import com.luckyvicky.woosan.domain.report.entity.Report;
 import com.luckyvicky.woosan.domain.report.mapper.ReportMapper;
 import com.luckyvicky.woosan.domain.report.repository.ReportRepository;
+import com.luckyvicky.woosan.global.util.PageRequestDTO;
+import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -29,6 +39,7 @@ public class ReportServiceImpl implements ReportService {
     private final MemberRepository memberRepository;
     private final FileImgService fileImgService;
     private final ReportMapper reportMapper;
+    private final ModelMapper modelMapper;
 
 
     @Override
@@ -86,6 +97,42 @@ public class ReportServiceImpl implements ReportService {
         return reportDTO;
     }
 
+    @Override
+    public PageResponseDTO<ReportDTO> reportList(PageRequestDTO pageRequestDTO) {
+        pageRequestDTO.validate();
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").descending());
+        Page<Report> reports = reportRepository.findAll(pageable);
 
+        List<ReportDTO> reportDTOList = reports.getContent().stream()
+                .map(report -> modelMapper.map(report, ReportDTO.class))
+                .collect(Collectors.toList());
+
+        long totalCount = reports.getTotalElements();
+
+        return PageResponseDTO.<ReportDTO>withAll()
+                .dtoList(reportDTOList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCount(totalCount)
+                .build();
+    }
+
+    @Override
+    public ReportDTO getReport(Long id) {
+        Report report = reportRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다."));
+
+        List<String> reportFile = fileImgService.findFiles("report", report.getId());
+
+        report.setIsChecked(true);
+        reportRepository.save(report);
+
+        ReportDTO reportDTO = reportMapper.reportToReportDTO(report);
+        reportDTO.setReporterId(report.getReporter().getId());
+        reportDTO.setReporterNickname(report.getReporter().getNickname());
+        reportDTO.setReporteredMemberId(report.getReportedMember().getId());
+        reportDTO.setReporteredMemberNickname(report.getReportedMember().getNickname());
+        reportDTO.setFilePathUrl(reportFile);
+        return reportDTO;
+    }
 
 }

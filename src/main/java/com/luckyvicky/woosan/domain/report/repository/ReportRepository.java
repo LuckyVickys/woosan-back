@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
-
     List<Report> findByReporterAndTypeAndTargetId(Member reporter, String type, Long targetId);
+    Optional<Report> findById(Long id);
+
 }
