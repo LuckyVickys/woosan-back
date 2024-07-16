@@ -1,14 +1,14 @@
 package com.luckyvicky.woosan.domain.member.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import net.bytebuddy.implementation.bytecode.ShiftRight;
 
-@Getter
+import java.util.List;
+
+@Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
 public class MemberInfoDTO {
 
@@ -19,4 +19,6 @@ public class MemberInfoDTO {
     private int nextPoint;
     private String memberType;
     private String level;
+    private List<String> profile;
+
 }
