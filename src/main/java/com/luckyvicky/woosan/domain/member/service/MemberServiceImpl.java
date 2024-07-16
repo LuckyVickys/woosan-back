@@ -177,10 +177,6 @@ public class MemberServiceImpl implements MemberService {
             dto.setProfile(profile);
         }
 
-        System.out.println("==========================================");
-        System.out.println(dto);
-        System.out.println("==========================================");
-
         return dto;
     }
 
