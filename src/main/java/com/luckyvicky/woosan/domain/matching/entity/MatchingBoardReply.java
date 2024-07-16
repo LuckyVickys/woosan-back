@@ -33,7 +33,7 @@ public class MatchingBoardReply {
     @CreationTimestamp
     private LocalDateTime regDate;
 
-    // 부모 댓글 ID (대댓글의 경우)
+    // 부모 댓글 ID (답글의 경우)
     @Column(name = "parent_id", nullable = true)
     private Long parentId;
 

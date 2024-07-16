@@ -2,14 +2,18 @@ package com.luckyvicky.woosan.domain.matching.dto;
 
 import com.luckyvicky.woosan.domain.member.entity.MBTI;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class MatchingBoardRequestDTO {
 
     private Long memberId;
@@ -21,7 +25,7 @@ public class MatchingBoardRequestDTO {
     private BigDecimal locationY;
     private String address;
     private LocalDateTime meetDate;
-    private String tag;
+    private Map<String, String> tag;
     private int headCount;
     private LocalDateTime regDate;
     private int views;
@@ -34,4 +38,8 @@ public class MatchingBoardRequestDTO {
     private String gender;
     private int age;
     private int height;
+
+    //파일 이미지 관련 필드 추가
+    private List<MultipartFile> images;
+
 }

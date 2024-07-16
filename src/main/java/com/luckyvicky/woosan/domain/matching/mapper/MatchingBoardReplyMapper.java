@@ -4,6 +4,7 @@ import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardReplyRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardReplyResponseDTO;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoardReply;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MatchingBoardReplyMapper {
 
+    @Mapping(source = "writer.id", target = "writerId")
     MatchingBoardReplyResponseDTO toResponseDTO(MatchingBoardReply matchingBoardReply);
 
     MatchingBoardReply toEntity(MatchingBoardReplyRequestDTO requestDTO);

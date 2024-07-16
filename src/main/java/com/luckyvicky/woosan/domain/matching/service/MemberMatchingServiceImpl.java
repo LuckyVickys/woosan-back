@@ -2,26 +2,43 @@ package com.luckyvicky.woosan.domain.matching.service;
 
 import com.luckyvicky.woosan.domain.matching.dto.MemberMatchingRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MemberMatchingResponseDTO;
-import com.luckyvicky.woosan.domain.matching.entity.MemberMatching;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
+import com.luckyvicky.woosan.domain.matching.entity.MemberMatching;
+import com.luckyvicky.woosan.domain.matching.mapper.MemberMatchingMapper;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
 import com.luckyvicky.woosan.domain.matching.repository.MemberMatchingRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MemberMatchingServiceImpl implements MemberMatchingService {
 
     private final MemberMatchingRepository memberMatchingRepository;
     private final MatchingBoardRepository matchingBoardRepository;
     private final MemberRepository memberRepository;
+    private final MemberMatchingMapper memberMatchingMapper;
+
+    // MemberMatching 데이터를 생성하는 메서드
+    @Override
+    public MemberMatchingResponseDTO createMemberMatching(MemberMatchingRequestDTO requestDTO) {
+        try {
+            MemberMatching memberMatching = memberMatchingMapper.toEntity(requestDTO);
+            MemberMatching savedMatching = memberMatchingRepository.save(memberMatching);
+            return memberMatchingMapper.toDto(savedMatching);
+        } catch (Exception e) {
+            throw new RuntimeException("MemberMatching 데이터를 생성하는 중 오류가 발생했습니다.", e);
+        }
+    }
+
 
     // 매칭 요청을 생성하는 메서드
     @Override
@@ -30,9 +47,9 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
         Long matchingId = requestDTO.getMatchingId();
 
         // 매칭 보드와 회원 객체 가져오기
-        MatchingBoard matchingBoard = matchingBoardRepository.findById(matchingId)
+        var matchingBoard = matchingBoardRepository.findById(matchingId)
                 .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
-        Member member = memberRepository.findById(memberId)
+        var member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
         // 중복 가입 방지
@@ -80,7 +97,8 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
         }
 
         // MemberMatching 객체 생성 및 설정
-        MemberMatching matching = MemberMatching.builder()
+        MemberMatching matching = memberMatchingMapper.toEntity(requestDTO)
+                .toBuilder()
                 .matchingBoard(matchingBoard)
                 .member(member)
                 .isAccepted(null) // 대기 중 상태
@@ -90,22 +108,17 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
         memberMatchingRepository.save(matching);
 
         // 응답 DTO 생성
-        return MemberMatchingResponseDTO.builder()
-                .id(matching.getId())
-                .matchingId(matchingBoard.getId())
-                .memberId(member.getId())
-                .isAccepted(matching.getIsAccepted())
-                .isManaged(matching.getIsManaged())
-                .build();
+        return memberMatchingMapper.toDto(matching);
     }
 
+    // 매칭 상태를 업데이트하는 메서드
     @Override
     @Transactional
     public MemberMatchingResponseDTO updateMatching(Long id, Boolean isAccepted) {
         MemberMatching existingMatching = memberMatchingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("매칭을 찾을 수 없습니다."));
 
-        // 빌더 패턴을 사용하여 객체 업데이트
+        // 매칭 상태 업데이트
         MemberMatching updatedMatching = existingMatching.toBuilder()
                 .isAccepted(isAccepted)
                 .build();
@@ -142,20 +155,14 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
         memberMatchingRepository.save(updatedMatching);
 
         // 응답 DTO 생성
-        return MemberMatchingResponseDTO.builder()
-                .id(updatedMatching.getId())
-                .matchingId(updatedMatching.getMatchingBoard().getId())
-                .memberId(updatedMatching.getMember().getId())
-                .isAccepted(updatedMatching.getIsAccepted())
-                .isManaged(updatedMatching.getIsManaged())
-                .build();
+        return memberMatchingMapper.toDto(updatedMatching);
     }
 
-    // 매칭에서 탈퇴하는 메서드
+    // 모임에서 탈퇴하는 메서드
     @Override
     @Transactional
-    public void leaveMatching(Long id, Long memberId) {
-        MemberMatching matching = memberMatchingRepository.findById(id)
+    public void leaveMatching(Long matchingId, Long memberId) {
+        MemberMatching matching = memberMatchingRepository.findByMatchingBoard_IdAndMember_Id(matchingId, memberId)
                 .orElseThrow(() -> new RuntimeException("매칭을 찾을 수 없습니다."));
 
         // 탈퇴하려는 사람이 모임원인지 확인
@@ -191,25 +198,12 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
     @Override
     public List<MemberMatchingResponseDTO> getMembersByMatchingBoardId(Long matchingId) {
         try {
-            List<MemberMatchingResponseDTO> members = memberMatchingRepository.findByMatchingBoard_Id(matchingId).stream()
-                    .map(matching -> MemberMatchingResponseDTO.builder()
-                            .id(matching.getId())
-                            .matchingId(matching.getMatchingBoard().getId())
-                            .memberId(matching.getMember().getId())
-                            .isAccepted(matching.getIsAccepted())
-                            .isManaged(matching.getIsManaged())
-                            .build())
+            List<MemberMatching> members = memberMatchingRepository.findByMatchingBoard_Id(matchingId);
+            return members.stream()
+                    .map(memberMatchingMapper::toDto)
                     .collect(Collectors.toList());
-
-            if (members.isEmpty()) {
-                throw new IllegalArgumentException("해당 매칭 보드에 회원이 없습니다.");
-            }
-
-            return members;
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("매칭 보드 ID가 유효하지 않습니다: " + e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("모임원 목록 조회 중 오류가 발생했습니다: " + e.getMessage());
+            throw new RuntimeException("특정 매칭 보드에 속한 모든 회원을 가져오는 중 오류가 발생했습니다.", e);
         }
     }
 
@@ -217,25 +211,12 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
     @Override
     public List<MemberMatchingResponseDTO> getPendingRequestsByBoardId(Long matchingId) {
         try {
-            List<MemberMatchingResponseDTO> pendingRequests = memberMatchingRepository.findByMatchingBoard_IdAndIsAccepted(matchingId, null).stream()
-                    .map(matching -> MemberMatchingResponseDTO.builder()
-                            .id(matching.getId())
-                            .matchingId(matching.getMatchingBoard().getId())
-                            .memberId(matching.getMember().getId())
-                            .isAccepted(matching.getIsAccepted())
-                            .isManaged(matching.getIsManaged())
-                            .build())
+            List<MemberMatching> pendingRequests = memberMatchingRepository.findByMatchingBoard_IdAndIsAccepted(matchingId, null);
+            return pendingRequests.stream()
+                    .map(memberMatchingMapper::toDto)
                     .collect(Collectors.toList());
-
-            if (pendingRequests.isEmpty()) {
-                throw new IllegalArgumentException("해당 매칭 보드에 가입 대기 중인 요청이 없습니다.");
-            }
-
-            return pendingRequests;
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("매칭 보드 ID가 유효하지 않습니다: " + e.getMessage());
         } catch (Exception e) {
-            throw new RuntimeException("가입 대기 중인 요청 조회 중 오류가 발생했습니다: " + e.getMessage());
+            throw new RuntimeException("특정 매칭 보드에 대한 가입 대기 중인 요청들을 가져오는 중 오류가 발생했습니다.", e);
         }
     }
 
@@ -252,5 +233,40 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
         }
 
         memberMatchingRepository.delete(matching);
+    }
+
+    // 특정 보드의 모든 멤버 매칭 데이터 삭제
+    @Override
+    @Transactional
+    public void deleteAllMembersByMatchingBoardId(Long matchingId) {
+        try {
+            memberMatchingRepository.deleteByMatchingBoard_Id(matchingId);
+        } catch (Exception e) {
+            throw new RuntimeException("멤버 매칭 데이터 삭제 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    // 특정 보드의 모든 멤버의 isAccepted 상태 업데이트
+    @Override
+    @Transactional
+    public void updateIsAcceptedByMatchingBoardId(Long matchingId, Boolean isAccepted) {
+        try {
+            List<MemberMatching> memberMatchings = memberMatchingRepository.findByMatchingBoard_Id(matchingId);
+            for (MemberMatching memberMatching : memberMatchings) {
+                memberMatching.toBuilder()
+                        .isAccepted(isAccepted)
+                        .build();
+            }
+            memberMatchingRepository.saveAll(memberMatchings);
+        } catch (Exception e) {
+            throw new RuntimeException("멤버 매칭 상태 업데이트 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    // 특정 보드의 관리자 찾기
+    @Override
+    public Optional<MemberMatchingResponseDTO> findManagerByMatchingBoardId(Long matchingId) {
+        return memberMatchingRepository.findByMatchingBoard_IdAndIsManaged(matchingId, true)
+                .map(memberMatchingMapper::toDto);
     }
 }

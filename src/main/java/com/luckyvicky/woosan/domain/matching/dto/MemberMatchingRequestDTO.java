@@ -2,11 +2,15 @@ package com.luckyvicky.woosan.domain.matching.dto;
 
 import lombok.*;
 
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberMatchingRequestDTO {
+
+    // 매칭 ID
+    private Long id;
+
     // 매칭 보드 ID
     private Long matchingId;
 
