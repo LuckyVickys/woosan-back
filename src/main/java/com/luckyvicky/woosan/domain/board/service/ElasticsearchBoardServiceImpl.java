@@ -32,9 +32,7 @@ import java.time.LocalDateTime;
 
 
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -264,12 +262,16 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         searchKeywordRepository.save(searchKeyword);
     }
 
+
     @Override
     public List<RankingDTO> getRankingChanges() {
         List<String> currentRankings = getCurrentRankings(); // 현재 순위 가져오기
         List<String> pastRankings = getPastRankings(); // 이전 순위 가져오기
 
         List<RankingDTO> changes = new ArrayList<>();
+        Set<String> processedKeywords = new HashSet<>(); // 이미 처리된 키워드를 추적
+
+        // 현재 순위 처리
         for (int i = 0; i < currentRankings.size(); i++) {
             String currentKeyword = currentRankings.get(i);
             int pastIndex = pastRankings.indexOf(currentKeyword);
@@ -284,13 +286,15 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
             }
 
             changes.add(new RankingDTO(i + 1, currentKeyword, symbol));
+            processedKeywords.add(currentKeyword);
         }
 
-        // 이전 순위에 있었지만 현재 순위에 없는 키워드 찾기
+        // 이전 순위에 있었지만 현재 순위에 없는 키워드 처리
+        int rankCounter = currentRankings.size() + 1;
         for (int i = 0; i < pastRankings.size(); i++) {
             String pastKeyword = pastRankings.get(i);
-            if (!currentRankings.contains(pastKeyword) && changes.size() < 10) {
-                changes.add(new RankingDTO(i + 1, pastKeyword, "-"));
+            if (!processedKeywords.contains(pastKeyword)) {
+                changes.add(new RankingDTO(rankCounter++, pastKeyword, "-"));
             }
         }
 
@@ -329,7 +333,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     private List<String> getPastRankings() {
         // Elasticsearch 쿼리 생성
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.rangeQuery("timestamp").gte("now-2h/h").lt("now-1h/h"))
+                .withQuery(QueryBuilders.rangeQuery("timestamp").gte("now-6h/h").lt("now-1h/h"))
                 .addAggregation(AggregationBuilders.terms("popular_keywords").field("keyword").size(10).order(BucketOrder.count(false)))
                 .build();
 
