@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.member.service;
 
+import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.member.dto.MailDTO;
 import com.luckyvicky.woosan.domain.member.dto.MemberInfoDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
@@ -17,6 +18,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -26,6 +29,7 @@ public class MemberServiceImpl implements MemberService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JavaMailSender mailSender;
     private final MemberMapper mapper;
+    private final FileImgService fileImgService;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -161,10 +165,19 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberInfoDTO getMemberInfo(String email) {
         Member member = memberRepository.findByEmail(email);
+
         if(member == null) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
         }
-        return mapper.memberToMemberInfoDTO(member);
+        MemberInfoDTO dto = mapper.memberToMemberInfoDTO(member);
+
+        List<String> profile = fileImgService.findFiles("member", member.getId());
+
+        if(profile != null){
+            dto.setProfile(profile);
+        }
+
+        return dto;
     }
 
 //    @Override
