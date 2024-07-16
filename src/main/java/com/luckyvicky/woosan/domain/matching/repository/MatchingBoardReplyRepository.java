@@ -14,10 +14,10 @@ public interface MatchingBoardReplyRepository extends JpaRepository<MatchingBoar
     // 특정 매칭 보드의 부모 댓글을 페이지 단위로 조회
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"matchingBoard", "writer"})
-    Page<MatchingBoardReply> findAllByMatchingBoardId(Long matchingId, Pageable pageable);
+    Page<MatchingBoardReply> findByMatchingBoardIdAndParentIdIsNull(Long matchingId, Pageable pageable);
 
     // 특정 부모 댓글의 자식 댓글을 조회
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"matchingBoard", "writer"})
-    List<MatchingBoardReply> findAllByParentId(Long parentId);
+    List<MatchingBoardReply> findByParentId(Long parentId);
 }

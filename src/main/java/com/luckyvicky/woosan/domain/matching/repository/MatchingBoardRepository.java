@@ -18,7 +18,10 @@ public interface MatchingBoardRepository extends JpaRepository<MatchingBoard, Lo
     List<MatchingBoard> findByMemberAndMatchingTypeAndMeetDateBetween(Member member, int matchingType, LocalDateTime start, LocalDateTime end);
 
     // 번개는 당일 자정에 자동으로 삭제됩니다.
-    void deleteByMatchingTypeAndMeetDateBefore(int matchingType, LocalDateTime dateTime);
+    List<MatchingBoard> findByMatchingTypeAndMeetDateBefore(int matchingType, LocalDateTime dateTime);
 
     long countByMember_IdAndMatchingType(Long memberId, int i);
+
+    // 특정 사용자가 만든 매칭 보드 가져오기
+    List<MatchingBoard> findByMemberId(Long memberId);
 }

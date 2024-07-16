@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberMatchingRepository extends JpaRepository<MemberMatching, Long>, MemberMatchingRepositoryCustom {
+public interface MemberMatchingRepository extends JpaRepository<MemberMatching, Long> {
 
     // 특정 보드의 대기 중인 요청 가져오기
     List<MemberMatching> findByMatchingBoard_IdAndIsAccepted(Long matchingId, Boolean isAccepted);
@@ -23,7 +23,9 @@ public interface MemberMatchingRepository extends JpaRepository<MemberMatching, 
     // 특정 타입의 대기 중인 요청 가져오기
     List<MemberMatching> findByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(Long memberId, int matchingType, Boolean isAccepted);
 
-    // 특정 보드 ID로 삭제
+    // 특정 보드의 모든 멤버 매칭 데이터 삭제
     void deleteByMatchingBoard_Id(Long matchingId);
 
+    // 특정 보드의 관리자 찾기
+    Optional<MemberMatching> findByMatchingBoard_IdAndIsManaged(Long matchingId, Boolean isManaged);
 }

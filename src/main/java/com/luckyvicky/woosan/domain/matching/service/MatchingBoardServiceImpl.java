@@ -1,9 +1,12 @@
 package com.luckyvicky.woosan.domain.matching.service;
 
+import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardResponseDTO;
+import com.luckyvicky.woosan.domain.matching.dto.MemberMatchingRequestDTO;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
 import com.luckyvicky.woosan.domain.matching.mapper.MatchingBoardMapper;
+import com.luckyvicky.woosan.domain.matching.mapper.MemberMatchingMapper;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
 import com.luckyvicky.woosan.domain.matching.repository.MemberMatchingRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
@@ -21,27 +24,55 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MatchingBoardServiceImpl implements MatchingBoardService {
 
     private final MatchingBoardRepository matchingBoardRepository;
-    private final MemberMatchingRepository memberMatchingRepository; // 추가된 부분
+    private final MemberMatchingRepository memberMatchingRepository;
     private final MemberRepository memberRepository;
     private final MemberProfileRepository memberProfileRepository;
     private final MatchingBoardMapper matchingBoardMapper;
+    private final FileImgService fileImgService;
+    private final MemberMatchingService memberMatchingService;
+    private final MemberMatchingMapper memberMatchingMapper;
 
-    // 모든 매칭 게시글을 가져오는 메서드
+    // 모든 매칭글을 가져오는 메서드
     @Override
     public List<MatchingBoardResponseDTO> getAllMatching() {
-        return matchingBoardRepository.findAll().stream()
-                .map(this::mapToResponseDTO)
+        List<MatchingBoardResponseDTO> result = matchingBoardRepository.findAll().stream()
+                .map(board -> {
+                    Long id = board.getId();
+                    // 파일 목록을 가져옵니다.
+                    List<String> files = fileImgService.findFiles("matchingBoard", id);
+                    System.out.println("보드 ID: " + id + ", 파일 리스트: " + files);
+
+                    // 보드를 DTO로 매핑합니다.
+                    MatchingBoardResponseDTO responseDTO = mapToResponseDTO(board);
+                    responseDTO.setFilePathUrl(files);
+
+                    return responseDTO;
+                })
                 .collect(Collectors.toList());
+
+        return result;
     }
 
     // 특정 타입의 매칭 게시글을 가져오는 메서드
     @Override
     public List<MatchingBoardResponseDTO> getMatchingByType(int matchingType) {
         return matchingBoardRepository.findByMatchingType(matchingType).stream()
-                .map(this::mapToResponseDTO)
+                .map(board -> {
+                    Long id = board.getId();
+                    // 파일 목록을 가져옵니다.
+                    List<String> files = fileImgService.findFiles("matchingBoard", id);
+                    System.out.println("보드 ID: " + id + ", 파일 리스트: " + files);
+
+                    // 보드를 DTO로 매핑합니다.
+                    MatchingBoardResponseDTO responseDTO = mapToResponseDTO(board);
+                    responseDTO.setFilePathUrl(files);
+
+                    return responseDTO;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -70,7 +101,27 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
                 throw new IllegalArgumentException("잘못된 매칭 타입입니다.");
         }
 
-        return mapToResponseDTO(matchingBoard);
+        // 파일 업로드 및 DB 저장
+        if (requestDTO.getImages() != null) {
+            fileImgService.fileUploadMultiple("matchingBoard", matchingBoard.getId(), requestDTO.getImages());
+        }
+
+        // 매칭 보드 엔티티를 저장 후 DTO로 변환
+        MatchingBoardResponseDTO responseDTO = mapToResponseDTO(matchingBoardRepository.save(matchingBoard));
+
+        // 매칭 보드 생성 후 memberMatching에도 데이터 저장
+        MemberMatchingRequestDTO matchingRequest = MemberMatchingRequestDTO.builder()
+                .matchingId(responseDTO.getId())
+                .memberId(requestDTO.getMemberId())
+                .isAccepted(true) // 자동으로 승인
+                .isManaged(true) // 생성자는 관리자
+                .build();
+
+        System.out.println("MemberMatchingRequestDTO: " + matchingRequest); // 디버깅용 로그 추가
+
+        memberMatchingService.createMemberMatching(matchingRequest);
+
+        return responseDTO;
     }
 
     // 정기 모임 생성
@@ -139,12 +190,23 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         return matchingBoardRepository.save(matchingBoard); // DB에 저장
     }
 
-    // 특정 매칭 게시글을 ID로 가져오는 메서드
+    // 특정 회원의 매칭 게시글을 가져오는 메서드
     @Override
-    public MatchingBoardResponseDTO getMatchingBoardById(Long id) {
-        MatchingBoard matchingBoard = matchingBoardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
-        return mapToResponseDTO(matchingBoard);
+    public List<MatchingBoardResponseDTO> getMatchingBoardsByMemberId(Long memberId) {
+        return matchingBoardRepository.findByMemberId(memberId).stream()
+                .map(board -> {
+                    Long id = board.getId();
+                    // 파일 목록을 가져옵니다.
+                    List<String> files = fileImgService.findFiles("matchingBoard", id);
+                    System.out.println("보드 ID: " + id + ", 파일 리스트: " + files);
+
+                    // 보드를 DTO로 매핑합니다.
+                    MatchingBoardResponseDTO responseDTO = mapToResponseDTO(board);
+                    responseDTO.setFilePathUrl(files);
+
+                    return responseDTO;
+                })
+                .collect(Collectors.toList());
     }
 
     // 매칭 보드 엔티티를 업데이트하는 메서드
@@ -160,6 +222,12 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         }
 
         MatchingBoard updatedMatchingBoard = updateMatchingBoardEntity(matchingBoard, requestDTO);
+
+        // 파일 업로드 및 DB 저장
+        if (requestDTO.getImages() != null) {
+            fileImgService.fileUploadMultiple("matchingBoard", matchingBoard.getId(), requestDTO.getImages());
+        }
+
         return mapToResponseDTO(matchingBoardRepository.save(updatedMatchingBoard));
     }
 
@@ -175,8 +243,12 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
             throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
         }
 
-        // 먼저 관련된 member_matching 행 삭제
-        memberMatchingRepository.deleteByMatchingBoard_Id(id);
+        // 관련된 모든 member_matching 행 삭제
+        memberMatchingService.updateIsAcceptedByMatchingBoardId(id, false);
+        memberMatchingService.deleteAllMembersByMatchingBoardId(id);
+
+        // 이미지 파일 삭제
+        fileImgService.targetFilesDelete("matchingBoard", matchingBoard.getId());
 
         matchingBoardRepository.delete(matchingBoard);
     }
@@ -243,6 +315,17 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     // 매칭 보드 엔티티를 DTO로 변환하는 메서드
     private MatchingBoardResponseDTO mapToResponseDTO(MatchingBoard matchingBoard) {
         MatchingBoardResponseDTO responseDTO = matchingBoardMapper.toResponseDTO(matchingBoard);
+
+        // 파일 경로 리스트를 가져옵니다.
+        List<String> fileUrls = fileImgService.findFiles("matchingBoard", matchingBoard.getId());
+        System.out.println("매칭 보드 ID: " + matchingBoard.getId() + ", 파일 리스트: " + fileUrls);
+
+        // 파일 경로 리스트를 설정합니다.
+        responseDTO = responseDTO.toBuilder()
+                .filePathUrl(fileUrls)
+                .build();
+
+        // 셀프소개팅 타입의 경우 추가 필드를 설정합니다.
         if (matchingBoard.getMatchingType() == 3 && matchingBoard.getProfile() != null) {
             MemberProfile profile = matchingBoard.getProfile();
             responseDTO = responseDTO.toBuilder()
@@ -254,12 +337,25 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
                     .height(profile.getHeight())
                     .build();
         }
+
         return responseDTO;
     }
 
     // 매일 자정에 번개 모임 자동 삭제
     @Scheduled(cron = "0 0 0 * * ?")
     public void cleanupTemporaryBoards() {
-        matchingBoardRepository.deleteByMatchingTypeAndMeetDateBefore(2, LocalDateTime.now());
+        List<MatchingBoard> boardsToDelete = matchingBoardRepository.findByMatchingTypeAndMeetDateBefore(2, LocalDateTime.now());
+
+        for (MatchingBoard board : boardsToDelete) {
+            // 관련된 모든 member_matching 행의 상태를 업데이트 후 삭제
+            memberMatchingService.updateIsAcceptedByMatchingBoardId(board.getId(), false);
+            memberMatchingService.deleteAllMembersByMatchingBoardId(board.getId());
+
+            // 이미지 파일 삭제
+            fileImgService.targetFilesDelete("matchingBoard", board.getId());
+
+            // 매칭 보드 삭제
+            matchingBoardRepository.delete(board);
+        }
     }
 }

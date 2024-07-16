@@ -6,15 +6,14 @@ import com.luckyvicky.woosan.domain.matching.entity.MatchingBoardReply;
 import com.luckyvicky.woosan.domain.matching.mapper.MatchingBoardReplyMapper;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardReplyRepository;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
+import com.luckyvicky.woosan.domain.matching.service.MatchingBoardReplyService;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +46,6 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
         }
 
         MatchingBoardReply savedReply = matchingBoardReplyRepository.save(replyBuilder.build());
-
         return matchingBoardReplyMapper.toResponseDTO(savedReply);
     }
 
@@ -58,18 +56,20 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
         if (!matchingBoardRepository.existsById(matchingId)) {
             throw new IllegalArgumentException("매칭 보드가 존재하지 않습니다.");
         }
-        return matchingBoardReplyRepository.findAllByMatchingBoardId(matchingId, pageable)
-                .map(matchingBoardReplyMapper::toResponseDTO);
+        return matchingBoardReplyRepository.findByMatchingBoardIdAndParentIdIsNull(matchingId, pageable)
+                .map(reply -> {
+                    MatchingBoardReplyResponseDTO responseDTO = matchingBoardReplyMapper.toResponseDTO(reply);
+                    responseDTO.setChildReplies(getRepliesByParentId(reply.getId()));
+                    return responseDTO;
+                });
     }
-
-
 
     // 특정 부모 댓글의 모든 자식 댓글을 가져옵니다.
     @Override
     @Transactional(readOnly = true)
     public List<MatchingBoardReplyResponseDTO> getRepliesByParentId(Long parentId) {
         try {
-            return matchingBoardReplyRepository.findAllByParentId(parentId)
+            return matchingBoardReplyRepository.findByParentId(parentId)
                     .stream()
                     .map(matchingBoardReplyMapper::toResponseDTO)
                     .collect(Collectors.toList());
@@ -90,11 +90,10 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
         matchingBoardReplyRepository.delete(reply);
     }
 
+    // 부모 댓글 ID 유효성 검사
     private void validationParentId(Long parentId) {
         if (!matchingBoardReplyRepository.existsById(parentId)) {
             throw new IllegalArgumentException("부모 댓글 ID가 잘못되었습니다.");
         }
     }
-
-
 }
