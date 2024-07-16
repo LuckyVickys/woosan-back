@@ -93,7 +93,7 @@ public class MypageController {
      * 쪽지 상세 페이지
      */
     @GetMapping("/message/{id}")
-    public ResponseEntity<MessageDTO> getBoard(@PathVariable("id") Long id) {
+    public ResponseEntity<MessageDTO> getMessage(@PathVariable("id") Long id) {
         MessageDTO messageDTO = myPageService.getMyMessage(id);
         return ResponseEntity.ok(messageDTO);
     }
