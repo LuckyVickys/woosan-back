@@ -27,7 +27,7 @@ public class MatchingBoardResponseDTO {
     private BigDecimal locationY;
     private String address;
     private LocalDateTime meetDate;
-    private Map<String, String> tag;
+    private String tag;
     private int headCount;
     private LocalDateTime regDate;
     private int views;
@@ -42,5 +42,12 @@ public class MatchingBoardResponseDTO {
     private int age;
     private int height;
 
+    //매칭 이미지 주소
     private List<String> filePathUrl;
+
+    //member에서 닉네임 가져오기
+    private String nickname;
+    //프로필 이미지 주소
+    private List<String> profileImageUrl;
+
 }

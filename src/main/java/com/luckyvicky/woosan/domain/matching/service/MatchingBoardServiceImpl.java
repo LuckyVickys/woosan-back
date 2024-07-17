@@ -39,40 +39,16 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     // 모든 매칭글을 가져오는 메서드
     @Override
     public List<MatchingBoardResponseDTO> getAllMatching() {
-        List<MatchingBoardResponseDTO> result = matchingBoardRepository.findAll().stream()
-                .map(board -> {
-                    Long id = board.getId();
-                    // 파일 목록을 가져옵니다.
-                    List<String> files = fileImgService.findFiles("matchingBoard", id);
-                    System.out.println("보드 ID: " + id + ", 파일 리스트: " + files);
-
-                    // 보드를 DTO로 매핑합니다.
-                    MatchingBoardResponseDTO responseDTO = mapToResponseDTO(board);
-                    responseDTO.setFilePathUrl(files);
-
-                    return responseDTO;
-                })
+        return matchingBoardRepository.findAll().stream()
+                .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
-
-        return result;
     }
 
     // 특정 타입의 매칭 게시글을 가져오는 메서드
     @Override
     public List<MatchingBoardResponseDTO> getMatchingByType(int matchingType) {
         return matchingBoardRepository.findByMatchingType(matchingType).stream()
-                .map(board -> {
-                    Long id = board.getId();
-                    // 파일 목록을 가져옵니다.
-                    List<String> files = fileImgService.findFiles("matchingBoard", id);
-                    System.out.println("보드 ID: " + id + ", 파일 리스트: " + files);
-
-                    // 보드를 DTO로 매핑합니다.
-                    MatchingBoardResponseDTO responseDTO = mapToResponseDTO(board);
-                    responseDTO.setFilePathUrl(files);
-
-                    return responseDTO;
-                })
+                .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -194,18 +170,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     @Override
     public List<MatchingBoardResponseDTO> getMatchingBoardsByMemberId(Long memberId) {
         return matchingBoardRepository.findByMemberId(memberId).stream()
-                .map(board -> {
-                    Long id = board.getId();
-                    // 파일 목록을 가져옵니다.
-                    List<String> files = fileImgService.findFiles("matchingBoard", id);
-                    System.out.println("보드 ID: " + id + ", 파일 리스트: " + files);
-
-                    // 보드를 DTO로 매핑합니다.
-                    MatchingBoardResponseDTO responseDTO = mapToResponseDTO(board);
-                    responseDTO.setFilePathUrl(files);
-
-                    return responseDTO;
-                })
+                .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -318,11 +283,19 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
 
         // 파일 경로 리스트를 가져옵니다.
         List<String> fileUrls = fileImgService.findFiles("matchingBoard", matchingBoard.getId());
-        System.out.println("매칭 보드 ID: " + matchingBoard.getId() + ", 파일 리스트: " + fileUrls);
+
+        // 멤버 정보 조회
+        Member member = memberRepository.findById(matchingBoard.getMember().getId())
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+        // 프로필 이미지 파일 경로를 가져옵니다.
+        List<String> profileImageUrls = fileImgService.findFiles("member", member.getId());
 
         // 파일 경로 리스트를 설정합니다.
         responseDTO = responseDTO.toBuilder()
                 .filePathUrl(fileUrls)
+                .profileImageUrl(profileImageUrls)
+                .nickname(member.getNickname())
                 .build();
 
         // 셀프소개팅 타입의 경우 추가 필드를 설정합니다.
