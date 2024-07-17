@@ -22,8 +22,8 @@ public class ProfileUpdateDTO {
 
     private String gender;
     private String location;
-    private int age;
-    private int height;
+    private Integer age;
+    private Integer height;
     private MBTI mbti;
 
     private List<MultipartFile> image;

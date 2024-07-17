@@ -59,20 +59,29 @@ public class MemberProfileServiceImpl implements MemberProfileService {
     @Override
     @Transactional
     public void update(ProfileUpdateDTO profileUpdateDTO) {
-        // Member 엔티티를 업데이트
-        Member member = memberRepository.findById(profileUpdateDTO.getMemberId()).orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
+        Member member = memberRepository.findById(profileUpdateDTO.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
         member.setNickname(profileUpdateDTO.getNickname());
         memberRepository.save(member);
 
-        // MemberProfile 조회
         MemberProfile existingProfile = memberProfileRepository.findByMemberId(profileUpdateDTO.getMemberId()).orElse(null);
 
         if (existingProfile != null) {
-            existingProfile.setAge(profileUpdateDTO.getAge());
-            existingProfile.setGender(profileUpdateDTO.getGender());
-            existingProfile.setHeight(profileUpdateDTO.getHeight());
-            existingProfile.setLocation(profileUpdateDTO.getLocation());
-            existingProfile.setMbti(profileUpdateDTO.getMbti());
+            if (profileUpdateDTO.getAge() != null) {
+                existingProfile.setAge(profileUpdateDTO.getAge());
+            }
+            if (profileUpdateDTO.getGender() != null) {
+                existingProfile.setGender(profileUpdateDTO.getGender());
+            }
+            if (profileUpdateDTO.getHeight() != null) {
+                existingProfile.setHeight(profileUpdateDTO.getHeight());
+            }
+            if (profileUpdateDTO.getLocation() != null) {
+                existingProfile.setLocation(profileUpdateDTO.getLocation());
+            }
+            if (profileUpdateDTO.getMbti() != null) {
+                existingProfile.setMbti(profileUpdateDTO.getMbti());
+            }
             memberProfileRepository.save(existingProfile);
         } else {
             MemberProfile memberProfile = modelMapper.map(profileUpdateDTO, MemberProfile.class);
@@ -84,4 +93,5 @@ public class MemberProfileServiceImpl implements MemberProfileService {
             fileImgService.fileUploadMultiple("member", profileUpdateDTO.getMemberId(), profileUpdateDTO.getImage());
         }
     }
+
 }
