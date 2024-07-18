@@ -17,6 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -102,7 +106,7 @@ public class FileImgServiceImpl implements FileImgService {
         List<FileImg> fileImgs = fileImgRepository.findByTypeAndTargetIdOrderByOrdAsc(type, targetId);
 
         return fileImgs.stream()
-                .map(fileImg -> s3.getUrl(bucketName + fileImg.getPath(),  fileImg.getUuid().toString() + "_" + fileImg.getFileName()).toString())
+                .map(fileImg -> s3.getUrl(bucketName + fileImg.getPath(), fileImg.getUuid().toString() + "_" + fileImg.getFileName()).toString())
                 .collect(Collectors.toList());
     }
 
@@ -126,26 +130,39 @@ public class FileImgServiceImpl implements FileImgService {
         Map<Long, String> targetMap = new HashMap<>();
 
         String getFileName = getFileNameInUrl(beforeFile);
-        System.out.println(getFileName);
+
         for (FileImg fileImg : existFiles) {
-            targetMap.put(fileImg.getId(), fileImg.getUuid() + "_" + fileImg.getFileName());
+            try {
+                String encodedFileName = URLEncoder.encode(fileImg.getFileName(), StandardCharsets.UTF_8.toString());
+                encodedFileName = encodedFileName.replace("+", "%20");
+                targetMap.put(fileImg.getId(), fileImg.getUuid() + "_" + encodedFileName);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
 
         for (Map.Entry<Long, String> entry : targetMap.entrySet()) {
             System.out.println(entry.getValue());
-            if (entry.getValue().equals(getFileName)) {
-                fileImgRepository.deleteById(entry.getKey());
-                break;
+            try {
+                String decodedEntryValue = URLDecoder.decode(entry.getValue(), StandardCharsets.UTF_8.toString());
+                if (decodedEntryValue.equals(getFileName)) {
+                    fileImgRepository.deleteById(entry.getKey());
+                    break;
+                }
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
         }
     }
 
     private String getFileNameInUrl(String url) {
-        int lastSlashIndex = url.lastIndexOf('/');
-        if (lastSlashIndex != -1) {
-            return url.substring(lastSlashIndex + 1);
+        try {
+            String decodedUrl = URLDecoder.decode(url, StandardCharsets.UTF_8.toString());
+            return decodedUrl.substring(decodedUrl.lastIndexOf('/') + 1);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
         }
-        return url;
     }
 
     private String extractKeyFromUrl(String fileUrl) {
@@ -156,6 +173,4 @@ public class FileImgServiceImpl implements FileImgService {
         }
         return fileUrl.substring(startIndex);
     }
-
-
 }

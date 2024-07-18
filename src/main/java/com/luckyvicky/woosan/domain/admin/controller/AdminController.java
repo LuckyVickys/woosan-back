@@ -72,13 +72,13 @@ public class AdminController {
 
 
     @GetMapping("/report")
-    public ResponseEntity<PageResponseDTO<ReportDTO>> myLikedBoard(PageRequestDTO pageRequestDTO) {
+    public ResponseEntity<PageResponseDTO<ReportDTO>> getReportList(PageRequestDTO pageRequestDTO) {
         PageResponseDTO<ReportDTO> responseDTO = reportService.reportList(pageRequestDTO);
         return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/report/{id}")
-    public ResponseEntity<ReportDTO> myLikedBoard(@PathVariable Long id) {
+    public ResponseEntity<ReportDTO> getReport(@PathVariable Long id) {
         ReportDTO result = reportService.getReport(id);
         return ResponseEntity.ok(result);
     }
