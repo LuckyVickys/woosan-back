@@ -31,4 +31,10 @@ public class MatchingBoardReplyResponseDTO {
 
     // 매칭 보드 ID
     private Long matchingId;
+
+    // 닉네임
+    private String nickname;
+
+    // 프로필 이미지 URL
+    private String profileImageUrl;
 }

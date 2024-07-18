@@ -21,4 +21,10 @@ public class MemberMatchingResponseDTO {
 
     // 관리 여부
     private Boolean isManaged;
+
+    // 닉네임
+    private String nickname;
+
+    // 프로필 이미지 URL
+    private String profileImageUrl;
 }
