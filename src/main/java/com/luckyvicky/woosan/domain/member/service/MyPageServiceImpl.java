@@ -43,7 +43,6 @@ public class MyPageServiceImpl implements MyPageService {
 
     private final BoardRepository boardRepository;
     private final ReplyRepository replyRepository;
-    private final LikesRepository likesRepository;
     private final MemberRepository memberRepository;
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
@@ -53,81 +52,57 @@ public class MyPageServiceImpl implements MyPageService {
     @Override
     @Transactional
     public PageResponseDTO<MyBoardDTO> getMyBoard(MyPageDTO myPageDTO) {
-        Long memberId = myPageDTO.getMemberId();
-        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
+        Long memberId = getMemberId(myPageDTO);
+        PageRequestDTO pageRequestDTO = getPageRequestDTO(myPageDTO);
         boardService.validateWriterId(memberId);
 
-        pageRequestDTO.validate();
-        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
-
-        Page<IMyBoard> myBoards = boardRepository.findByWriterId(memberId, pageable);
+        Page<IMyBoard> myBoards = boardRepository.findByWriterId(memberId, createPageable(pageRequestDTO));
 
         List<MyBoardDTO> myBoardDTOs = myBoards.getContent().stream()
                 .map(myBoard -> modelMapper.map(myBoard, MyBoardDTO.class))
                 .collect(Collectors.toList());
 
-        long totalCount = myBoards.getTotalElements();
-
-        return PageResponseDTO.<MyBoardDTO>withAll()
-                .dtoList(myBoardDTOs)
-                .pageRequestDTO(pageRequestDTO)
-                .totalCount(totalCount)
-                .build();
+        return createPageResponseDTO(myBoardDTOs, pageRequestDTO, myBoards.getTotalElements());
     }
 
     @Override
     @Transactional(readOnly = true)
     public PageResponseDTO<MyReplyDTO> getMyReply(MyPageDTO myPageDTO) {
-        Long memberId = myPageDTO.getMemberId();
-        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
+        Long memberId = getMemberId(myPageDTO);
+        PageRequestDTO pageRequestDTO = getPageRequestDTO(myPageDTO);
         boardService.validateWriterId(memberId);
 
-        pageRequestDTO.validate();
-        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
-
-        Page<IMyReply> myReplies = replyRepository.findByWriterId(memberId, pageable);
+        Page<IMyReply> myReplies = replyRepository.findByWriterId(memberId, createPageable(pageRequestDTO));
 
         List<MyReplyDTO> myReplyDTOs = myReplies.getContent().stream()
                 .map(myReply -> modelMapper.map(myReply, MyReplyDTO.class))
                 .collect(Collectors.toList());
 
-        long totalCount = myReplies.getTotalElements();
-
-        return PageResponseDTO.<MyReplyDTO>withAll()
-                .dtoList(myReplyDTOs)
-                .pageRequestDTO(pageRequestDTO)
-                .totalCount(totalCount)
-                .build();
+        return createPageResponseDTO(myReplyDTOs, pageRequestDTO, myReplies.getTotalElements());
     }
 
     @Override
     public PageResponseDTO<BoardDTO> myLikeBoardList(MyPageDTO myPageDTO) {
-        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
-        pageRequestDTO.validate();
+        Long memberId = getMemberId(myPageDTO);
+        PageRequestDTO pageRequestDTO = getPageRequestDTO(myPageDTO);
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").descending());
 
-        Page<Board> result = boardRepository.findLikedBoards(myPageDTO.getMemberId(), pageable);
+        Page<Board> result = boardRepository.findLikedBoards(memberId, pageable);
 
         List<BoardDTO> dtoList = result.getContent().stream()
                 .map(board -> modelMapper.map(board, BoardDTO.class))
                 .collect(Collectors.toList());
 
-        long totalCount = result.getTotalElements();
-
-        return PageResponseDTO.<BoardDTO>withAll()
-                .dtoList(dtoList)
-                .pageRequestDTO(pageRequestDTO)
-                .totalCount(totalCount)
-                .build();
+        return createPageResponseDTO(dtoList, pageRequestDTO, result.getTotalElements());
     }
 
     @Override
     public PageResponseDTO<MessageDTO> mySendMessages(MyPageDTO myPageDTO) {
-        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
-        pageRequestDTO.validate();
+        Long memberId = getMemberId(myPageDTO);
+        PageRequestDTO pageRequestDTO = getPageRequestDTO(myPageDTO);
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").descending());
 
-        Member sender = memberRepository.findById(myPageDTO.getMemberId())
+        Member sender = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         Page<Message> result = messageRepository.findBySenderAndDelBySender(sender, pageable, false);
@@ -136,22 +111,16 @@ public class MyPageServiceImpl implements MyPageService {
                 .map(message -> modelMapper.map(message, MessageDTO.class))
                 .collect(Collectors.toList());
 
-        long totalCount = result.getTotalElements();
-
-        return PageResponseDTO.<MessageDTO>withAll()
-                .dtoList(dtoList)
-                .pageRequestDTO(pageRequestDTO)
-                .totalCount(totalCount)
-                .build();
+        return createPageResponseDTO(dtoList, pageRequestDTO, result.getTotalElements());
     }
 
     @Override
     public PageResponseDTO<MessageDTO> myReceiveMessages(MyPageDTO myPageDTO) {
-        PageRequestDTO pageRequestDTO = myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
-        pageRequestDTO.validate();
+        Long memberId = getMemberId(myPageDTO);
+        PageRequestDTO pageRequestDTO = getPageRequestDTO(myPageDTO);
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").descending());
 
-        Member receiver = memberRepository.findById(myPageDTO.getMemberId())
+        Member receiver = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         Page<Message> result = messageRepository.findByReceiverAndDelByReceiver(receiver, pageable, false);
@@ -160,13 +129,7 @@ public class MyPageServiceImpl implements MyPageService {
                 .map(message -> modelMapper.map(message, MessageDTO.class))
                 .collect(Collectors.toList());
 
-        long totalCount = result.getTotalElements();
-
-        return PageResponseDTO.<MessageDTO>withAll()
-                .dtoList(dtoList)
-                .pageRequestDTO(pageRequestDTO)
-                .totalCount(totalCount)
-                .build();
+        return createPageResponseDTO(dtoList, pageRequestDTO, result.getTotalElements());
     }
 
     @Override
@@ -216,5 +179,32 @@ public class MyPageServiceImpl implements MyPageService {
         messageDTO.setSenderNickname(sender.getNickname());
 
         return messageDTO;
+    }
+
+    // 공통 메소드 ================================================================================
+
+    //memberId 추출 메소드
+    private Long getMemberId(MyPageDTO myPageDTO) {
+        return myPageDTO.getMemberId();
+    }
+
+    //pageRequestDTO 추출 메소드
+    private PageRequestDTO getPageRequestDTO(MyPageDTO myPageDTO) {
+        return myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
+    }
+
+    //페이지네이션 매개변수 메소드
+    private Pageable createPageable(PageRequestDTO pageRequestDTO) {
+        pageRequestDTO.validate();
+        return PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
+    }
+
+    //페이지네이션 응답 반환 메소드
+    private <T> PageResponseDTO<T> createPageResponseDTO(List<T> dtoList, PageRequestDTO pageRequestDTO, long totalCount) {
+        return PageResponseDTO.<T>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCount(totalCount)
+                .build();
     }
 }
