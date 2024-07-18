@@ -25,7 +25,7 @@ public class MatchingBoardRequestDTO {
     private BigDecimal locationY;
     private String address;
     private LocalDateTime meetDate;
-    private Map<String, String> tag;
+    private String tag;
     private int headCount;
     private LocalDateTime regDate;
     private int views;
