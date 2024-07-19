@@ -3,18 +3,15 @@ package com.luckyvicky.woosan.domain.board.controller;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
-import com.luckyvicky.woosan.domain.board.service.ElasticsearchBoardService;
-import com.luckyvicky.woosan.domain.board.service.SummaryService;
+import com.luckyvicky.woosan.domain.board.service.AIService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
-import com.luckyvicky.woosan.domain.board.service.PapagoService;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -24,8 +21,7 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
-    private final PapagoService papagoService;
-    private final SummaryService summaryService;
+    private final AIService aiService;
 
     /**
      * 게시물 작성
@@ -128,7 +124,7 @@ public class BoardController {
     @PostMapping("/{id}/translate")
     public ResponseEntity<BoardDTO> boardDetailTranslate(@PathVariable("id") Long id, @RequestBody BoardDTO boardDTO) {
         try {
-            boardDTO = papagoService.tanslateBoardDetailPage(boardDTO);
+            boardDTO = aiService.translateBoardDetailPage(boardDTO);
             return ResponseEntity.ok(boardDTO);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -149,7 +145,7 @@ public class BoardController {
         String summary = "";
 
         try {
-            summary = summaryService.summaryBoardDetailPage(boardDTO);
+            summary = aiService.summaryBoardDetailPage(boardDTO);
             System.out.println(summary);
             return ResponseEntity.ok(summary);
         } catch (Exception e) {

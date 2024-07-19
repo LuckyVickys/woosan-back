@@ -5,6 +5,7 @@ import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 
 import java.io.IOException;
 
-public interface SummaryService {
+public interface AIService {
+    BoardDTO translateBoardDetailPage(BoardDTO boardDTO) throws IOException;
     String summaryBoardDetailPage(BoardDTO boardDTO) throws IOException, LangDetectException;
 }
