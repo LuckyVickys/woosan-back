@@ -59,10 +59,7 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtUtil.createAccessToken(info);
         String refreshToken = jwtUtil.createRefreshToken(info);
 
-        return new LoginResponseDTO(member.getId(), member.getEmail(),
-                member.getNickname(), member.getPoint(), member.getNextPoint(),
-                member.getMemberType().toString(), member.getLevel().toString(),
-                accessToken, refreshToken);
+        return new LoginResponseDTO(accessToken);
     }
 
     // accessToken으로 member 가져오기
@@ -176,12 +173,12 @@ public class AuthServiceImpl implements AuthService {
             return ResponseEntity.ok(new RefreshTokenResDTO(accessToken, refreshToken));
         }
 
-        if (jwtUtil.validateToken(refreshToken)) {
-            String email = jwtUtil.getEmail(refreshToken);
-            Member member = memberRepository.findByEmail(email);
-            if (member != null) {
-                String newAccessToken = jwtUtil.createAccessToken(mapper.memberToCustomUserInfoDTO(member));
+        if (jwtUtil.validateRefreshToken(refreshToken)) {
+            try {
+                String newAccessToken = jwtUtil.getAccessTokenFromRefreshToken(refreshToken);
                 return ResponseEntity.ok(new RefreshTokenResDTO(newAccessToken, refreshToken));
+            } catch (JWTException e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");

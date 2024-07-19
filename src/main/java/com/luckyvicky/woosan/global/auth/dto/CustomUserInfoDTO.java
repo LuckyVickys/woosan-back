@@ -21,4 +21,7 @@ public class CustomUserInfoDTO {
     private String level;
     private String memberType;
     private String socialType;
+
+    public <T> CustomUserInfoDTO(T id, T email, T memberType, T level) {
+    }
 }

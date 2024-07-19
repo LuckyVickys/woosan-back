@@ -1,6 +1,8 @@
 package com.luckyvicky.woosan.global.auth.filter;
 
 import com.luckyvicky.woosan.global.auth.dto.CustomUserInfoDTO;
+import com.luckyvicky.woosan.global.auth.entity.RefreshToken;
+import com.luckyvicky.woosan.global.auth.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.Optional;
 
 @Log4j2
 @Component
@@ -19,16 +22,19 @@ public class JWTUtil {
     private final Key key;
     private final long accessTokenExpTime;
     private final long refreshTokenExpTime;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public JWTUtil(
             @Value("${spring.jwt.secret}")String secretKey,
             @Value("${spring.jwt.access.expirationTime}") long accessTokenExpTime,
-            @Value("${spring.jwt.refresh.expirationTime}") long refreshTokenExpTime
+            @Value("${spring.jwt.refresh.expirationTime}") long refreshTokenExpTime, RefreshTokenRepository refreshTokenRepository,
+            RefreshTokenRepository refreshTokenRepository1
     ) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpTime = accessTokenExpTime;
         this.refreshTokenExpTime = refreshTokenExpTime;
+        this.refreshTokenRepository = refreshTokenRepository1;
     }
 
     /**
@@ -41,7 +47,10 @@ public class JWTUtil {
     }
 
     public String createRefreshToken(CustomUserInfoDTO member) {
-        return createToken(member, refreshTokenExpTime);
+        String refreshToken = createToken(member, refreshTokenExpTime);
+        RefreshToken token = new RefreshToken(member.getId(), refreshToken);
+        refreshTokenRepository.save(token);
+        return refreshToken;
     }
 
     /**
@@ -52,9 +61,15 @@ public class JWTUtil {
      */
     private String createToken(CustomUserInfoDTO member, long expireTime) {
         Claims claims = Jwts.claims();
-        claims.put("memberId", member.getId());
+        claims.put("id", member.getId());
         claims.put("email", member.getEmail());
-        claims.put("role", member.getMemberType());
+        claims.put("nickname", member.getNickname());
+        claims.put("isActive", member.getIsActive());
+        claims.put("memberType", member.getMemberType());
+        claims.put("socialType", member.getSocialType());
+        claims.put("level", member.getLevel());
+        claims.put("point", member.getPoint());
+        claims.put("nextPoint", member.getNextPoint());
 
         ZonedDateTime now = ZonedDateTime.now();
         ZonedDateTime tokenValidity = now.plusSeconds(expireTime);
@@ -95,6 +110,27 @@ public class JWTUtil {
             log.info("JWT claims string is empty.", e);
         }
         return false;
+    }
+
+    /**
+     * RefreshToken 검증
+     * @param refreshToken
+     * @return IsValidate
+     */
+    public boolean validateRefreshToken(String refreshToken) {
+        Optional<RefreshToken> token = refreshTokenRepository.findById(refreshToken);
+        return token.isPresent() && validateToken(token.get().getRefreshToken());
+    }
+
+    public String getAccessTokenFromRefreshToken(String refreshToken) {
+        Claims claims = parseClaims(refreshToken);
+        CustomUserInfoDTO userInfo = new CustomUserInfoDTO(
+                claims.get("id", Long.class),
+                claims.get("email", String.class),
+                claims.get("memberType", String.class),
+                claims.get("level", String.class)
+        );
+        return createAccessToken(userInfo);
     }
 
     /**
