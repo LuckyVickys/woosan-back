@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
+import com.luckyvicky.woosan.domain.board.util.Validate;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
@@ -38,7 +39,7 @@ public class ReplyServiceImpl implements ReplyService {
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
-    private final BoardService boardService;
+    private final Validate validate;
     private final FileImgService fileImgService;
 
     private static final int MAX_CONTENT_LENGTH = 1000;     // 내용 최대 길이
@@ -92,7 +93,7 @@ public class ReplyServiceImpl implements ReplyService {
      */
     @Transactional(readOnly = true)
     public PageResponseDTO<ReplyDTO> getRepliesByBoardId(Long boardId, PageRequestDTO pageRequestDTO) {
-        boardService.validationBoardId(boardId);
+        validate.validateBoardExist(boardId);
 
         pageRequestDTO.validate();
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());

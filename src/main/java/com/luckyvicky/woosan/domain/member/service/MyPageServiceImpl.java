@@ -7,6 +7,7 @@ import com.luckyvicky.woosan.domain.board.projection.IMyReply;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
+import com.luckyvicky.woosan.domain.board.util.Validate;
 import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;
 import com.luckyvicky.woosan.domain.member.dto.MyBoardDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyPageDTO;
@@ -46,7 +47,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final MemberRepository memberRepository;
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
-    private final BoardService boardService;
+    private final Validate validate;
     private final ModelMapper modelMapper;
 
     @Override
@@ -54,7 +55,7 @@ public class MyPageServiceImpl implements MyPageService {
     public PageResponseDTO<MyBoardDTO> getMyBoard(MyPageDTO myPageDTO) {
         Long memberId = getMemberId(myPageDTO);
         PageRequestDTO pageRequestDTO = getPageRequestDTO(myPageDTO);
-        boardService.validateWriterId(memberId);
+        validate.validateWriter(memberId);
 
         Page<IMyBoard> myBoards = boardRepository.findByWriterId(memberId, createPageable(pageRequestDTO));
 
@@ -70,7 +71,7 @@ public class MyPageServiceImpl implements MyPageService {
     public PageResponseDTO<MyReplyDTO> getMyReply(MyPageDTO myPageDTO) {
         Long memberId = getMemberId(myPageDTO);
         PageRequestDTO pageRequestDTO = getPageRequestDTO(myPageDTO);
-        boardService.validateWriterId(memberId);
+        validate.validateWriter(memberId);
 
         Page<IMyReply> myReplies = replyRepository.findByWriterId(memberId, createPageable(pageRequestDTO));
 

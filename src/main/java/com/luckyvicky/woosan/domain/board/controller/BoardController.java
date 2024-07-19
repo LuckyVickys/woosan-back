@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.board.controller;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+import com.luckyvicky.woosan.domain.board.dto.BoardListDTO;
 import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
 import com.luckyvicky.woosan.domain.board.service.AIService;
@@ -27,8 +28,8 @@ public class BoardController {
      * 게시물 작성
      */
     @PostMapping("/add")
-    public ResponseEntity<Long> register(@ModelAttribute BoardDTO boardDTO) {
-        Long boardId = boardService.add(boardDTO);
+    public ResponseEntity<Long> createBoard(@ModelAttribute BoardDTO boardDTO) {
+        Long boardId = boardService.createBoard(boardDTO);
         return ResponseEntity.ok(boardId);
     }
 
@@ -37,9 +38,9 @@ public class BoardController {
      * 게시물 전체 조회(+카테고리)
      */
     @GetMapping
-    public ResponseEntity<BoardPageResponseDTO> getList(PageRequestDTO pageRequestDTO,
+    public ResponseEntity<BoardPageResponseDTO> getBoardList(PageRequestDTO pageRequestDTO,
                                                         @RequestParam(value = "categoryName", required = false) String categoryName) {
-        BoardPageResponseDTO responseDTO = boardService.getBoardPage(pageRequestDTO, categoryName);
+        BoardPageResponseDTO responseDTO = boardService.getBoardList(pageRequestDTO, categoryName);
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -48,8 +49,8 @@ public class BoardController {
      * 공지사항 다건 조회 (cs)
      */
     @GetMapping("/cs/notices")
-    public ResponseEntity<PageResponseDTO<BoardDTO>> getNoticePage(PageRequestDTO pageRequestDTO) {
-        PageResponseDTO<BoardDTO> responseDTO = boardService.getNoticePage(pageRequestDTO);
+    public ResponseEntity<PageResponseDTO<BoardListDTO>> getNoticePage(PageRequestDTO pageRequestDTO) {
+        PageResponseDTO<BoardListDTO> responseDTO = boardService.getNoticePage(pageRequestDTO);
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -57,18 +58,18 @@ public class BoardController {
      * 공지사항 10개 조회 (메인페이지)
      */
     @GetMapping("/notices")
-    public ResponseEntity<List<BoardDTO>> getNotices() {
-        List<BoardDTO> boardDTO = boardService.getNotices();
-        return ResponseEntity.ok(boardDTO);
+    public ResponseEntity<List<BoardListDTO>> getNotices() {
+        List<BoardListDTO> boardListDTO = boardService.getNotices();
+        return ResponseEntity.ok(boardListDTO);
     }
 
     /**
      * 인기글 10개 조회 (메인페이지)
      */
     @GetMapping("/best")
-    public ResponseEntity<List<BoardDTO>> getbest() {
-        List<BoardDTO> boardDTO = boardService.getBest();
-        return ResponseEntity.ok(boardDTO);
+    public ResponseEntity<List<BoardListDTO>> getBestBoard() {
+        List<BoardListDTO> boardListDTO = boardService.getBestBoard();
+        return ResponseEntity.ok(boardListDTO);
     }
 
     /**
@@ -85,8 +86,8 @@ public class BoardController {
      * 게시물 수정 페이지 조회
      */
     @GetMapping("/modify/{id}")
-    public ResponseEntity<BoardDTO> getBoardForModification(@PathVariable Long id) {
-        BoardDTO boardDTO = boardService.get(id);
+    public ResponseEntity<BoardDTO> getBoardForUpdate(@PathVariable Long id) {
+        BoardDTO boardDTO = boardService.getBoardForUpdate(id);
         return ResponseEntity.ok(boardDTO);
     }
 
@@ -94,17 +95,12 @@ public class BoardController {
     /**
      * 게시물 수정
      */
-
     @PatchMapping("/{id}")
     public ResponseEntity<String> modifyBoard(
             @PathVariable Long id,
             @ModelAttribute BoardDTO boardDTO) {
 
-        System.out.println("============================================");
-        System.out.println(boardDTO.getFilePathUrl());
-        System.out.println("============================================");
-
-        boardService.modify(boardDTO);
+        boardService.updateBoard(boardDTO);
         return ResponseEntity.ok("수정 완료");
     }
 
@@ -113,7 +109,7 @@ public class BoardController {
      */
     @PatchMapping("/delete")
     public ResponseEntity<String> deleteBoard(@RequestBody RemoveDTO removeDTO ) {
-        boardService.remove(removeDTO);
+        boardService.deleteBoard(removeDTO);
         return ResponseEntity.ok("삭제 완료");
     }
 

@@ -275,7 +275,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         for (int i = 0; i < currentRankings.size(); i++) {
             String currentKeyword = currentRankings.get(i);
             int pastIndex = pastRankings.indexOf(currentKeyword);
-            String symbol = " "; // 순위 변동 없음
+            String symbol = "_"; // 기본적으로 변동 없음을 의미하는 언더스코어로 설정
 
             if (pastIndex == -1) { // 이전 순위에 없는 경우, 새로운 키워드
                 symbol = "+";
