@@ -41,10 +41,6 @@ public class Board {
     @Field(type = FieldType.Text, name = "nickname")
     private String nickname;
 
-    @Transient
-    @Field(type = FieldType.Text, name = "korean_nickname")
-    private String koreanNickname;
-
     @Column(nullable = false, length = 40)
     @Field(type = FieldType.Text, name = "title")
     private String title;

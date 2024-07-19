@@ -2,6 +2,7 @@ package com.luckyvicky.woosan.domain.admin.controller;
 
 import com.luckyvicky.woosan.domain.admin.service.AdminService;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+import com.luckyvicky.woosan.domain.board.dto.BoardListDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.domain.report.dto.ReportDTO;
 import com.luckyvicky.woosan.domain.report.service.ReportService;
@@ -34,8 +35,8 @@ public class AdminController {
      * 공지사항 다건 조회 (cs)
      */
     @GetMapping("/notices")
-    public ResponseEntity<PageResponseDTO<BoardDTO>> getNoticePage(PageRequestDTO pageRequestDTO) {
-        PageResponseDTO<BoardDTO> responseDTO = boardService.getNoticePage(pageRequestDTO);
+    public ResponseEntity<PageResponseDTO<BoardListDTO>> getNoticePage(PageRequestDTO pageRequestDTO) {
+        PageResponseDTO<BoardListDTO> responseDTO = boardService.getNoticePage(pageRequestDTO);
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -45,7 +46,7 @@ public class AdminController {
      */
     @GetMapping("/modify/{id}")
     public ResponseEntity<BoardDTO> getBoardForModification(@PathVariable Long id) {
-        BoardDTO boardDTO = boardService.get(id);
+        BoardDTO boardDTO = boardService.getBoard(id);
         return ResponseEntity.ok(boardDTO);
     }
 

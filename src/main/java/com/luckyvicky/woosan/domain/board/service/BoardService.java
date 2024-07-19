@@ -10,42 +10,32 @@ import java.util.List;
 
 @Transactional
 public interface BoardService {
-    Long add(BoardDTO boardDTO);
-
-    void modify(BoardDTO boardDTO);
-
-    void remove(RemoveDTO removeDTO);
-
-    BoardDTO get(Long id);
 
 
+    Long createBoard(BoardDTO boardDTO);
 
     @Transactional(readOnly = true)
-    BoardPageResponseDTO getBoardPage(PageRequestDTO pageRequestDTO, String categoryName);
-
+    BoardPageResponseDTO getBoardList(PageRequestDTO pageRequestDTO, String categoryName);
 
     @Transactional(readOnly = true)
-    PageResponseDTO<BoardDTO> getNoticePage(PageRequestDTO pageRequestDTO);
+    PageResponseDTO<BoardListDTO> getNoticePage(PageRequestDTO pageRequestDTO);
 
     @Transactional
     BoardDTO getBoard(Long id);
 
-    @Transactional(readOnly = true)
-    BoardDTO getNotice(String categoryName);
+    BoardDTO getBoardForUpdate(Long id);
 
-    @Transactional(readOnly = true)
-    List<BoardDTO> getTop3ByLikes();
+    void updateBoard(BoardDTO boardDTO);
 
-
-    @Transactional
-    List<BoardDTO> getNotices();
+    void deleteBoard(RemoveDTO removeDTO);
 
     @Transactional
-    List<BoardDTO> getBest();
+    List<BoardListDTO> getNotices();
 
-    boolean validationBoardId(Long boardId);
+    @Transactional
+    List<BoardListDTO> getBestBoard();
 
-    Member validateWriterId(Long writerId);
+
 }
 
 

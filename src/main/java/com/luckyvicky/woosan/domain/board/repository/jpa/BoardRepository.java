@@ -1,13 +1,12 @@
 package com.luckyvicky.woosan.domain.board.repository.jpa;
 
 import com.luckyvicky.woosan.domain.board.entity.Board;
-import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
+import com.luckyvicky.woosan.domain.board.projection.IBoardList;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.luckyvicky.woosan.domain.board.projection.IMyBoard;
-import com.luckyvicky.woosan.domain.board.projection.IMyReply;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -37,7 +36,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    Page<IBoardMember> findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByIdDesc(String categoryName, Pageable pageable);
+    Page<IBoardList> findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByIdDesc(String categoryName, Pageable pageable);
 
 
 
@@ -48,7 +47,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    Page<IBoardMember> findAllProjectedByCategoryNameAndIsDeletedFalseOrderByIdDesc(String categoryName, Pageable pageable);
+    Page<IBoardList> findAllProjectedByCategoryNameAndIsDeletedFalseOrderByIdDesc(String categoryName, Pageable pageable);
 
 
 
@@ -59,7 +58,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    Optional<IBoardMember> findFirstByCategoryNameAndIsDeletedFalse(String categoryName);
+    Optional<IBoardList> findFirstByCategoryNameAndIsDeletedFalse(String categoryName);
 
 
     /**
@@ -68,7 +67,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    List<IBoardMember> findTop3ByIsDeletedFalseOrderByViewsDesc();
+    List<IBoardList> findTop3ByIsDeletedFalseOrderByViewsDesc();
 
 
     /**
@@ -76,14 +75,14 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    List<IBoardMember> findTop10ProjectedByCategoryNameAndIsDeletedFalse(String categoryName);
+    List<IBoardList> findTop10ProjectedByCategoryNameAndIsDeletedFalse(String categoryName);
 
     /**
      * 인기글 10개 게시물 조회 (메인페이지)
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    List<IBoardMember> findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
+    List<IBoardList> findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
 
     // <--------------------------------------------예비-------------------------------------------->
 
