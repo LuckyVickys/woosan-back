@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.fileImg.service;
 
+import com.luckyvicky.woosan.domain.fileImg.dto.FileUpdateDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -11,4 +12,6 @@ public interface FileImgService {
     void targetFilesDelete(String type, Long targetId);
 
     void deleteS3FileByUrl(Long id,String type,String beforeFile);
+
+    void updateMainBanner(FileUpdateDTO fileUpdateDTO);
 }

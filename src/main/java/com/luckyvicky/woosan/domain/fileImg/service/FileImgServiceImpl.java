@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.luckyvicky.woosan.domain.fileImg.dto.FileUpdateDTO;
 import com.luckyvicky.woosan.domain.fileImg.entity.FileImg;
 import com.luckyvicky.woosan.domain.fileImg.repository.FileImgRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -124,8 +125,7 @@ public class FileImgServiceImpl implements FileImgService {
 
     @Override
     public void deleteS3FileByUrl(Long id, String type, String beforeFile) {
-        String getKey = extractKeyFromUrl(beforeFile);
-        s3.deleteObject(bucketName, getKey);
+        String getKey = extractKeyFromUrl(beforeFile, type);
         List<FileImg> existFiles = fileImgRepository.findByTypeAndTargetIdOrderByOrdAsc(type, id);
         Map<Long, String> targetMap = new HashMap<>();
 
@@ -146,13 +146,36 @@ public class FileImgServiceImpl implements FileImgService {
             try {
                 String decodedEntryValue = URLDecoder.decode(entry.getValue(), StandardCharsets.UTF_8.toString());
                 if (decodedEntryValue.equals(getFileName)) {
+                    FileImg targetImg = fileImgRepository.findById(entry.getKey()).get();
                     fileImgRepository.deleteById(entry.getKey());
+                    s3.deleteObject(bucketName, type + "/" + targetImg.getUuid() + "_" + targetImg.getFileName());
                     break;
                 }
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void updateMainBanner(FileUpdateDTO fileUpdateDTO) {
+        if (fileUpdateDTO.getExistFiles() == null) {
+            targetFilesDelete("admin", 0L);
+        } else {
+            List<String> beforeFiles = findFiles("admin", 0L);
+            List<String> afterFiles = fileUpdateDTO.getExistFiles();
+
+            for (String beforeFile : beforeFiles) {
+                if (!afterFiles.contains(beforeFile)) {
+                    deleteS3FileByUrl(0L, "admin", beforeFile);
+                }
+            }
+        }
+
+        if (fileUpdateDTO.getNewFiles() != null) {
+            fileUploadMultiple("admin", 0L, fileUpdateDTO.getNewFiles());
+        }
+
     }
 
     private String getFileNameInUrl(String url) {
@@ -165,9 +188,10 @@ public class FileImgServiceImpl implements FileImgService {
         }
     }
 
-    private String extractKeyFromUrl(String fileUrl) {
-        String prefix = "woosan/board/";
-        int startIndex = fileUrl.indexOf(prefix) + prefix.length() - "board/".length();
+    private String extractKeyFromUrl(String fileUrl, String type) {
+        String parseType = type + "/";
+        String prefix = "woosan/" + parseType;
+        int startIndex = fileUrl.indexOf(prefix) + prefix.length() - parseType.length();
         if (startIndex == -1) {
             throw new IllegalArgumentException("URL does not contain the expected prefix: " + prefix);
         }
