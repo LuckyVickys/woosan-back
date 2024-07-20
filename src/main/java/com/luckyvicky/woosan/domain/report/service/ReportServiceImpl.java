@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.report.service;
 
+import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.entity.Reply;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
@@ -10,6 +11,7 @@ import com.luckyvicky.woosan.domain.member.dto.MyReplyDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.domain.report.dto.ReportDTO;
+import com.luckyvicky.woosan.domain.report.dto.TargetDTO;
 import com.luckyvicky.woosan.domain.report.entity.Report;
 import com.luckyvicky.woosan.domain.report.mapper.ReportMapper;
 import com.luckyvicky.woosan.domain.report.repository.ReportRepository;
@@ -50,7 +52,7 @@ public class ReportServiceImpl implements ReportService {
         }
         Member reporter = optionalReporter.get();
 
-        List<Report> existingReports  = reportRepository.findByReporterAndTypeAndTargetId(reporter, reportDTO.getType(), reportDTO.getTargetId());
+        List<Report> existingReports = reportRepository.findByReporterAndTypeAndTargetId(reporter, reportDTO.getType(), reportDTO.getTargetId());
         if (!existingReports.isEmpty()) {
             throw new IllegalStateException("신고 내역이 존재합니다.");
         }
@@ -123,8 +125,8 @@ public class ReportServiceImpl implements ReportService {
 
         List<String> reportFile = fileImgService.findFiles("report", report.getId());
 
-        report.setIsChecked(true);
-        reportRepository.save(report);
+//        report.setIsChecked(true);
+//        reportRepository.save(report);
 
         ReportDTO reportDTO = reportMapper.reportToReportDTO(report);
         reportDTO.setReporterId(report.getReporter().getId());
@@ -133,6 +135,33 @@ public class ReportServiceImpl implements ReportService {
         reportDTO.setReporteredMemberNickname(report.getReportedMember().getNickname());
         reportDTO.setFilePathUrl(reportFile);
         return reportDTO;
+    }
+
+    @Override
+    public Long checkReport(Long id) {
+        Report report = reportRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다."));
+
+        report.setIsChecked(true);
+        reportRepository.save(report);
+        return report.getId();
+    }
+
+    @Override
+    public Long goToTarget(Long id) {
+        Report report = reportRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다."));
+
+        if (report.getType().equals("board")) {
+            return report.getTargetId();
+        } else if (report.getType().equals("reply")) {
+            Reply reply = replyRepository.findById(report.getTargetId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글 입니다."));
+            return reply.getBoard().getId();
+        } else {
+            new IllegalArgumentException("존재하지 않는 신고 유형입니다.");
+        }
+        return null;
     }
 
 }
