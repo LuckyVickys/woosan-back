@@ -12,7 +12,7 @@ import java.util.List;
 public interface BoardService {
 
 
-    Long createBoard(BoardDTO boardDTO);
+    void createBoard(BoardDTO boardDTO);
 
     @Transactional(readOnly = true)
     BoardPageResponseDTO getBoardList(PageRequestDTO pageRequestDTO, String categoryName);

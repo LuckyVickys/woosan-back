@@ -16,7 +16,6 @@ import java.util.List;
 public class SearchDTO {
 
     private Long id;
-    private Long writerId;
     private String nickname;
 
     private String title;

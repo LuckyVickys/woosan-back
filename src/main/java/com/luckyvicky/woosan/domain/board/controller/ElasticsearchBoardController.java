@@ -8,6 +8,7 @@ import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +44,7 @@ public class ElasticsearchBoardController {
 
         SearchPageResponseDTO result = elasticsearchBoardService.searchWithStandardAndSynonyms(standardPageRequest, synonymPageRequest, categoryName, filterType, keyword);
 
-        return ResponseEntity.ok(result);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /**
@@ -55,7 +56,7 @@ public class ElasticsearchBoardController {
             @RequestParam(value = "searchType", required = false) String filterType,
             @RequestParam(value = "keyword", required = false) String keyword) {
         List<String> result = elasticsearchBoardService.autocomplete(categoryName, filterType, keyword);
-        return ResponseEntity.ok(result);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 
@@ -65,7 +66,7 @@ public class ElasticsearchBoardController {
     @GetMapping("/ranking")
     public ResponseEntity<List<RankingDTO>> getRanking() {
         List<RankingDTO> result = elasticsearchBoardService.getRankingChanges();
-        return ResponseEntity.ok(result);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
 
