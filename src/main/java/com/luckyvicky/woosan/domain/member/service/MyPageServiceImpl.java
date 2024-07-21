@@ -1,14 +1,14 @@
 package com.luckyvicky.woosan.domain.member.service;
 
+import com.cybozu.labs.langdetect.Command;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.projection.IMyBoard;
 import com.luckyvicky.woosan.domain.board.projection.IMyReply;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
-import com.luckyvicky.woosan.domain.board.service.BoardService;
-import com.luckyvicky.woosan.domain.board.util.Validate;
-import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;
+import com.luckyvicky.woosan.global.util.CommonUtils;
+import com.luckyvicky.woosan.global.util.ValidationHelper;
 import com.luckyvicky.woosan.domain.member.dto.MyBoardDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyPageDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyReplyDTO;
@@ -47,23 +47,22 @@ public class MyPageServiceImpl implements MyPageService {
     private final MemberRepository memberRepository;
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
-    private final Validate validate;
     private final ModelMapper modelMapper;
+    private final ValidationHelper validationHelper;
+    private final CommonUtils commonUtils;
 
     @Override
     @Transactional
     public PageResponseDTO<MyBoardDTO> getMyBoard(MyPageDTO myPageDTO) {
         Long memberId = getMemberId(myPageDTO);
         PageRequestDTO pageRequestDTO = getPageRequestDTO(myPageDTO);
-        validate.validateWriter(memberId);
+        validationHelper.findWriter(memberId);
 
-        Page<IMyBoard> myBoards = boardRepository.findByWriterId(memberId, createPageable(pageRequestDTO));
+        Page<IMyBoard> myBoards = boardRepository.findByWriterId(memberId, commonUtils.createPageable(pageRequestDTO));
 
-        List<MyBoardDTO> myBoardDTOs = myBoards.getContent().stream()
-                .map(myBoard -> modelMapper.map(myBoard, MyBoardDTO.class))
-                .collect(Collectors.toList());
+        List<MyBoardDTO> myBoardDTOs = commonUtils.mapToDTOList(myBoards.getContent(), MyBoardDTO.class);
 
-        return createPageResponseDTO(myBoardDTOs, pageRequestDTO, myBoards.getTotalElements());
+        return commonUtils.createPageResponseDTO(pageRequestDTO, myBoardDTOs, myBoards.getTotalElements());
     }
 
     @Override
@@ -71,15 +70,13 @@ public class MyPageServiceImpl implements MyPageService {
     public PageResponseDTO<MyReplyDTO> getMyReply(MyPageDTO myPageDTO) {
         Long memberId = getMemberId(myPageDTO);
         PageRequestDTO pageRequestDTO = getPageRequestDTO(myPageDTO);
-        validate.validateWriter(memberId);
+        validationHelper.findWriter(memberId);
 
-        Page<IMyReply> myReplies = replyRepository.findByWriterId(memberId, createPageable(pageRequestDTO));
+        Page<IMyReply> myReplies = replyRepository.findByWriterId(memberId, commonUtils.createPageable(pageRequestDTO));
 
-        List<MyReplyDTO> myReplyDTOs = myReplies.getContent().stream()
-                .map(myReply -> modelMapper.map(myReply, MyReplyDTO.class))
-                .collect(Collectors.toList());
+        List<MyReplyDTO> myReplyDTOs = commonUtils.mapToDTOList(myReplies.getContent(), MyReplyDTO.class);
 
-        return createPageResponseDTO(myReplyDTOs, pageRequestDTO, myReplies.getTotalElements());
+        return commonUtils.createPageResponseDTO(pageRequestDTO, myReplyDTOs, myReplies.getTotalElements());
     }
 
     @Override
@@ -138,7 +135,7 @@ public class MyPageServiceImpl implements MyPageService {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new MessageException(ErrorCode.MESSAGE_NOT_FOUND));
 
-        if(message.getDelBySender() == true) {
+        if (message.getDelBySender() == true) {
             throw new MessageException(ErrorCode.MESSAGE_ALREADY_DELETED);
         }
 
@@ -153,7 +150,7 @@ public class MyPageServiceImpl implements MyPageService {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new MessageException(ErrorCode.MESSAGE_NOT_FOUND));
 
-        if(message.getDelByReceiver() == true) {
+        if (message.getDelByReceiver() == true) {
             throw new MessageException(ErrorCode.MESSAGE_ALREADY_DELETED);
         }
 
@@ -171,7 +168,7 @@ public class MyPageServiceImpl implements MyPageService {
         MessageDTO messageDTO = messageMapper.messageToMessageDTO(message);
 
         Member receiver = memberRepository.findById(message.getReceiver().getId())
-                        .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         Member sender = memberRepository.findById(message.getReceiver().getId())
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));

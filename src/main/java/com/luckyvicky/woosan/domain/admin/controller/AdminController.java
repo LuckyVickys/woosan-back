@@ -3,15 +3,16 @@ package com.luckyvicky.woosan.domain.admin.controller;
 import com.luckyvicky.woosan.domain.admin.service.AdminService;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.BoardListDTO;
+import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.domain.fileImg.dto.FileUpdateDTO;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.report.dto.ReportDTO;
-import com.luckyvicky.woosan.domain.report.dto.TargetDTO;
 import com.luckyvicky.woosan.domain.report.service.ReportService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,10 +32,10 @@ public class AdminController {
     /**
      * 게시물 작성
      */
-    @PostMapping("/add")
-    public ResponseEntity<Long> register(@ModelAttribute BoardDTO boardDTO) {
-        Long boardId = adminService.add(boardDTO);
-        return ResponseEntity.ok(boardId);
+    @PostMapping("/notices")
+    public ResponseEntity<Void> createNotice(@ModelAttribute BoardDTO boardDTO) {
+        adminService.createNotice(boardDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 
@@ -44,38 +45,35 @@ public class AdminController {
     @GetMapping("/notices")
     public ResponseEntity<PageResponseDTO<BoardListDTO>> getNoticePage(PageRequestDTO pageRequestDTO) {
         PageResponseDTO<BoardListDTO> responseDTO = boardService.getNoticePage(pageRequestDTO);
-        return ResponseEntity.ok(responseDTO);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
 
     /**
      * 게시물 수정 페이지 조회
      */
-    @GetMapping("/modify/{id}")
+    @GetMapping("notices/{id}/modify")
     public ResponseEntity<BoardDTO> getBoardForModification(@PathVariable Long id) {
         BoardDTO boardDTO = boardService.getBoard(id);
-        return ResponseEntity.ok(boardDTO);
+        return new ResponseEntity<>(boardDTO, HttpStatus.OK);
     }
 
     /**
      * 게시물 수정
      */
-    @PatchMapping("/{id}")
-    public ResponseEntity<String> modifyBoard(
-            @PathVariable Long id,
-            @ModelAttribute BoardDTO boardDTO) {
-
-        adminService.modify(boardDTO);
-        return ResponseEntity.ok("수정 완료");
+    @PatchMapping("notices")
+    public ResponseEntity<Void> modifyBoard(@ModelAttribute BoardDTO boardDTO) {
+        adminService.updateNoitce(boardDTO);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
      * 게시물 삭제
      */
-    @PatchMapping("/delete/{id}")
-    public ResponseEntity<String> deleteBoard(@PathVariable Long id, @RequestBody Long writerId) {
-        adminService.remove(id, writerId);
-        return ResponseEntity.ok("삭제 완료");
+    @PatchMapping("notices/delete")
+    public ResponseEntity<Void> deleteBoard(@RequestBody RemoveDTO removeDTO) {
+        adminService.deleteNotice(removeDTO);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
