@@ -75,8 +75,9 @@ public class MemberController {
         return new ResponseEntity(memberService.getMemberInfo(email), HttpStatus.OK);
     }
 
-//    @GetMapping("/info")
-//    public ResponseEntity<Object> memberInfo(@RequestParam("memberId") Long memberId) {
-//        return new ResponseEntity(memberService.getMemberInfo(memberId), HttpStatus.OK);
-//    }
+    // 회원 탈퇴
+    @PutMapping("/delete")
+    public ResponseEntity<Object> deleteMember(@RequestBody DeleteRequestDTO deleteRequestDTO) {
+        return new ResponseEntity<>(memberService.deleteMember(deleteRequestDTO), HttpStatus.OK);
+    }
 }
