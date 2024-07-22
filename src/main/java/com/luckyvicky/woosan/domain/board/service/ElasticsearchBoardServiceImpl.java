@@ -1,13 +1,11 @@
 package com.luckyvicky.woosan.domain.board.service;
 
-import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
-import com.luckyvicky.woosan.domain.board.dto.RankingDTO;
-import com.luckyvicky.woosan.domain.board.dto.SearchDTO;
-import com.luckyvicky.woosan.domain.board.dto.SearchPageResponseDTO;
+import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.entity.SearchKeyword;
 import com.luckyvicky.woosan.domain.board.repository.elasticsearch.ElasticsearchBoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.elasticsearch.SearchKeywordRepository;
+import com.luckyvicky.woosan.global.util.CommonUtils;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +19,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
@@ -35,6 +34,8 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.luckyvicky.woosan.global.util.Constants.*;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -43,96 +44,130 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     private final ElasticsearchBoardRepository elasticsearchBoardRepository;
     private final ElasticsearchRestTemplate elasticsearchRestTemplate;
     private final SearchKeywordRepository searchKeywordRepository;
-    private final ModelMapper modelMapper;
+    private final CommonUtils commonUtils;
 
     /**
      * 기본 검색
      */
     @Override
-    public PageResponseDTO searchByCategoryAndFilter(PageRequestDTO pageRequestDTO, String categoryName, String filterType, String keyword) {
+    public PageResponseDTO<SearchDTO> searchByCategoryAndFilter(PageRequestDTO pageRequestDTO, String categoryName, String filterType, String keyword) {
         if (categoryName == null || categoryName.isEmpty()) {
-            categoryName = "전체";
+            categoryName = CATEGORY_ALL;
         }
 
-        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").ascending());
+        Pageable pageable = commonUtils.createPageable(pageRequestDTO);
 
+        Page<Board> results = getSearchResults(categoryName, filterType, keyword, pageable); // 검색 결과 가져오기
 
-        Page<Board> results;
-        if (categoryName.equals("전체")) {
-            switch (filterType) {
-                case "title":
-                    results = elasticsearchBoardRepository.findByTitleContainingAndCategoryNameNot(keyword, "공지사항", pageable);
-                    break;
-                case "content":
-                    results = elasticsearchBoardRepository.findByContentContainingAndCategoryNameNot(keyword, "공지사항", pageable);
-                    break;
-                case "writer":
-                    results = elasticsearchBoardRepository.findByNicknameContainingAndCategoryNameNot(keyword, "공지사항", pageable);
-                    break;
-                case "titleOrContent":
-                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryNameNot(keyword, keyword, "공지사항", pageable);
-                    break;
-                case "titleOrWriter":
-                    results = elasticsearchBoardRepository.findByTitleContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, "공지사항", pageable);
-                    break;
-                case "contentOrWriter":
-                    results = elasticsearchBoardRepository.findByContentContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, "공지사항", pageable);
-                    break;
-                case "titleOrContentOrWriter":
-                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, keyword, "공지사항", pageable);
-                    break;
-                default:
-                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryNameNot(keyword, keyword, "공지사항", pageable);
-                    break;
-            }
-        } else {
-            switch (filterType) {
-                case "title":
-                    results = elasticsearchBoardRepository.findByTitleContainingAndCategoryName(keyword, categoryName, pageable);
-                    break;
-                case "content":
-                    results = elasticsearchBoardRepository.findByContentContainingAndCategoryName(keyword, categoryName, pageable);
-                    break;
-                case "writer":
-                    results = elasticsearchBoardRepository.findByNicknameContainingAndCategoryName(keyword, categoryName, pageable);
-                    break;
-                case "titleOrContent":
-                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryName(keyword, keyword, categoryName, pageable);
-                    break;
-                case "titleOrWriter":
-                    results = elasticsearchBoardRepository.findByTitleContainingOrNicknameContainingAndCategoryName(keyword, keyword, categoryName, pageable);
-                    break;
-                case "contentOrWriter":
-                    results = elasticsearchBoardRepository.findByContentContainingOrNicknameContainingAndCategoryName(keyword, keyword, categoryName, pageable);
-                    break;
-                case "titleOrContentOrWriter":
-                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryName(keyword, keyword, keyword, categoryName, pageable);
-                    break;
-                default:
-                    results = elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryName(keyword, keyword, categoryName, pageable);
-                    break;
-            }
-        }
+        List<SearchDTO> dtoList = commonUtils.mapToDTOList(results.getContent(), SearchDTO.class); // DTO 매핑
 
-        List<BoardDTO> dtoList = results.stream()
-                .map(board -> modelMapper.map(board, BoardDTO.class))
-                .collect(Collectors.toList());
-
-
-        long totalCount = results.getTotalElements();
-        PageResponseDTO<BoardDTO> boardPage = PageResponseDTO.<BoardDTO>withAll()
-                .dtoList(dtoList)
-                .pageRequestDTO(pageRequestDTO)
-                .totalCount(totalCount)
-                .build();
-
-        return boardPage;
+        return commonUtils.createPageResponseDTO(pageRequestDTO, dtoList, results.getTotalElements()); // PageResponseDTO 생성
     }
+
+
+    private Page<Board> getSearchResults(String categoryName, String filterType, String keyword, Pageable pageable) {
+        if (CATEGORY_ALL.equals(categoryName)) {
+            return searchAllCategories(filterType, keyword, pageable);
+        } else {
+            return searchSpecificCategory(categoryName, filterType, keyword, pageable);
+        }
+    }
+
+    private Page<Board> searchAllCategories(String filterType, String keyword, Pageable pageable) {
+        switch (filterType) {
+            case "title":
+                return elasticsearchBoardRepository.findByTitleContainingAndCategoryNameNot(keyword, NOTICE, pageable);
+            case "content":
+                return elasticsearchBoardRepository.findByContentContainingAndCategoryNameNot(keyword, NOTICE, pageable);
+            case "writer":
+                return elasticsearchBoardRepository.findByNicknameContainingAndCategoryNameNot(keyword, NOTICE, pageable);
+            case "titleOrContent":
+                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryNameNot(keyword, keyword, NOTICE, pageable);
+            case "titleOrWriter":
+                return elasticsearchBoardRepository.findByTitleContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, NOTICE, pageable);
+            case "contentOrWriter":
+                return elasticsearchBoardRepository.findByContentContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, NOTICE, pageable);
+            case "titleOrContentOrWriter":
+                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, keyword, NOTICE, pageable);
+            default:
+                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryNameNot(keyword, keyword, NOTICE, pageable);
+        }
+    }
+
+    private Page<Board> searchSpecificCategory(String categoryName, String filterType, String keyword, Pageable pageable) {
+        switch (filterType) {
+            case "title":
+                return elasticsearchBoardRepository.findByTitleContainingAndCategoryName(keyword, categoryName, pageable);
+            case "content":
+                return elasticsearchBoardRepository.findByContentContainingAndCategoryName(keyword, categoryName, pageable);
+            case "writer":
+                return elasticsearchBoardRepository.findByNicknameContainingAndCategoryName(keyword, categoryName, pageable);
+            case "titleOrContent":
+                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryName(keyword, keyword, categoryName, pageable);
+            case "titleOrWriter":
+                return elasticsearchBoardRepository.findByTitleContainingOrNicknameContainingAndCategoryName(keyword, keyword, categoryName, pageable);
+            case "contentOrWriter":
+                return elasticsearchBoardRepository.findByContentContainingOrNicknameContainingAndCategoryName(keyword, keyword, categoryName, pageable);
+            case "titleOrContentOrWriter":
+                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryName(keyword, keyword, keyword, categoryName, pageable);
+            default:
+                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryName(keyword, keyword, categoryName, pageable);
+        }
+    }
+
+
+
+    /**
+     * 동의/유의어 검색
+     */
+    @Override
+    public PageResponseDTO<SearchDTO> searchWithSynonyms(PageRequestDTO pageRequestDTO, String keyword) {
+        Pageable pageable = commonUtils.createPageable(pageRequestDTO);
+        Query searchQuery = buildSynonymSearchQuery(keyword, pageable);
+        SearchHits<Board> searchHits = executeSynonymSearch(searchQuery);
+
+        List<SearchDTO> synonymDtoList = mapSearchHitsToDTO(searchHits);
+        return commonUtils.createPageResponseDTO(pageRequestDTO, synonymDtoList, searchHits.getTotalHits());
+    }
+
+    private Query buildSynonymSearchQuery(String keyword, Pageable pageable) {
+        return new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.multiMatchQuery(keyword, "synonym_title", "synonym_content")
+                        .type(MultiMatchQueryBuilder.Type.BEST_FIELDS)
+                        .analyzer("synonym_ngram_analyzer"))
+                .withPageable(pageable)
+                .build();
+    }
+
+
+    private SearchHits<Board> executeSynonymSearch(Query searchQuery) {
+        return elasticsearchRestTemplate.search(searchQuery, Board.class);
+    }
+
+    private List<SearchDTO> mapSearchHitsToDTO(SearchHits<Board> searchHits) {
+        return commonUtils.mapToDTOList(searchHits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .collect(Collectors.toList()), SearchDTO.class);
+    }
+
+    /**
+     * 기본 검색 + 유의어 검색
+     */
+    @Override
+    public SearchPageResponseDTO searchWithStandardAndSynonyms(PageRequestDTO standardPageRequest, PageRequestDTO synonymPageRequest, String categoryName, String filterType, String keyword) {
+        PageResponseDTO<SearchDTO> standardResult = searchByCategoryAndFilter(standardPageRequest, categoryName, filterType, keyword);
+        PageResponseDTO<SearchDTO> synonymResult = searchWithSynonyms(synonymPageRequest, keyword);
+
+        return SearchPageResponseDTO.builder()
+                .StandardResult(standardResult)
+                .SynonymResult(synonymResult)
+                .build();
+    }
+
 
     /**
      * 키워드 자동완성
      */
-
     private String generateShouldQuery(String[] keywords, String filterType) {
         StringBuilder shouldQuery = new StringBuilder();
         for (String keyword : keywords) {
@@ -216,35 +251,6 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     }
 
 
-    /**
-     * 동의/유의어 검색
-     */
-    @Override
-    public PageResponseDTO<SearchDTO> searchWithSynonyms(PageRequestDTO pageRequestDTO, String keyword) {
-        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").ascending());
-
-        Query searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.multiMatchQuery(keyword, "synonym_title", "synonym_content")
-                        .type(MultiMatchQueryBuilder.Type.BEST_FIELDS)
-                        .analyzer("synonym_ngram_analyzer"))
-                .withPageable(pageable)
-                .build();
-
-        SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
-
-        List<SearchDTO> synonymDtoList = searchHits.getSearchHits().stream()
-                .map(hit -> modelMapper.map(hit.getContent(), SearchDTO.class))
-                .collect(Collectors.toList());
-
-        long totalCount = searchHits.getTotalHits();
-
-        return PageResponseDTO.<SearchDTO>withAll()
-                .dtoList(synonymDtoList)
-                .pageRequestDTO(pageRequestDTO)
-                .totalCount(totalCount)
-                .build();
-    }
-
 
     /**
      * 검색 키워드 저장
@@ -263,106 +269,66 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     }
 
 
+    /**
+     * 검색 순위 계산
+     */
     @Override
     public List<RankingDTO> getRankingChanges() {
-        List<String> currentRankings = getCurrentRankings(); // 현재 순위 가져오기
-        List<String> pastRankings = getPastRankings(); // 이전 순위 가져오기
+        List<String> currnetRankings = getRanking("now-6h/h", "now"); // 현재 순위 가져오기
+        List<String> pastRankins = getRanking("now-24h/h", "now-1h/h");  // 이전 순위 가져오기
 
         List<RankingDTO> changes = new ArrayList<>();
         Set<String> processedKeywords = new HashSet<>(); // 이미 처리된 키워드를 추적
 
         // 현재 순위 처리
-        for (int i = 0; i < currentRankings.size(); i++) {
-            String currentKeyword = currentRankings.get(i);
-            int pastIndex = pastRankings.indexOf(currentKeyword);
-            String symbol = "_"; // 기본적으로 변동 없음을 의미하는 언더스코어로 설정
-
-            if (pastIndex == -1) { // 이전 순위에 없는 경우, 새로운 키워드
-                symbol = "+";
-            } else if (i < pastIndex) { // 순위 상승
-                symbol = "+";
-            } else if (i > pastIndex) { // 순위 하락
-                symbol = "-";
-            }
+        for ( int i = 0; i < currnetRankings.size(); i++ ) {
+            String currentKeyword = currnetRankings.get(i);
+            int pastIndex = pastRankins.indexOf(currentKeyword);
+            String symbol = (pastIndex == -1 || i < pastIndex) ? "+" :(i > pastIndex) ? "-" : "_"; // 기본적으로 변동 없음을 의미하는 언더스코어로 설정
 
             changes.add(new RankingDTO(i + 1, currentKeyword, symbol));
             processedKeywords.add(currentKeyword);
         }
 
         // 이전 순위에 있었지만 현재 순위에 없는 키워드 처리
-        int rankCounter = currentRankings.size() + 1;
-        for (int i = 0; i < pastRankings.size(); i++) {
-            String pastKeyword = pastRankings.get(i);
-            if (!processedKeywords.contains(pastKeyword)) {
+        int rankCounter = currnetRankings.size() + 1;
+        for ( int i = 0; i < pastRankins.size(); i++ ) {
+            String pastKeyword = pastRankins.get(i);
+            if ( !processedKeywords.contains(pastKeyword) ) {
                 changes.add(new RankingDTO(rankCounter++, pastKeyword, "-"));
             }
         }
 
         // 최종 결과의 길이가 10을 초과하지 않도록 제한
-        if (changes.size() > 10) {
+        if ( changes.size() > 10 ) {
             changes = changes.subList(0, 10);
         }
 
         return changes;
     }
 
-    // 현재 순위 가져오기
-    private List<String> getCurrentRankings() {
-        // Elasticsearch 쿼리 생성
+    /**
+     * 특정 기간의 순위
+     */
+    private List<String> getRanking(String from, String to) {
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.rangeQuery("timestamp").gte("now-1h/h"))
+                .withQuery(QueryBuilders.rangeQuery("timestamp").gte(from).lt(to))
                 .addAggregation(AggregationBuilders.terms("popular_keywords").field("keyword").size(10).order(BucketOrder.count(false)))
                 .build();
 
         // 검색 실행 및 집계 결과 추출
         SearchHits<SearchKeyword> searchHits = elasticsearchRestTemplate.search(searchQuery, SearchKeyword.class, IndexCoordinates.of("search_keywords"));
-
-        // 집계 데이터 추출
         Aggregations aggregations = searchHits.getAggregations();
         Terms popularKeywords = aggregations.get("popular_keywords");
 
-        List<String> rankings = new ArrayList<>();
-        for (Terms.Bucket bucket : popularKeywords.getBuckets()) {
-            rankings.add(bucket.getKeyAsString());
-        }
-
-        return rankings;
-    }
-
-    // 이전 순위 가져오기
-    private List<String> getPastRankings() {
-        // Elasticsearch 쿼리 생성
-        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.rangeQuery("timestamp").gte("now-6h/h").lt("now-1h/h"))
-                .addAggregation(AggregationBuilders.terms("popular_keywords").field("keyword").size(10).order(BucketOrder.count(false)))
-                .build();
-
-        // 검색 실행 및 집계 결과 추출
-        SearchHits<SearchKeyword> searchHits = elasticsearchRestTemplate.search(searchQuery, SearchKeyword.class, IndexCoordinates.of("search_keywords"));
-
         // 집계 데이터 추출
-        Aggregations aggregations = searchHits.getAggregations();
-        Terms popularKeywords = aggregations.get("popular_keywords");
+        return popularKeywords.getBuckets().stream()
+                .map(Terms.Bucket::getKeyAsString)
+                .collect(Collectors.toList());
 
-        List<String> rankings = new ArrayList<>();
-        for (Terms.Bucket bucket : popularKeywords.getBuckets()) {
-            rankings.add(bucket.getKeyAsString());
-        }
-
-        return rankings;
     }
 
 
 
-    @Override
-    public SearchPageResponseDTO searchWithStandardAndSynonyms(PageRequestDTO standardPageRequest, PageRequestDTO synonymPageRequest, String categoryName, String filterType, String keyword) {
-        PageResponseDTO<SearchDTO> standardResult = searchByCategoryAndFilter(standardPageRequest, categoryName, filterType, keyword);
-        PageResponseDTO<SearchDTO> synonymResult = searchWithSynonyms(synonymPageRequest, keyword);
-
-        return SearchPageResponseDTO.builder()
-                .StandardResult(standardResult)
-                .SynonymResult(synonymResult)
-                .build();
-    }
 
 }

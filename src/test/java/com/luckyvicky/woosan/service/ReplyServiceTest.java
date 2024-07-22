@@ -52,7 +52,7 @@ public class ReplyServiceTest {
 //    public void testDeleteReply() {
 //        Long replyId = 64L;  // 테스트에 사용할 댓글 ID
 //
-//        replyService.remove(replyId);
+//        replyService.deleteReply(replyId);
 //        log.info("Deleted Reply ID: " + replyId);
 //    }
 //
@@ -66,7 +66,7 @@ public class ReplyServiceTest {
         Long boardId = 3L;  // 테스트에 사용할 게시물 ID
         PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(1).size(10).build();
 
-        PageResponseDTO<ReplyDTO> responseDTO = replyService.getRepliesByBoardId(boardId, pageRequestDTO);
+        PageResponseDTO<ReplyDTO> responseDTO = replyService.getReplys(boardId, pageRequestDTO);
 
         log.info("Total Pages: " + responseDTO.getTotalPage());
         log.info("Total Elements: " + responseDTO.getTotalCount());

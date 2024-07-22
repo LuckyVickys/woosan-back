@@ -10,6 +10,7 @@ import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,10 +28,10 @@ public class BoardController {
     /**
      * 게시물 작성
      */
-    @PostMapping("/add")
-    public ResponseEntity<Long> createBoard(@ModelAttribute BoardDTO boardDTO) {
-        Long boardId = boardService.createBoard(boardDTO);
-        return ResponseEntity.ok(boardId);
+    @PostMapping
+    public ResponseEntity<Void> createBoard(@ModelAttribute BoardDTO boardDTO) {
+        boardService.createBoard(boardDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 
@@ -41,7 +42,7 @@ public class BoardController {
     public ResponseEntity<BoardPageResponseDTO> getBoardList(PageRequestDTO pageRequestDTO,
                                                         @RequestParam(value = "categoryName", required = false) String categoryName) {
         BoardPageResponseDTO responseDTO = boardService.getBoardList(pageRequestDTO, categoryName);
-        return ResponseEntity.ok(responseDTO);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
 
@@ -51,8 +52,9 @@ public class BoardController {
     @GetMapping("/cs/notices")
     public ResponseEntity<PageResponseDTO<BoardListDTO>> getNoticePage(PageRequestDTO pageRequestDTO) {
         PageResponseDTO<BoardListDTO> responseDTO = boardService.getNoticePage(pageRequestDTO);
-        return ResponseEntity.ok(responseDTO);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
+
 
     /**
      * 공지사항 10개 조회 (메인페이지)
@@ -60,8 +62,9 @@ public class BoardController {
     @GetMapping("/notices")
     public ResponseEntity<List<BoardListDTO>> getNotices() {
         List<BoardListDTO> boardListDTO = boardService.getNotices();
-        return ResponseEntity.ok(boardListDTO);
+        return new ResponseEntity<>(boardListDTO, HttpStatus.OK);
     }
+
 
     /**
      * 인기글 10개 조회 (메인페이지)
@@ -69,8 +72,9 @@ public class BoardController {
     @GetMapping("/best")
     public ResponseEntity<List<BoardListDTO>> getBestBoard() {
         List<BoardListDTO> boardListDTO = boardService.getBestBoard();
-        return ResponseEntity.ok(boardListDTO);
+        return new ResponseEntity<>(boardListDTO, HttpStatus.OK);
     }
+
 
     /**
      * 게시물 단건 조회 - 상세 페이지
@@ -78,39 +82,38 @@ public class BoardController {
     @GetMapping("/{id}")
     public ResponseEntity<BoardDTO> getBoard(@PathVariable("id") Long id) {
         BoardDTO boardDTO = boardService.getBoard(id);
-        return ResponseEntity.ok(boardDTO);
+        return new ResponseEntity<>(boardDTO, HttpStatus.OK);
     }
 
 
     /**
      * 게시물 수정 페이지 조회
      */
-    @GetMapping("/modify/{id}")
+    @GetMapping("/{id}/modify")
     public ResponseEntity<BoardDTO> getBoardForUpdate(@PathVariable Long id) {
         BoardDTO boardDTO = boardService.getBoardForUpdate(id);
-        return ResponseEntity.ok(boardDTO);
+        return new ResponseEntity<>(boardDTO, HttpStatus.OK);
     }
 
 
     /**
      * 게시물 수정
      */
-    @PatchMapping("/{id}")
-    public ResponseEntity<String> modifyBoard(
-            @PathVariable Long id,
+    @PatchMapping
+    public ResponseEntity<Void> modifyBoard(
             @ModelAttribute BoardDTO boardDTO) {
-
         boardService.updateBoard(boardDTO);
-        return ResponseEntity.ok("수정 완료");
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
+
 
     /**
      * 게시물 삭제
      */
     @PatchMapping("/delete")
-    public ResponseEntity<String> deleteBoard(@RequestBody RemoveDTO removeDTO ) {
+    public ResponseEntity<Void> deleteBoard(@RequestBody RemoveDTO removeDTO ) {
         boardService.deleteBoard(removeDTO);
-        return ResponseEntity.ok("삭제 완료");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 

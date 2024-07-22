@@ -23,6 +23,7 @@ public class CommonUtils {
      * 페이지 설정 생성
      */
     public Pageable createPageable(PageRequestDTO pageRequestDTO) {
+        pageRequestDTO.validate();
         return PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("id").ascending());
     }
 
@@ -39,5 +40,16 @@ public class CommonUtils {
      */
     public <S, T> T mapObject(S source, Class<T> targetClass) {
         return modelMapper.map(source, targetClass);
+    }
+
+    /**
+     * 페이지 응답 DTO 생성
+     */
+    public  <T> PageResponseDTO<T> createPageResponseDTO(PageRequestDTO pageRequestDTO, List<T> dtoList, Long totalCount) {
+        return PageResponseDTO.<T>withAll()
+                .dtoList(dtoList)
+                .pageRequestDTO(pageRequestDTO)
+                .totalCount(totalCount)
+                .build();
     }
 }

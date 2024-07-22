@@ -24,29 +24,30 @@ public class ReplyController {
     /**
      * 댓글 작성
      */
-    @PostMapping("/add")
-    public ResponseEntity<ReplyDTO> createReply(@RequestBody ReplyDTO replyDTO){
-        ReplyDTO saveReply = replyService.add(replyDTO);
-        return ResponseEntity.ok(saveReply);
-    }
+    @PostMapping
+    public ResponseEntity<Void> createReply(@RequestBody ReplyDTO replyDTO){
+        replyService.createReply(replyDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+        }
+
 
     /**
      * 댓글 조회
      */
     @GetMapping("/{boardId}")
     public ResponseEntity<PageResponseDTO<ReplyDTO>> getReply(@PathVariable Long boardId, PageRequestDTO pageRequestDTO) {
-        PageResponseDTO<ReplyDTO> replyDTO  = replyService.getRepliesByBoardId(boardId, pageRequestDTO);
-        return ResponseEntity.ok(replyDTO);
+        PageResponseDTO<ReplyDTO> replyDTO  = replyService.getReplies(boardId, pageRequestDTO);
+        return new ResponseEntity<>(replyDTO, HttpStatus.OK);
     }
 
-    /**
+
+    /**.
      * 댓글 삭제
      */
     @DeleteMapping
     public ResponseEntity<Void>  deleteReply(@RequestBody RemoveDTO removeDTO ) {
-        replyService.remove(removeDTO);
+        replyService.deleteReply(removeDTO);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
 }
 

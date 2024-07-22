@@ -73,8 +73,8 @@ public class BoardServiceTest {
 //                    ", RegDate: " + boardMember.getRegDate() +
 //                    ", Views: " + boardMember.getViews() +
 //                    ", CategoryName: " + boardMember.getCategoryName() +
-//                    ", WriterId: " + boardMember.getWriter().getId() +
-//                    ", WriterNickname: " + boardMember.getWriter().getNickname());
+//                    ", WriterId: " + boardMember.findWriterAndAddPoints().getId() +
+//                    ", WriterNickname: " + boardMember.findWriterAndAddPoints().getNickname());
 //        } else {
 //            System.out.println("Board member not found.");
 //        }
@@ -109,8 +109,8 @@ public class BoardServiceTest {
 //            log.info("Board Member RegDate: " + boardMember.getRegDate());
 //            log.info("Board Member Views: " + boardMember.getViews());
 //            log.info("Board Member CategoryName: " + boardMember.getCategoryName());
-//            log.info("Board Member WriterId: " + boardMember.getWriter().getId());
-//            log.info("Board Member Writer Nickname: " + boardMember.getWriter().getNickname());
+//            log.info("Board Member WriterId: " + boardMember.findWriterAndAddPoints().getId());
+//            log.info("Board Member Writer Nickname: " + boardMember.findWriterAndAddPoints().getNickname());
 //        });
 //    }
 
@@ -148,8 +148,8 @@ public class BoardServiceTest {
 //            log.info("Board Member RegDate: " + boardMember.getRegDate());
 //            log.info("Board Member Views: " + boardMember.getViews());
 //            log.info("Board Member CategoryName: " + boardMember.getCategoryName());
-//            log.info("Board Member WriterId: " + boardMember.getWriter().getId());
-//            log.info("Board Member Writer Nickname: " + boardMember.getWriter().getNickname());
+//            log.info("Board Member WriterId: " + boardMember.findWriterAndAddPoints().getId());
+//            log.info("Board Member Writer Nickname: " + boardMember.findWriterAndAddPoints().getNickname());
 //        });
 //    }
 
