@@ -14,5 +14,5 @@ public interface ReportService {
 
     Long checkReport(Long id);
 
-    Long goToTarget(Long id);
+    TargetDTO goToTarget(Long id);
 }

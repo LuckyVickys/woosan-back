@@ -10,6 +10,8 @@ import com.luckyvicky.woosan.domain.member.dto.MyBoardDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyReplyDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.messages.entity.Message;
+import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;
 import com.luckyvicky.woosan.domain.report.dto.ReportDTO;
 import com.luckyvicky.woosan.domain.report.dto.TargetDTO;
 import com.luckyvicky.woosan.domain.report.entity.Report;
@@ -38,6 +40,7 @@ public class ReportServiceImpl implements ReportService {
     private final ReportRepository reportRepository;
     private final BoardRepository boardRepository;
     private final ReplyRepository replyRepository;
+    private final MessageRepository messageRepository;
     private final MemberRepository memberRepository;
     private final FileImgService fileImgService;
     private final ReportMapper reportMapper;
@@ -74,6 +77,13 @@ public class ReportServiceImpl implements ReportService {
                 }
                 reportedMember = optionalReply.get().getWriter();
                 break;
+            case "message":
+                Optional<Message> optionalMessage = messageRepository.findById(reportDTO.getTargetId());
+                if (!optionalMessage.isPresent()) {
+                    throw new IllegalArgumentException("존재하지 않는 메시지입니다.");
+                }
+                reportedMember = optionalMessage.get().getSender();
+                break;
             default:
                 throw new IllegalArgumentException("존재하지 않는 신고 유형입니다.");
         }
@@ -98,6 +108,7 @@ public class ReportServiceImpl implements ReportService {
 
         return reportDTO;
     }
+
 
     @Override
     public PageResponseDTO<ReportDTO> reportList(PageRequestDTO pageRequestDTO) {
@@ -148,20 +159,25 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Long goToTarget(Long id) {
+    public TargetDTO goToTarget(Long id) {
         Report report = reportRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다."));
 
         if (report.getType().equals("board")) {
-            return report.getTargetId();
+            return new TargetDTO("board", report.getTargetId());
+
         } else if (report.getType().equals("reply")) {
             Reply reply = replyRepository.findById(report.getTargetId())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글 입니다."));
-            return reply.getBoard().getId();
-        } else {
-            new IllegalArgumentException("존재하지 않는 신고 유형입니다.");
+            return new TargetDTO("board", reply.getBoard().getId());
+
+        } else if(report.getType().equals("message")){
+            Message message = messageRepository.findById(report.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다."));
+            return new TargetDTO("message", message.getId());
         }
         return null;
     }
+
 
 }
