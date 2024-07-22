@@ -4,7 +4,7 @@ FROM openjdk:17-jdk-slim
 RUN apt-get update && apt-get install -y tzdata && \
     ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
     echo "Asia/Seoul" > /etc/timezone && \
-    dpkg-reconfigure -f noninteractive tzdata \
+    dpkg-reconfigure -f noninteractive tzdata
     
 # 작업 디렉토리 설정
 WORKDIR /app
