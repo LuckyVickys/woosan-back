@@ -8,6 +8,7 @@ import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.domain.fileImg.dto.FileUpdateDTO;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.report.dto.ReportDTO;
+import com.luckyvicky.woosan.domain.report.dto.TargetDTO;
 import com.luckyvicky.woosan.domain.report.service.ReportService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
@@ -111,8 +112,8 @@ public class AdminController {
      * 신고 대상으로 이동 (게시글 = 해당 게시글, 댓글 = 댓글이 작성된 게시글)
      */
     @GetMapping("/report/target")
-    public ResponseEntity<Long> goToTarget(@RequestParam Long id) {
-        Long boardId = reportService.goToTarget(id);
+    public ResponseEntity<TargetDTO> goToTarget(@RequestParam Long id) {
+        TargetDTO boardId = reportService.goToTarget(id);
         return ResponseEntity.ok(boardId);
     }
 
