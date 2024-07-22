@@ -7,5 +7,7 @@ public interface TargetType {
     String REPLY = "reply";
     String MESSAGE = "message";
     String REPORT = "report";
+    String ADMIN = "admin";
+    Long BANNER = 0L;
 
 }
