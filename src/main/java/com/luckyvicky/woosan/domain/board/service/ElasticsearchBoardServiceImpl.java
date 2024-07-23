@@ -10,6 +10,7 @@ import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -64,7 +65,6 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         return commonUtils.createPageResponseDTO(pageRequestDTO, dtoList, results.getTotalElements()); // PageResponseDTO 생성
     }
 
-
     private Page<Board> getSearchResults(String categoryName, String filterType, String keyword, Pageable pageable) {
         if (CATEGORY_ALL.equals(categoryName)) {
             return searchAllCategories(filterType, keyword, pageable);
@@ -74,45 +74,120 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     }
 
     private Page<Board> searchAllCategories(String filterType, String keyword, Pageable pageable) {
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
         switch (filterType) {
-            case "title":
-                return elasticsearchBoardRepository.findByTitleContainingAndCategoryNameNot(keyword, NOTICE, pageable);
             case "content":
-                return elasticsearchBoardRepository.findByContentContainingAndCategoryNameNot(keyword, NOTICE, pageable);
+                boolQueryBuilder.must(QueryBuilders.matchPhraseQuery("content", keyword)
+                        .analyzer("ngram_analyzer"));
+                break;
             case "writer":
-                return elasticsearchBoardRepository.findByNicknameContainingAndCategoryNameNot(keyword, NOTICE, pageable);
+                boolQueryBuilder.must(QueryBuilders.matchPhraseQuery("nickname", keyword)
+                        .analyzer("ngram_analyzer"));
+                break;
             case "titleOrContent":
-                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryNameNot(keyword, keyword, NOTICE, pageable);
+                boolQueryBuilder.should(QueryBuilders.matchPhraseQuery("title", keyword)
+                                .analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchPhraseQuery("content", keyword)
+                                .analyzer("ngram_analyzer"));
+                break;
             case "titleOrWriter":
-                return elasticsearchBoardRepository.findByTitleContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, NOTICE, pageable);
+                boolQueryBuilder.should(QueryBuilders.matchPhraseQuery("title", keyword)
+                                .analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchPhraseQuery("nickname", keyword)
+                                .analyzer("ngram_analyzer"));
+                break;
             case "contentOrWriter":
-                return elasticsearchBoardRepository.findByContentContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, NOTICE, pageable);
+                boolQueryBuilder.should(QueryBuilders.matchPhraseQuery("content", keyword)
+                                .analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchPhraseQuery("nickname", keyword)
+                                .analyzer("ngram_analyzer"));
+                break;
             case "titleOrContentOrWriter":
-                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryNameNot(keyword, keyword, keyword, NOTICE, pageable);
+                boolQueryBuilder.should(QueryBuilders.matchPhraseQuery("title", keyword)
+                                .analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchPhraseQuery("content", keyword)
+                                .analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchPhraseQuery("nickname", keyword)
+                                .analyzer("ngram_analyzer"));
+                break;
+            case "title":
             default:
-                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryNameNot(keyword, keyword, NOTICE, pageable);
+                boolQueryBuilder.must(QueryBuilders.matchPhraseQuery("title", keyword)
+                        .analyzer("ngram_analyzer"));
         }
+
+        boolQueryBuilder.mustNot(QueryBuilders.termQuery("categoryName", NOTICE));
+
+        queryBuilder.withQuery(boolQueryBuilder);
+        queryBuilder.withPageable(pageable);
+
+        SearchHits<Board> searchHits = elasticsearchRestTemplate.search(queryBuilder.build(), Board.class);
+        List<Board> boardList = searchHits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(boardList, pageable, searchHits.getTotalHits());
     }
 
     private Page<Board> searchSpecificCategory(String categoryName, String filterType, String keyword, Pageable pageable) {
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        
         switch (filterType) {
-            case "title":
-                return elasticsearchBoardRepository.findByTitleContainingAndCategoryName(keyword, categoryName, pageable);
             case "content":
-                return elasticsearchBoardRepository.findByContentContainingAndCategoryName(keyword, categoryName, pageable);
+                boolQueryBuilder.must(QueryBuilders.matchQuery("content", keyword)
+                        .analyzer("ngram_analyzer"));
+                break;
             case "writer":
-                return elasticsearchBoardRepository.findByNicknameContainingAndCategoryName(keyword, categoryName, pageable);
+                boolQueryBuilder.must(QueryBuilders.matchQuery("nickname", keyword)
+                        .analyzer("ngram_analyzer"));
+                break;
             case "titleOrContent":
-                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryName(keyword, keyword, categoryName, pageable);
+                boolQueryBuilder.should(QueryBuilders.matchQuery("title", keyword)
+                                .analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchQuery("content", keyword)
+                                .analyzer("ngram_analyzer"));
+                break;
             case "titleOrWriter":
-                return elasticsearchBoardRepository.findByTitleContainingOrNicknameContainingAndCategoryName(keyword, keyword, categoryName, pageable);
+                boolQueryBuilder.should(QueryBuilders.matchQuery("title", keyword)
+                                .analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchQuery("nickname", keyword)
+                                .analyzer("ngram_analyzer"));
+                break;
             case "contentOrWriter":
-                return elasticsearchBoardRepository.findByContentContainingOrNicknameContainingAndCategoryName(keyword, keyword, categoryName, pageable);
+                boolQueryBuilder.should(QueryBuilders.matchQuery("content", keyword)
+                                .analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchQuery("nickname", keyword)
+                                .analyzer("ngram_analyzer"));
+                break;
             case "titleOrContentOrWriter":
-                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingOrNicknameContainingAndCategoryName(keyword, keyword, keyword, categoryName, pageable);
+                boolQueryBuilder.should(QueryBuilders.matchQuery("title", keyword)
+                                .analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchQuery("content", keyword)
+                                .analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchQuery("nickname", keyword)
+                                .analyzer("ngram_analyzer"));
+                break;
+            case "title":
             default:
-                return elasticsearchBoardRepository.findByTitleContainingOrContentContainingAndCategoryName(keyword, keyword, categoryName, pageable);
+                boolQueryBuilder.must(QueryBuilders.matchQuery("title", keyword)
+                        .analyzer("ngram_analyzer"));
         }
+
+
+        boolQueryBuilder.must(QueryBuilders.termQuery("categoryName", categoryName));
+
+        queryBuilder.withQuery(boolQueryBuilder);
+        queryBuilder.withPageable(pageable);
+
+        SearchHits<Board> searchHits = elasticsearchRestTemplate.search(queryBuilder.build(), Board.class);
+        List<Board> boardList = searchHits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(boardList, pageable, searchHits.getTotalHits());
     }
 
 
