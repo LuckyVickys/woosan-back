@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "matching_board_reply")
@@ -41,5 +42,9 @@ public class MatchingBoardReply {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "matching_id", nullable =false)
     private MatchingBoard matchingBoard;
+
+    @OneToMany(mappedBy = "parentId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MatchingBoardReply> childReplies;
+
 
 }

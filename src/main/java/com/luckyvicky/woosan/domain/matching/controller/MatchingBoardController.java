@@ -4,12 +4,14 @@ import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardResponseDTO;
 import com.luckyvicky.woosan.domain.matching.service.MatchingBoardService;
 import com.luckyvicky.woosan.domain.matching.service.MemberMatchingService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/matching")
@@ -148,6 +150,21 @@ public class MatchingBoardController {
         } catch (Exception e) {
             System.out.println("매칭 보드 삭제 중 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("매칭 보드 삭제 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    // 조회수 증가 엔드포인트 추가
+    @PostMapping("/increaseViewCount")
+    public ResponseEntity<?> increaseViewCount(@RequestBody Map<String, Long> request, HttpServletRequest httpRequest) {
+        Long boardId = request.get("boardId");
+        Long memberId = request.get("memberId");
+        Long writerId = request.get("writerId");
+
+        try {
+            matchingBoardService.increaseViewCount(boardId, memberId, writerId, httpRequest);
+            return ResponseEntity.ok("조회수가 성공적으로 증가했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("조회수 증가 중 오류 발생: " + e.getMessage());
         }
     }
 }

@@ -74,7 +74,7 @@ public class MemberMatchingController {
     public ResponseEntity<?> kickMember(@PathVariable Long id, @RequestParam Long memberId) {
         try {
             System.out.println("회원 강퇴 요청: id=" + id + ", memberId=" + memberId);
-            memberMatchingService.kickMember(id, memberId);
+            memberMatchingService.kickMember(id, memberId);  // 서비스 레이어 호출
             System.out.println("회원 강퇴 성공: id=" + id + ", memberId=" + memberId);
             return new ResponseEntity<>("회원이 성공적으로 강퇴되었습니다.", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
@@ -85,6 +85,7 @@ public class MemberMatchingController {
             return new ResponseEntity<>("회원 강퇴 중 오류가 발생했습니다: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     // 모임원의 리스트 가져오기
     @GetMapping("/list/{matchingId}")

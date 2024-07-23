@@ -48,9 +48,9 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
         Long matchingId = requestDTO.getMatchingId();
 
         // 매칭 보드와 회원 객체 가져오기
-        var matchingBoard = matchingBoardRepository.findById(matchingId)
+        MatchingBoard matchingBoard = matchingBoardRepository.findById(matchingId)
                 .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
-        var member = memberRepository.findById(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
         // 중복 가입 방지
@@ -61,41 +61,7 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
 
         // 매칭 타입에 따른 조건 확인
         int type = matchingBoard.getMatchingType();
-
-        if (type == 1) { // 정기 모임
-            long joinedMeetings = memberMatchingRepository.countByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, 1, true);
-            long createdMeetings = matchingBoardRepository.countByMember_IdAndMatchingType(memberId, 1);
-            long pendingRequests = memberMatchingRepository.countByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, 1, null);
-
-            if (joinedMeetings + createdMeetings >= 2) {
-                throw new IllegalArgumentException("정기 모임은 내가 만든 것과 가입한 것을 합쳐서 최대 2개까지 유지할 수 있습니다.");
-            }
-            if (pendingRequests >= 3) {
-                throw new IllegalArgumentException("정기 모임에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
-            }
-        } else if (type == 2) { // 번개 모임
-            long joinedMeetings = memberMatchingRepository.countByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, 2, true);
-            long createdMeetings = matchingBoardRepository.countByMember_IdAndMatchingType(memberId, 2);
-            long pendingRequests = memberMatchingRepository.countByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, 2, null);
-
-            if (joinedMeetings + createdMeetings >= 1) {
-                throw new IllegalArgumentException("번개는 내가 만든 것과 가입한 것을 합쳐서 최대 1개까지 유지할 수 있습니다.");
-            }
-            if (pendingRequests >= 3) {
-                throw new IllegalArgumentException("번개에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
-            }
-        } else if (type == 3) { // 셀프 소개팅
-            long joinedMeetings = memberMatchingRepository.countByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, 3, true);
-            long createdMeetings = matchingBoardRepository.countByMember_IdAndMatchingType(memberId, 3);
-            long pendingRequests = memberMatchingRepository.countByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, 3, null);
-
-            if (joinedMeetings + createdMeetings >= 3) {
-                throw new IllegalArgumentException("셀프 소개팅은 내가 만든 것과 가입한 것을 합쳐서 최대 3개까지 유지할 수 있습니다.");
-            }
-            if (pendingRequests >= 3) {
-                throw new IllegalArgumentException("셀프 소개팅에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
-            }
-        }
+        validateMatchingConditions(memberId, type);
 
         // MemberMatching 객체 생성 및 설정
         MemberMatching matching = MemberMatching.builder()
@@ -124,32 +90,7 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
                 .build();
 
         if (Boolean.TRUE.equals(isAccepted)) {
-            // 가입이 수락된 경우, 해당 회원의 같은 타입의 다른 대기 중인 가입 요청을 삭제
-            int type = existingMatching.getMatchingBoard().getMatchingType();
-            Long memberId = existingMatching.getMember().getId();
-            long joinedMeetings = memberMatchingRepository.countByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, type, true);
-            long createdMeetings = matchingBoardRepository.countByMember_IdAndMatchingType(memberId, type);
-
-            boolean shouldDeletePendingRequests = false;
-
-            if (type == 1) { // 정기 모임
-                if (joinedMeetings + createdMeetings >= 2) {
-                    shouldDeletePendingRequests = true;
-                }
-            } else if (type == 2) { // 번개 모임
-                if (joinedMeetings + createdMeetings >= 1) {
-                    shouldDeletePendingRequests = true;
-                }
-            } else if (type == 3) { // 셀프 소개팅
-                if (joinedMeetings + createdMeetings >= 3) {
-                    shouldDeletePendingRequests = true;
-                }
-            }
-
-            if (shouldDeletePendingRequests) {
-                List<MemberMatching> pendingRequests = memberMatchingRepository.findByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, type, null);
-                memberMatchingRepository.deleteAll(pendingRequests);
-            }
+            handlePendingRequestsOnAcceptance(existingMatching);
         }
 
         memberMatchingRepository.save(updatedMatching);
@@ -189,7 +130,12 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
             throw new IllegalArgumentException("모임장만 회원을 강퇴할 수 있습니다.");
         }
 
-        memberMatchingRepository.delete(matching);
+        // isAccepted를 false로 업데이트하여 강퇴 처리
+        matching = matching.toBuilder()
+                .isAccepted(false)
+                .build();
+
+        memberMatchingRepository.save(matching);
     }
 
     // 특정 보드의 모든 멤버 가져오기
@@ -274,5 +220,78 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
                 .nickname(member.getNickname())
                 .profileImageUrl(profileImageUrls.isEmpty() ? null : profileImageUrls.get(0))
                 .build();
+    }
+
+    // 매칭 조건을 검증하는 메서드
+    private void validateMatchingConditions(Long memberId, int type) {
+        long joinedMeetings = memberMatchingRepository.countByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, type, true);
+        long createdMeetings = matchingBoardRepository.countByMember_IdAndMatchingType(memberId, type);
+        long pendingRequests = memberMatchingRepository.countByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, type, null);
+
+        // 디버깅을 위해 각 조건의 로그를 출력합니다.
+        System.out.println("Joined Meetings: " + joinedMeetings);
+        System.out.println("Created Meetings: " + createdMeetings);
+        System.out.println("Pending Requests: " + pendingRequests);
+
+        if (type == 1) { // 정기 모임
+            if (joinedMeetings >= 2) {
+                throw new IllegalArgumentException("정기 모임은 내가 가입한 모임을 합쳐서 최대 2개까지 유지할 수 있습니다.");
+            }
+            if (createdMeetings >= 2) {
+                throw new IllegalArgumentException("정기 모임은 내가 만든 모임을 합쳐서 최대 2개까지 유지할 수 있습니다.");
+            }
+            if (pendingRequests >= 3) {
+                throw new IllegalArgumentException("정기 모임에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
+            }
+        } else if (type == 2) { // 번개 모임
+            if (joinedMeetings >= 1) {
+                throw new IllegalArgumentException("번개는 내가 가입한 모임을 합쳐서 최대 1개까지 유지할 수 있습니다.");
+            }
+            if (createdMeetings >= 1) {
+                throw new IllegalArgumentException("번개는 내가 만든 모임을 합쳐서 최대 1개까지 유지할 수 있습니다.");
+            }
+            if (pendingRequests >= 3) {
+                throw new IllegalArgumentException("번개에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
+            }
+        } else if (type == 3) { // 셀프 소개팅
+            if (joinedMeetings >= 3) {
+                throw new IllegalArgumentException("셀프 소개팅은 내가 가입한 모임을 합쳐서 최대 3개까지 유지할 수 있습니다.");
+            }
+            if (createdMeetings >= 3) {
+                throw new IllegalArgumentException("셀프 소개팅은 내가 만든 모임을 합쳐서 최대 3개까지 유지할 수 있습니다.");
+            }
+            if (pendingRequests >= 3) {
+                throw new IllegalArgumentException("셀프 소개팅에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
+            }
+        }
+    }
+
+    // 수락 시 대기 중인 요청 처리 메서드
+    private void handlePendingRequestsOnAcceptance(MemberMatching existingMatching) {
+        int type = existingMatching.getMatchingBoard().getMatchingType();
+        Long memberId = existingMatching.getMember().getId();
+        long joinedMeetings = memberMatchingRepository.countByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, type, true);
+        long createdMeetings = matchingBoardRepository.countByMember_IdAndMatchingType(memberId, type);
+
+        boolean shouldDeletePendingRequests = false;
+
+        if (type == 1) { // 정기 모임
+            if (joinedMeetings >= 2 || createdMeetings >= 2) {
+                shouldDeletePendingRequests = true;
+            }
+        } else if (type == 2) { // 번개 모임
+            if (joinedMeetings >= 1 || createdMeetings >= 1) {
+                shouldDeletePendingRequests = true;
+            }
+        } else if (type == 3) { // 셀프 소개팅
+            if (joinedMeetings >= 3 || createdMeetings >= 3) {
+                shouldDeletePendingRequests = true;
+            }
+        }
+
+        if (shouldDeletePendingRequests) {
+            List<MemberMatching> pendingRequests = memberMatchingRepository.findByMember_IdAndMatchingBoard_MatchingTypeAndIsAccepted(memberId, type, null);
+            memberMatchingRepository.deleteAll(pendingRequests);
+        }
     }
 }

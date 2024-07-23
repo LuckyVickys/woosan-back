@@ -13,11 +13,14 @@ import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.entity.MemberProfile;
 import com.luckyvicky.woosan.domain.member.repository.MemberProfileRepository;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +38,58 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     private final FileImgService fileImgService;
     private final MemberMatchingService memberMatchingService;
     private final MemberMatchingMapper memberMatchingMapper;
+    private final RedisTemplate<String, String> redisTemplate;
+
+
+    // 게시글 조회수를 계산하는 메서드
+    @Override
+    @Transactional
+    public void increaseViewCount(Long boardId, Long memberId, Long writerId, HttpServletRequest request) {
+        String redisKey;
+        Duration duration;
+
+        if (memberId != null) {
+            // 로그인한 사용자인 경우
+            if (memberId.equals(writerId)) {
+                // 작성자인 경우 24시간 동안 유지
+                redisKey = "viewedBoard_" + boardId + "_writer_" + memberId;
+                duration = Duration.ofHours(24);
+            } else {
+                // 로그인한 일반 사용자인 경우 1분 동안 유지
+                redisKey = "viewedBoard_" + boardId + "_user_" + memberId;
+                duration = Duration.ofMinutes(1);
+            }
+        } else {
+            // 로그인하지 않은 사용자인 경우 IP 주소를 기반으로 처리
+            String ipAddress = getClientIpAddress(request);
+            redisKey = "viewedBoard_" + boardId + "_ip_" + ipAddress;
+            duration = Duration.ofMinutes(1);
+        }
+
+        String hasViewedStr = redisTemplate.opsForValue().get(redisKey);
+        Boolean hasViewed = Boolean.valueOf(hasViewedStr);
+
+        if (hasViewed == null || !hasViewed) {
+            MatchingBoard board = matchingBoardRepository.findById(boardId)
+                    .orElseThrow(() -> new IllegalArgumentException("매칭 보드를 찾을 수 없습니다."));
+
+            // 조회수 증가
+            board.incrementViews(); // 엔티티의 메서드를 사용
+            matchingBoardRepository.save(board);
+
+            // Redis에 조회 기록 저장
+            redisTemplate.opsForValue().set(redisKey, "true", duration);
+        }
+    }
+
+    // IP 주소를 가져오는 메서드
+    private String getClientIpAddress(HttpServletRequest request) {
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = request.getRemoteAddr();
+        }
+        return ipAddress;
+    }
 
     // 모든 매칭글을 가져오는 메서드
     @Override
@@ -215,6 +270,9 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         // 이미지 파일 삭제
         fileImgService.targetFilesDelete("matchingBoard", matchingBoard.getId());
 
+        // 매칭 보드와 관련된 댓글도 함께 삭제
+        matchingBoard.getReplies().clear();
+
         matchingBoardRepository.delete(matchingBoard);
     }
 
@@ -277,6 +335,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         return builder.build();
     }
 
+
     // 매칭 보드 엔티티를 DTO로 변환하는 메서드
     private MatchingBoardResponseDTO mapToResponseDTO(MatchingBoard matchingBoard) {
         MatchingBoardResponseDTO responseDTO = matchingBoardMapper.toResponseDTO(matchingBoard);
@@ -314,9 +373,10 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         return responseDTO;
     }
 
-    // 매일 자정에 번개 모임 자동 삭제
-    @Scheduled(cron = "0 0 0 * * ?")
+    // 번개 모임을 다음날 정오에 자동 삭제하는 메서드
+    @Scheduled(cron = "0 0 12 * * ?")
     public void cleanupTemporaryBoards() {
+        // 현재 날짜 이전의 모든 번개 모임을 찾음
         List<MatchingBoard> boardsToDelete = matchingBoardRepository.findByMatchingTypeAndMeetDateBefore(2, LocalDateTime.now());
 
         for (MatchingBoard board : boardsToDelete) {
@@ -327,7 +387,9 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
             // 이미지 파일 삭제
             fileImgService.targetFilesDelete("matchingBoard", board.getId());
 
-            // 매칭 보드 삭제
+            // 매칭 보드와 관련된 댓글도 함께 삭제
+            board.getReplies().clear();
+
             matchingBoardRepository.delete(board);
         }
     }
