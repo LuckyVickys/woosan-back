@@ -33,10 +33,6 @@ public class MemberProfileController {
     @PatchMapping
     public ResponseEntity<ProfileUpdateDTO> modifyBoard(@RequestPart(value = "profileUpdateDTO", required = false) ProfileUpdateDTO profileUpdateDTO,
                                                         @RequestPart(value="images", required = false)List<MultipartFile> images) {
-        System.out.println("==================================================");
-        System.out.println(profileUpdateDTO);
-        System.out.println(images);
-        System.out.println("==================================================");
         memberProfileService.update(profileUpdateDTO, images);
         return new ResponseEntity<>(profileUpdateDTO, HttpStatus.OK);
     }
