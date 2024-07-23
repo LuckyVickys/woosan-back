@@ -1,10 +1,10 @@
 package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.*;
-import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -12,7 +12,8 @@ import java.util.List;
 public interface BoardService {
 
 
-    void createBoard(BoardDTO boardDTO);
+    void createBoard(BoardDTO boardDTO, List<MultipartFile> images);
+
 
     @Transactional(readOnly = true)
     BoardPageResponseDTO getBoardList(PageRequestDTO pageRequestDTO, String categoryName);
@@ -25,7 +26,7 @@ public interface BoardService {
 
     BoardDTO getBoardForUpdate(Long id);
 
-    void updateBoard(BoardDTO boardDTO);
+    void updateBoard(BoardDTO boardDTO, List<MultipartFile> images);
 
     void deleteBoard(RemoveDTO removeDTO);
 

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,14 +30,14 @@ public class AdminServiceImpl implements AdminService {
      * 공지사항 작성
      */
     @Override
-    public Long createNotice(BoardDTO boardDTO) {
+    public Long createNotice(BoardDTO boardDTO, List<MultipartFile> images) {
         validationHelper.noticeInput(boardDTO); // 입력값 검증
         Member writer = validationHelper.checkAndFindAdmin(boardDTO.getWriterId()); // 관리자 여부 검증
         Board board = saveBoard(boardDTO, writer);
 
         //파일이 있으면 파일 정보를 버킷 및 db에 저장합니다.
-        if (boardDTO.getImages() != null) {
-            fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
+        if (images != null) {
+            fileImgService.fileUploadMultiple("board", board.getId(), images);
         }
 
         return board.getId();
@@ -59,7 +60,7 @@ public class AdminServiceImpl implements AdminService {
      * 게시물 수정
      */
     @Override
-    public void updateNoitce(BoardDTO boardDTO) {
+    public void updateNoitce(BoardDTO boardDTO, List<MultipartFile> images) {
         validationHelper.noticeInput(boardDTO); // 입력값 검증
         validationHelper.checkAdmin(boardDTO.getWriterId()); // 관리자 여부 검증
 
@@ -80,8 +81,8 @@ public class AdminServiceImpl implements AdminService {
             }
         }
 
-        if (boardDTO.getImages() != null) {
-            fileImgService.fileUploadMultiple("board", board.getId(), boardDTO.getImages());
+        if (images != null) {
+            fileImgService.fileUploadMultiple("board", board.getId(), images);
         }
         boardRepository.save(board);
     }

@@ -36,10 +36,12 @@ public class ElasticsearchBoardController {
             @RequestParam(value = "rpage", required = false, defaultValue = "1") int synonymPage,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
 
+        log.info("Search keyword: {}", keyword);
+
         PageRequestDTO standardPageRequest = new PageRequestDTO(standardPage, size);
         PageRequestDTO synonymPageRequest = new PageRequestDTO(synonymPage, size);
 
-//         검색 키워드 저장
+        // 검색 키워드 저장
         elasticsearchBoardService.saveSearchKeyword(keyword);
 
         SearchPageResponseDTO result = elasticsearchBoardService.searchWithStandardAndSynonyms(standardPageRequest, synonymPageRequest, categoryName, filterType, keyword);

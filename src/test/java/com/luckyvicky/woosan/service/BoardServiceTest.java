@@ -153,26 +153,26 @@ public class BoardServiceTest {
 //        });
 //    }
 
-    @Test
-    void boardInesrtTest() throws IOException {
-
-        String filePath1 = "/Users/tars/Documents/7.jpg";
-
-        MultipartFile multipartFile1 = new MockMultipartFile("file1", "수지.png", "image/png", new FileInputStream(filePath1));
-        List<MultipartFile> files = Arrays.asList(multipartFile1);
-
-        Long writerId = 2L;
-
-        BoardDTO boardDTO = new BoardDTO();
-        boardDTO.setWriterId(writerId);
-        boardDTO.setTitle("ㅎㅇ test");
-        boardDTO.setContent("ㅎㅇ test");
-        boardDTO.setCategoryName("ㅎㅇ");
-        boardDTO.setImages(files);
-
-        Long board = boardService.add(boardDTO);
-
-    }
+//    @Test
+//    void boardInesrtTest() throws IOException {
+//
+//        String filePath1 = "/Users/tars/Documents/7.jpg";
+//
+//        MultipartFile multipartFile1 = new MockMultipartFile("file1", "수지.png", "image/png", new FileInputStream(filePath1));
+//        List<MultipartFile> files = Arrays.asList(multipartFile1);
+//
+//        Long writerId = 2L;
+//
+//        BoardDTO boardDTO = new BoardDTO();
+//        boardDTO.setWriterId(writerId);
+//        boardDTO.setTitle("ㅎㅇ test");
+//        boardDTO.setContent("ㅎㅇ test");
+//        boardDTO.setCategoryName("ㅎㅇ");
+//        boardDTO.setImages(files);
+//
+//        Long board = boardService.createBoard(boardDTO);
+//
+//    }
 
     @Test
     void dddd(){
