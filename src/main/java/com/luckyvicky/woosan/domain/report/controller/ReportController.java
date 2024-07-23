@@ -15,16 +15,8 @@ public class ReportController {
     private final ReportService reportService;
 
     @PostMapping("/add")
-    public ResponseEntity<Object> reportAdd(@ModelAttribute ReportDTO reportDTO) {
-
-//        Long reportId = reportService.reportAdd(reportDTO);
-//        return ResponseEntity.ok(reportId);
-        try {
-            ReportDTO reportAddDTO = reportService.reportAdd(reportDTO);
-            return new ResponseEntity<>(reportAddDTO, HttpStatus.CREATED);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Void> reportAdd(@ModelAttribute ReportDTO reportDTO) {
+        reportService.reportAdd(reportDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
