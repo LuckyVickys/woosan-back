@@ -72,13 +72,14 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
 
     /**
      * 공지사항 10개 게시물 조회 (메인페이지)
+     *
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    List<IBoardList> findTop10ProjectedByCategoryNameAndIsDeletedFalse(String categoryName);
+    List<IBoardList> findTop5ProjectedByCategoryNameAndIsDeletedFalse(String categoryName);
 
     /**
-     * 인기글 10개 게시물 조회 (메인페이지)
+     * 인기글 5개 게시물 조회 (메인페이지)
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})

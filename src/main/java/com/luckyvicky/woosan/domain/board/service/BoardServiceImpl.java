@@ -156,7 +156,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     public List<BoardListDTO> getNotices() {
-        List<IBoardList> result = boardRepository.findTop10ProjectedByCategoryNameAndIsDeletedFalse(NOTICE);
+        List<IBoardList> result = boardRepository.findTop5ProjectedByCategoryNameAndIsDeletedFalse(NOTICE);
         return commonUtils.mapToDTOList(result, BoardListDTO.class);
     }
 
