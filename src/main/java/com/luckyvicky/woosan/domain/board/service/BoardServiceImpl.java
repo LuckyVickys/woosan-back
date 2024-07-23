@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,11 +45,11 @@ public class BoardServiceImpl implements BoardService {
      * 게시물 작성
      */
     @Override
-    public void createBoard(BoardDTO boardDTO) {
+    public void createBoard(BoardDTO boardDTO, List<MultipartFile> images) {
         validationHelper.boardInput(boardDTO); // 입력값 검증
         Member writer = validationHelper.findWriterAndAddPoints(boardDTO.getWriterId(), 10); // 작성자 검증 및 조회
         Board board = saveBoard(boardDTO, writer);
-        handleFileUpload(boardDTO, board.getId()); //파일이 있으면 파일 정보를 버킷 및 db에 저장
+        handleFileUpload(images, board.getId()); //파일이 있으면 파일 정보를 버킷 및 db에 저장
     }
 
 
@@ -131,10 +132,10 @@ public class BoardServiceImpl implements BoardService {
      * 게시물 수정
      */
     @Override
-    public void updateBoard(BoardDTO boardDTO) {
+    public void updateBoard(BoardDTO boardDTO, List<MultipartFile> images) {
         validationHelper.boardInput(boardDTO); // 입력값 검증
         validationHelper.checkBoardOwnership(boardDTO.getId(), boardDTO.getWriterId()); // 소유자 검증
-        updateBoardContent(boardDTO);
+        updateBoardContent(boardDTO, images);
     }
 
 
@@ -189,9 +190,9 @@ public class BoardServiceImpl implements BoardService {
     /**
      * 파일 업로드 처리
      */
-    private void handleFileUpload(BoardDTO boardDTO, Long boardId) {
-        if (boardDTO.getImages() != null) {
-            fileImgService.fileUploadMultiple("board", boardId, boardDTO.getImages());
+    private void handleFileUpload(List<MultipartFile> images, Long boardId) {
+        if(images != null){
+            fileImgService.fileUploadMultiple("board", boardId, images);
         }
     }
 
@@ -238,12 +239,12 @@ public class BoardServiceImpl implements BoardService {
     /**
      * 게시물 수정 처리
      */
-    private void updateBoardContent(BoardDTO boardDTO) {
+    private void updateBoardContent(BoardDTO boardDTO, List<MultipartFile> images) {
         Board board = validationHelper.findBoard(boardDTO.getId());
         board.changeTitle(boardDTO.getTitle());
         board.changeContent(boardDTO.getContent());
 
-        updateBoardFiles(boardDTO, board.getId());
+        updateBoardFiles(boardDTO, images, board.getId());
         boardRepository.save(board);
     }
 
@@ -251,7 +252,7 @@ public class BoardServiceImpl implements BoardService {
     /**
      * 게시물 파일 정보 갱신
      */
-    private void updateBoardFiles(BoardDTO boardDTO, Long boardId) {
+    private void updateBoardFiles(BoardDTO boardDTO, List<MultipartFile> images, Long boardId) {
         if (boardDTO.getFilePathUrl() == null) {
             fileImgService.targetFilesDelete("board", boardId);
         } else {
@@ -265,8 +266,8 @@ public class BoardServiceImpl implements BoardService {
             }
         }
 
-        if (boardDTO.getImages() != null) {
-            fileImgService.fileUploadMultiple("board", boardId, boardDTO.getImages());
+        if (images != null) {
+            fileImgService.fileUploadMultiple("board", boardId, images);
         }
     }
 

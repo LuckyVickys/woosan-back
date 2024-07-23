@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,18 +30,18 @@ public class BoardController {
      * 게시물 작성
      */
     @PostMapping
-    public ResponseEntity<Void> createBoard(@ModelAttribute BoardDTO boardDTO) {
-        boardService.createBoard(boardDTO);
+    public ResponseEntity<Void> createBoard(@RequestPart("boardDTO") BoardDTO boardDTO,
+                                            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+        boardService.createBoard(boardDTO, images);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
 
     /**
      * 게시물 전체 조회(+카테고리)
      */
     @GetMapping
     public ResponseEntity<BoardPageResponseDTO> getBoardList(PageRequestDTO pageRequestDTO,
-                                                        @RequestParam(value = "categoryName", required = false) String categoryName) {
+                                                             @RequestParam(value = "categoryName", required = false) String categoryName) {
         BoardPageResponseDTO responseDTO = boardService.getBoardList(pageRequestDTO, categoryName);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
@@ -100,9 +101,9 @@ public class BoardController {
      * 게시물 수정
      */
     @PatchMapping
-    public ResponseEntity<Void> modifyBoard(
-            @ModelAttribute BoardDTO boardDTO) {
-        boardService.updateBoard(boardDTO);
+    public ResponseEntity<Void> updateBoard(@RequestPart(value = "boardDTO") BoardDTO boardDTO,
+                                            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+        boardService.updateBoard(boardDTO, images);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -111,7 +112,7 @@ public class BoardController {
      * 게시물 삭제
      */
     @PatchMapping("/delete")
-    public ResponseEntity<Void> deleteBoard(@RequestBody RemoveDTO removeDTO ) {
+    public ResponseEntity<Void> deleteBoard(@RequestBody RemoveDTO removeDTO) {
         boardService.deleteBoard(removeDTO);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

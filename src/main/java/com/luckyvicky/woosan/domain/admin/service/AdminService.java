@@ -1,17 +1,16 @@
 package com.luckyvicky.woosan.domain.admin.service;
 
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
-import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
 import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
-import com.luckyvicky.woosan.global.util.PageRequestDTO;
-import com.luckyvicky.woosan.global.util.PageResponseDTO;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public interface AdminService {
 
-    Long createNotice(BoardDTO boardDTO);
+    Long createNotice(BoardDTO boardDTO, List<MultipartFile> images);
 
-    void updateNoitce(BoardDTO boardDTO);
+    void updateNoitce(BoardDTO boardDTO, List<MultipartFile> images);
 
     void deleteNotice(RemoveDTO removeDTO);
 }

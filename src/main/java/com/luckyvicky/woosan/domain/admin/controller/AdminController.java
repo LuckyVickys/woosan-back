@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -34,8 +35,9 @@ public class AdminController {
      * 게시물 작성
      */
     @PostMapping("/notices")
-    public ResponseEntity<Void> createNotice(@ModelAttribute BoardDTO boardDTO) {
-        adminService.createNotice(boardDTO);
+    public ResponseEntity<Void> createNotice(@RequestPart("boardDTO") BoardDTO boardDTO,
+                                             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+        adminService.createNotice(boardDTO, images);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -63,8 +65,9 @@ public class AdminController {
      * 게시물 수정
      */
     @PatchMapping("notices")
-    public ResponseEntity<Void> modifyBoard(@ModelAttribute BoardDTO boardDTO) {
-        adminService.updateNoitce(boardDTO);
+    public ResponseEntity<Void> updateBoard(@RequestPart("boardDTO") BoardDTO boardDTO,
+                                            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+        adminService.updateNoitce(boardDTO, images);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

@@ -66,7 +66,7 @@ public class ReplyServiceTest {
         Long boardId = 3L;  // 테스트에 사용할 게시물 ID
         PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(1).size(10).build();
 
-        PageResponseDTO<ReplyDTO> responseDTO = replyService.getReplys(boardId, pageRequestDTO);
+        PageResponseDTO<ReplyDTO> responseDTO = replyService.getReplies(boardId, pageRequestDTO);
 
         log.info("Total Pages: " + responseDTO.getTotalPage());
         log.info("Total Elements: " + responseDTO.getTotalCount());
