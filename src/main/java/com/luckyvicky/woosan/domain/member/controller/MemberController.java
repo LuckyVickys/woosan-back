@@ -3,6 +3,7 @@ package com.luckyvicky.woosan.domain.member.controller;
 import com.luckyvicky.woosan.domain.member.dto.*;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
+import com.luckyvicky.woosan.domain.member.repository.JoinCodeRepository;
 import com.luckyvicky.woosan.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
@@ -37,6 +38,20 @@ public class MemberController {
         member = memberService.addMember(member);
         SignUpResDTO memberRes = mapper.memberToSignUpResDTO(member);
         return new ResponseEntity<>(memberRes, HttpStatus.CREATED);
+    }
+
+    // 회원가입 코드 메일 전송
+    @PostMapping("/sendJoinCode")
+    public ResponseEntity<Object> sendJoinCode(@RequestParam("email") String email) {
+        MailDTO dto = memberService.createJoinCodeMail(email);
+        memberService.mailSend(dto);
+        return new ResponseEntity<>("메일 전송 완료", HttpStatus.OK);
+    }
+
+    // 회원가입 코드 체크
+    @GetMapping("/joinCode/{joinCode}")
+    public ResponseEntity<Object> joinCodeCheck(@PathVariable String joinCode) {
+        return new ResponseEntity(memberService.checkJoinCode(joinCode), HttpStatus.OK);
     }
 
     // 임시비밀번호 메일 전송 및 임시비밀번호 변경

@@ -11,7 +11,13 @@ public interface MemberService {
     Member addMember(Member member);
 
     /**
-     * 임시 비밀번호 발급 및 비밀번호 변경 관련 코드들
+     * 회원가입 코드 발급 및 확인
+     */
+    MailDTO createJoinCodeMail(String email);
+    Boolean checkJoinCode(String joinCode);
+
+    /**
+     * 임시 비밀번호 발급 및 비밀번호 변경
      */
     MailDTO createMailAndChangePw(String email);
     void mailSend(MailDTO mailDTO);

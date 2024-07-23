@@ -3,14 +3,17 @@ package com.luckyvicky.woosan.domain.member.service;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.member.dto.MailDTO;
 import com.luckyvicky.woosan.domain.member.dto.MemberInfoDTO;
+import com.luckyvicky.woosan.domain.member.entity.JoinCode;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import com.luckyvicky.woosan.domain.member.entity.SocialType;
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
+import com.luckyvicky.woosan.domain.member.repository.JoinCodeRepository;
 import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,6 +26,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Log4j2
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
@@ -30,6 +34,7 @@ public class MemberServiceImpl implements MemberService {
     private final JavaMailSender mailSender;
     private final MemberMapper mapper;
     private final FileImgService fileImgService;
+    private final JoinCodeRepository joinCodeRepository;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -79,9 +84,41 @@ public class MemberServiceImpl implements MemberService {
     }
 
     /**
-     * 임시 비밀번호 발급 및 비밀번호 변경 관련 코드들
+     * 회원가입 코드 발급 및 확인
      */
-    //메일 내용 생성 및 임시 비밀번호로 회원 비밀번호 변경
+    // 회원가입 메일 내용 생성 및 코드 redis에 저장
+    @Override
+    public MailDTO createJoinCodeMail(String email) {
+        try {
+            String str = getTempPassword();
+            JoinCode code = new JoinCode(str, email);
+            joinCodeRepository.save(code);
+            MailDTO dto = new MailDTO(email,
+                    "Woosan 회원가입 확인 이메일입니다.",
+                    "안녕하세요. Woosan 회원가입 확인 관련 이메일 입니다." + " 회원님의 가입 코드는 "
+                            + str + " 입니다. " + "회원가입을 마쳐주세요.");
+            return dto;
+        } catch (Exception e) {
+            throw new MemberException(ErrorCode.SERVER_ERROR);
+        }
+    }
+
+    // 회원가입 코드 redis에 존재 확인
+    @Override
+    public Boolean checkJoinCode(String joinCode) {
+        try {
+            Boolean isExist = joinCodeRepository.existsById(joinCode);
+            return isExist;
+        } catch (Exception e) {
+            throw new MemberException(ErrorCode.SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * 임시 비밀번호 발급 및 비밀번호 변경
+     */
+    // 메일 내용 생성 및 임시 비밀번호로 회원 비밀번호 변경
     @Override
     public MailDTO createMailAndChangePw(String email) {
         try {
@@ -89,7 +126,7 @@ public class MemberServiceImpl implements MemberService {
             MailDTO dto = new MailDTO(email,
                     "Woosan 임시비밀번호 안내 이메일입니다.",
                     "안녕하세요. Woosan 임시비밀번호 안내 관련 이메일 입니다." + " 회원님의 임시 비밀번호는 "
-                            + str + " 입니다." + "로그인 후에 비밀번호를 변경을 해주세요");
+                            + str + " 입니다." + "로그인 후에 비밀번호를 변경을 해주세요.");
             updateTempPw(str,email);
             return dto;
         } catch (Exception e) {
