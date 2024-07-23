@@ -8,7 +8,7 @@ import com.luckyvicky.woosan.domain.likes.entity.Likes;
 import com.luckyvicky.woosan.domain.likes.exception.LikeException;
 import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.util.ValidationHelper;
 import lombok.RequiredArgsConstructor;

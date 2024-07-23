@@ -1,7 +1,7 @@
 package com.luckyvicky.woosan.repository;
 
 import com.luckyvicky.woosan.domain.member.entity.Member;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.domain.report.entity.Report;
 import com.luckyvicky.woosan.domain.report.repository.ReportRepository;
 import org.junit.jupiter.api.Test;

@@ -1,8 +1,8 @@
 package com.luckyvicky.woosan.repository;
 
 import com.luckyvicky.woosan.domain.member.entity.JoinCode;
-import com.luckyvicky.woosan.domain.member.repository.JoinCodeRepository;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.redis.JoinCodeRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

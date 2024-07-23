@@ -8,7 +8,7 @@ import com.luckyvicky.woosan.domain.matching.mapper.MatchingBoardReplyMapper;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardReplyRepository;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

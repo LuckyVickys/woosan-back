@@ -1,7 +1,7 @@
 package com.luckyvicky.woosan.global.config;
 
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.global.auth.filter.JWTUtil;
 import com.luckyvicky.woosan.global.auth.filter.JwtAuthFilter;
 import com.luckyvicky.woosan.global.auth.handler.CustomAccessDeniedHandler;
