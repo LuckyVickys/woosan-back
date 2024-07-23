@@ -3,6 +3,7 @@ package com.luckyvicky.woosan.domain.member.controller;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.member.dto.ProfileUpdateDTO;
 import com.luckyvicky.woosan.domain.member.service.MemberProfileService;
+import io.lettuce.core.ScriptOutputType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

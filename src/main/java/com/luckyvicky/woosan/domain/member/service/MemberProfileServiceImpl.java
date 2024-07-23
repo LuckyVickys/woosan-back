@@ -47,7 +47,7 @@ public class MemberProfileServiceImpl implements MemberProfileService {
         MemberProfile memberProfile = memberProfileUtil.findOrCreateProfile(profileUpdateDTO);
         memberProfileRepository.save(memberProfile);
 
-        if (profileUpdateDTO.getImage() != null) {
+        if (images != null) {
             fileImgService.targetFilesDelete(TargetType.MEMBER, profileUpdateDTO.getMemberId());
             fileImgService.fileUploadMultiple(TargetType.MEMBER, profileUpdateDTO.getMemberId(), images);
         }
