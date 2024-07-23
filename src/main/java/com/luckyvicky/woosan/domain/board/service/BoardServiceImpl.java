@@ -4,6 +4,7 @@ import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.exception.BoardException;
 import com.luckyvicky.woosan.domain.board.projection.IBoardList;
+import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
 import com.luckyvicky.woosan.global.util.ValidationHelper;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
@@ -35,6 +36,7 @@ import static com.luckyvicky.woosan.global.util.Constants.*;
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
+    private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
     private final FileImgService fileImgService;
     private final CommonUtils commonUtils;
@@ -48,6 +50,7 @@ public class BoardServiceImpl implements BoardService {
     public void createBoard(BoardDTO boardDTO, List<MultipartFile> images) {
         validationHelper.boardInput(boardDTO); // 입력값 검증
         Member writer = validationHelper.findWriterAndAddPoints(boardDTO.getWriterId(), 10); // 작성자 검증 및 조회
+        memberRepository.save(writer);
         Board board = saveBoard(boardDTO, writer);
         handleFileUpload(images, board.getId()); //파일이 있으면 파일 정보를 버킷 및 db에 저장
     }
