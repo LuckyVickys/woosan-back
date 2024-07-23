@@ -3,7 +3,6 @@ package com.luckyvicky.woosan.domain.matching.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
@@ -22,11 +21,8 @@ public class MatchingBoardReplyRequestDTO {
     // 작성 날짜
     private LocalDateTime regDate;
 
-    // 부모 댓글 고유번호 (대댓글의 경우)
+    // 부모 댓글 고유번호 (답글의 경우)
     private Long parentId;
-
-    // 자식 댓글 리스트
-    private List<MatchingBoardReplyRequestDTO> childReplies;
 
     // 매칭 보드 ID
     private Long matchingId;

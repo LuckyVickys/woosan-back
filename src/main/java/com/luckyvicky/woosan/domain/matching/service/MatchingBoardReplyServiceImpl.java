@@ -31,7 +31,6 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
 
     // 댓글 작성
     @Override
-    @Transactional
     public MatchingBoardReplyResponseDTO saveReply(MatchingBoardReplyRequestDTO requestDTO) {
         Member writer = memberRepository.findById(requestDTO.getWriterId())
                 .orElseThrow(() -> new IllegalArgumentException("작성자 ID가 잘못되었습니다."));
@@ -51,14 +50,14 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
         return mapToResponseDTO(savedReply);
     }
 
-    // 특정 매칭 보드의 모든 댓글을 페이지네이션으로 가져옵니다.
+    // 특정 매칭 보드의 모든 댓글과 답글을 페이지네이션으로 가져옵니다.
     @Override
     @Transactional(readOnly = true)
-    public Page<MatchingBoardReplyResponseDTO> getRepliesByMatchingBoardId(Long matchingId, Pageable pageable) {
+    public Page<MatchingBoardReplyResponseDTO> getAllRepliesByMatchingBoardId(Long matchingId, Pageable pageable) {
         if (!matchingBoardRepository.existsById(matchingId)) {
             throw new IllegalArgumentException("매칭 보드가 존재하지 않습니다.");
         }
-        return matchingBoardReplyRepository.findByMatchingBoardIdAndParentIdIsNull(matchingId, pageable)
+        return matchingBoardReplyRepository.findByMatchingBoardId(matchingId, pageable)
                 .map(reply -> {
                     MatchingBoardReplyResponseDTO responseDTO = mapToResponseDTO(reply);
                     responseDTO.setChildReplies(getRepliesByParentId(reply.getId()));
@@ -66,23 +65,8 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
                 });
     }
 
-    // 특정 부모 댓글의 모든 자식 댓글을 가져옵니다.
-    @Override
-    @Transactional(readOnly = true)
-    public List<MatchingBoardReplyResponseDTO> getRepliesByParentId(Long parentId) {
-        try {
-            return matchingBoardReplyRepository.findByParentId(parentId)
-                    .stream()
-                    .map(this::mapToResponseDTO)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("대댓글 목록을 가져오는데 실패하였습니다: " + e.getMessage());
-        }
-    }
-
     // 댓글 삭제
     @Override
-    @Transactional
     public void deleteReply(Long id, Long memberId) {
         MatchingBoardReply reply = matchingBoardReplyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("댓글 ID가 잘못되었습니다."));
@@ -90,6 +74,18 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
             throw new IllegalStateException("자신의 댓글만 삭제할 수 있습니다.");
         }
         matchingBoardReplyRepository.delete(reply);
+    }
+
+    // 특정 부모 댓글의 모든 자식 댓글을 가져옵니다.
+    private List<MatchingBoardReplyResponseDTO> getRepliesByParentId(Long parentId) {
+        return matchingBoardReplyRepository.findByParentId(parentId)
+                .stream()
+                .map(reply -> {
+                    MatchingBoardReplyResponseDTO responseDTO = mapToResponseDTO(reply);
+                    responseDTO.setChildReplies(getRepliesByParentId(reply.getId()));
+                    return responseDTO;
+                })
+                .collect(Collectors.toList());
     }
 
     // 부모 댓글 ID 유효성 검사

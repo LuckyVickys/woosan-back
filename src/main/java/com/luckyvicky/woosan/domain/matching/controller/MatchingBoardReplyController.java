@@ -42,11 +42,11 @@ public class MatchingBoardReplyController {
         }
     }
 
-    // 특정 매칭 보드의 모든 댓글 가져오기 (페이지네이션 포함)
+    // 특정 매칭 보드의 모든 댓글과 답글 가져오기 (페이지네이션 포함)
     @GetMapping("/{matchingId}/replies")
     public ResponseEntity<?> getReplies(@PathVariable Long matchingId, Pageable pageable) {
         try {
-            Page<MatchingBoardReplyResponseDTO> replies = matchingBoardReplyService.getRepliesByMatchingBoardId(matchingId, pageable);
+            Page<MatchingBoardReplyResponseDTO> replies = matchingBoardReplyService.getAllRepliesByMatchingBoardId(matchingId, pageable);
             return ResponseEntity.ok(replies);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("댓글 목록을 가져오는데 실패하였습니다: " + e.getMessage());

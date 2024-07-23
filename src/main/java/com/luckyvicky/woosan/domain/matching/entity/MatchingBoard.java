@@ -8,6 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "matching_board")
@@ -73,6 +74,15 @@ public class MatchingBoard {
     public boolean isManager(Long memberId){
         return member.getId().equals(memberId);
     }
+
+    // 조회수를 증가시키는 메서드
+    public void incrementViews() {
+        this.views += 1;
+    }
+
+    // 매칭 보드와 댓글의 관계 설정
+    @OneToMany(mappedBy = "matchingBoard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MatchingBoardReply> replies;
 
 }
 

@@ -3,6 +3,7 @@ package com.luckyvicky.woosan.domain.matching.service;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardResponseDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -26,5 +27,7 @@ public interface MatchingBoardService {
     // 특정 매칭 게시글을 삭제하는 메서드
     void deleteMatchingBoard(Long id, Long memberId);
 
+    // 특정 매칭 게시글의 조회수를 증가시키는 메서드
+    void increaseViewCount(Long boardId, Long memberId, Long writerId, HttpServletRequest request);
 
 }
