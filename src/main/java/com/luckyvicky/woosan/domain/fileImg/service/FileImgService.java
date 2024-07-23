@@ -10,8 +10,6 @@ public interface FileImgService {
     void fileUploadMultiple(String type, Long targetId, List<MultipartFile> files);
     List<String> findFiles(String type, Long targetId);
     void targetFilesDelete(String type, Long targetId);
-
     void deleteS3FileByUrl(Long id,String type,String beforeFile);
-
     void updateMainBanner(FileUpdateDTO fileUpdateDTO);
 }
