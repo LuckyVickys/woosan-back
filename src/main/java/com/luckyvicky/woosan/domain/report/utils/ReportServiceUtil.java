@@ -7,6 +7,7 @@ import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;
 import com.luckyvicky.woosan.domain.report.dto.ReportDTO;
 import com.luckyvicky.woosan.domain.report.entity.Report;
 import com.luckyvicky.woosan.domain.report.repository.ReportRepository;
+import com.luckyvicky.woosan.global.util.TargetType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public class ReportServiceUtil {
@@ -24,11 +25,11 @@ public class ReportServiceUtil {
 
     public static Member getReportedMember(String type, Long targetId, BoardRepository boardRepository, ReplyRepository replyRepository, MessageRepository messageRepository) {
         switch (type) {
-            case "board":
+            case TargetType.BOARD:
                 return getEntityById(boardRepository, targetId, "존재하지 않는 게시판입니다.").getWriter();
-            case "reply":
+            case TargetType.REPLY:
                 return getEntityById(replyRepository, targetId, "존재하지 않는 댓글입니다.").getWriter();
-            case "message":
+            case TargetType.MESSAGE:
                 return getEntityById(messageRepository, targetId, "존재하지 않는 메시지입니다.").getSender();
             default:
                 throw new IllegalArgumentException("존재하지 않는 신고 유형입니다.");

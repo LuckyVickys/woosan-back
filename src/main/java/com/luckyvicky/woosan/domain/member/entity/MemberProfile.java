@@ -43,18 +43,31 @@ public class MemberProfile {
     private int height;
 
     //지역 변경
-    public void setLocation(String location) { this.location = location; }
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
     //성별 변경
-    public void setGender(String gender) { this.gender = gender; }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 
     //나이 변경
-    public void setAge(int age) { this.age = age; }
+    public void setAge(int age) {
+        this.age = age;
+    }
 
     //키 변경
-    public void setHeight(int height) { this.height = height; }
+    public void setHeight(int height) {
+        this.height = height;
+    }
 
     //mbti 변경
-    public void setMbti(MBTI mbti) { this.mbti = mbti; }
+    public void setMbti(MBTI mbti) {
+        this.mbti = mbti;
+    }
 
+    public void setIntroduce(String introduce) {
+        this.introduce = introduce;
+    }
 }
