@@ -11,9 +11,7 @@ import java.util.List;
 @Transactional
 public interface BoardService {
 
-
     void createBoard(BoardDTO boardDTO, List<MultipartFile> images);
-
 
     @Transactional(readOnly = true)
     BoardPageResponseDTO getBoardList(PageRequestDTO pageRequestDTO, String categoryName);
@@ -35,7 +33,6 @@ public interface BoardService {
 
     @Transactional
     List<BoardListDTO> getBestBoard();
-
 
 }
 

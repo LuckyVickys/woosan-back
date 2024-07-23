@@ -13,7 +13,4 @@ public interface LikesRepository extends JpaRepository<Likes, Long> {
 
     boolean existsByMemberIdAndTypeAndTargetId(Long memberId, String type, Long targetId);
 
-    List<Likes> findByTargetIdAndType(Long targetId, String type);
-
-
 }

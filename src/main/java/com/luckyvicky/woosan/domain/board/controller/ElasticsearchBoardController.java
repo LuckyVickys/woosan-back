@@ -2,10 +2,8 @@ package com.luckyvicky.woosan.domain.board.controller;
 
 import com.luckyvicky.woosan.domain.board.dto.RankingDTO;
 import com.luckyvicky.woosan.domain.board.dto.SearchPageResponseDTO;
-import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.service.ElasticsearchBoardService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
-import com.luckyvicky.woosan.global.util.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -23,7 +21,6 @@ public class ElasticsearchBoardController {
     private final ElasticsearchBoardService elasticsearchBoardService;
 
 
-
     /**
      *  일반/유의어 검색 
      */
@@ -36,8 +33,6 @@ public class ElasticsearchBoardController {
             @RequestParam(value = "rpage", required = false, defaultValue = "1") int synonymPage,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
 
-        log.info("Search keyword: {}", keyword);
-
         PageRequestDTO standardPageRequest = new PageRequestDTO(standardPage, size);
         PageRequestDTO synonymPageRequest = new PageRequestDTO(synonymPage, size);
 
@@ -48,6 +43,7 @@ public class ElasticsearchBoardController {
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
 
     /**
      * 검색 키워드 자동완성

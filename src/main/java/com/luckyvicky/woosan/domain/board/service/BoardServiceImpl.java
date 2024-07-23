@@ -171,7 +171,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
 
-//    <---------------------------------------------------------------->
+
 
 
     /**
@@ -280,8 +280,6 @@ public class BoardServiceImpl implements BoardService {
         board.changeIsDeleted(true);
         boardRepository.save(board);
     }
-
-
 
 }
 

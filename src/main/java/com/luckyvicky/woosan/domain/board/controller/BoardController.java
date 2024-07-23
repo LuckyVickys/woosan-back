@@ -137,13 +137,7 @@ public class BoardController {
      */
     @PostMapping("/{id}/summary")
     public ResponseEntity<String> boardDetailSummary(@PathVariable("id") Long id, @RequestBody BoardDTO boardDTO) {
-        System.out.println("==========================================");
-        System.out.println("요약 기능");
-        System.out.println(boardDTO);
-        System.out.println("==========================================");
-
         String summary = "";
-
         try {
             summary = aiService.summaryBoardDetailPage(boardDTO);
             System.out.println(summary);

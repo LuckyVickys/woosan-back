@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/replies")
 public class ReplyController {
 
-
     private final ReplyService replyService;
 
 
@@ -29,7 +28,6 @@ public class ReplyController {
         replyService.createReply(replyDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
         }
-
 
     /**
      * 댓글 조회

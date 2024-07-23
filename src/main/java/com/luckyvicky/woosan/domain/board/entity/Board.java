@@ -1,7 +1,6 @@
 package com.luckyvicky.woosan.domain.board.entity;
 
 import com.luckyvicky.woosan.domain.likes.exception.LikeException;
-import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import jakarta.persistence.*;

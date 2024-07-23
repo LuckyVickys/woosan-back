@@ -10,6 +10,5 @@ public interface IReply {
     Long parentId();
     int getLikesCount();
 
-
     MemberInfo getWriter();
 }

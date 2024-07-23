@@ -19,7 +19,6 @@ import java.util.Optional;
 
 public interface BoardRepository  extends JpaRepository<Board, Long> {
 
-
     /**
      * 다이나믹 프로젝션
      * 게시물 단건 조회
@@ -27,8 +26,6 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     @Transactional
     @EntityGraph(attributePaths = {"writer"})
     <T> Optional<T> findById(Long id, Class<T> className);
-
-
 
     /**
      * 인터페이스 프로젝션
@@ -39,17 +36,12 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     Page<IBoardList> findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByIdDesc(String categoryName, Pageable pageable);
 
 
-
-
-
     /**
      * 카테고리별 게시물 전체 조회
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
     Page<IBoardList> findAllProjectedByCategoryNameAndIsDeletedFalseOrderByIdDesc(String categoryName, Pageable pageable);
-
-
 
 
     /**
@@ -78,6 +70,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     @EntityGraph(attributePaths = {"writer"})
     List<IBoardList> findTop5ProjectedByCategoryNameAndIsDeletedFalse(String categoryName);
 
+
     /**
      * 인기글 5개 게시물 조회 (메인페이지)
      */
@@ -85,21 +78,9 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     @EntityGraph(attributePaths = {"writer"})
     List<IBoardList> findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
 
-    // <--------------------------------------------예비-------------------------------------------->
-
-
-//    /** 공지사항 상단 고정
-//      * 특정 게시물 단건 조회
-//      */
-//    @Transactional(readOnly = true)
-//    @EntityGraph(attributePaths = {"writer"})
-//    <T> Optional<T> findFirstByIdAndCategoryNameAndIsDeletedFalse(Long id, String categoryName, Class<T> className);
-
-    // <--------------------------------------------예비-------------------------------------------->
 
     @Transactional(readOnly = true)
     Page<IMyBoard> findByWriterId(Long writerId, Pageable pageable);
-
 
 
     /**
