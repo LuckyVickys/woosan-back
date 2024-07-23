@@ -170,7 +170,7 @@ public class MyPageServiceImpl implements MyPageService {
         Member receiver = memberRepository.findById(message.getReceiver().getId())
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Member sender = memberRepository.findById(message.getReceiver().getId())
+        Member sender = memberRepository.findById(message.getSender().getId())
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
 
         messageDTO.setReceiverNickname(receiver.getNickname());
