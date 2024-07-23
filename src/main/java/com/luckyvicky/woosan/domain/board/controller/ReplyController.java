@@ -24,7 +24,7 @@ public class ReplyController {
     /**
      * 댓글 작성
      */
-    @PostMapping("add")
+    @PostMapping("/add")
     public ResponseEntity<Void> createReply(@RequestBody ReplyDTO replyDTO){
         replyService.createReply(replyDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -44,7 +44,7 @@ public class ReplyController {
     /**.
      * 댓글 삭제
      */
-    @DeleteMapping("delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<Void>  deleteReply(@RequestBody RemoveDTO removeDTO ) {
         replyService.deleteReply(removeDTO);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
