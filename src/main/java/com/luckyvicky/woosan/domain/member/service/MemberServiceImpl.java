@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.member.service;
 
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
+import com.luckyvicky.woosan.domain.member.dto.DeleteRequestDTO;
 import com.luckyvicky.woosan.domain.member.dto.MailDTO;
 import com.luckyvicky.woosan.domain.member.dto.MemberInfoDTO;
 import com.luckyvicky.woosan.domain.member.entity.JoinCode;
@@ -81,6 +82,22 @@ public class MemberServiceImpl implements MemberService {
                 .build();
 
         return memberRepository.save(member);
+    }
+
+    // 회원 탈퇴
+    @Override
+    public String deleteMember(DeleteRequestDTO deleteRequestDTO) {
+        String email = deleteRequestDTO.getEmail();
+        String password = deleteRequestDTO.getPassword();
+        if(!memberRepository.existsByEmail(email)) {
+            throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
+        }
+        Member member = memberRepository.findByEmail(email);
+        if(!bCryptPasswordEncoder.matches(password, member.getPassword())) {
+            throw new MemberException(ErrorCode.PW_NOT_FOUND);
+        }
+        memberRepository.save(member.changeIsActive());
+        return "회원 탈퇴 성공";
     }
 
     /**
@@ -216,12 +233,4 @@ public class MemberServiceImpl implements MemberService {
 
         return dto;
     }
-
-//    @Override
-//    public MemberInfoDTO getMemberInfo(Long memberId) {
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
-//        return mapper.memberToMemberInfoDTO(member);
-//    }
-
 }

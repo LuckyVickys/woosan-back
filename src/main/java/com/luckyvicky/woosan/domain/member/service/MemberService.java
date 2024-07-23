@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.member.service;
 
+import com.luckyvicky.woosan.domain.member.dto.DeleteRequestDTO;
 import com.luckyvicky.woosan.domain.member.dto.LoginRequestDTO;
 import com.luckyvicky.woosan.domain.member.dto.MailDTO;
 import com.luckyvicky.woosan.domain.member.dto.MemberInfoDTO;
@@ -9,6 +10,7 @@ public interface MemberService {
     Boolean existEmail(String email);
     Boolean existNickname(String nickname);
     Member addMember(Member member);
+    String deleteMember(DeleteRequestDTO deleteRequestDTO);
 
     /**
      * 회원가입 코드 발급 및 확인
