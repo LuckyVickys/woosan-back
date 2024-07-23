@@ -29,7 +29,7 @@ public class BoardController {
     /**
      * 게시물 작성
      */
-    @PostMapping
+    @PostMapping("add")
     public ResponseEntity<Void> createBoard(@RequestPart("boardDTO") BoardDTO boardDTO,
                                             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         boardService.createBoard(boardDTO, images);
@@ -100,7 +100,7 @@ public class BoardController {
     /**
      * 게시물 수정
      */
-    @PatchMapping
+    @PatchMapping("modify")
     public ResponseEntity<Void> updateBoard(@RequestPart(value = "boardDTO") BoardDTO boardDTO,
                                             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         boardService.updateBoard(boardDTO, images);
