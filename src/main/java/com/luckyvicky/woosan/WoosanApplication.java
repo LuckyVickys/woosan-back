@@ -25,8 +25,5 @@ public class WoosanApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(WoosanApplication.class, args);
-		System.out.println("======================================================");
-		System.out.println("es complete ");
-		System.out.println("======================================================");
 	}
 }

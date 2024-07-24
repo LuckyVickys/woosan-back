@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface MemberProfileService {
     ProfileUpdateDTO get(Long id);
-
     void update(ProfileUpdateDTO profileUpdateDTO, List<MultipartFile> images);
 
 }
