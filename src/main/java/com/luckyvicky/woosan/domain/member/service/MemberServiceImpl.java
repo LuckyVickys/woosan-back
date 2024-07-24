@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -43,31 +44,26 @@ public class MemberServiceImpl implements MemberService {
     // 이메일 중복 체크
     @Override
     public Boolean existEmail(String email) {
-        if(memberRepository.existsByEmail(email) == true) {
+        if(memberRepository.existsByEmail(email)) {
             throw new MemberException(ErrorCode.EMAIL_DUPLICATE);
-        } else {
-            return memberRepository.existsByEmail(email);
         }
+        return false;
     }
 
     // 닉네임 중복 체크
     @Override
     public Boolean existNickname(String nickname) {
-        if(memberRepository.existsByNickname(nickname) == true) {
+        if(memberRepository.existsByNickname(nickname)) {
             throw new MemberException(ErrorCode.NICKNAME_DUPLICATE);
-        } else {
-            return memberRepository.existsByEmail(nickname);
         }
+        return false;
     }
 
     // 회원가입
     @Override
     public Member addMember(Member member) {
-        if(existEmail(member.getEmail()) == true) {
-            throw new MemberException(ErrorCode.EMAIL_DUPLICATE);
-        } else if(existNickname(member.getNickname()) == true) {
-            throw new MemberException(ErrorCode.NICKNAME_DUPLICATE);
-        }
+        existEmail(member.getEmail());
+        existNickname(member.getNickname());
 
         member = Member.builder()
                 .email(member.getEmail())
@@ -89,10 +85,10 @@ public class MemberServiceImpl implements MemberService {
     public String deleteMember(DeleteRequestDTO deleteRequestDTO) {
         String email = deleteRequestDTO.getEmail();
         String password = deleteRequestDTO.getPassword();
-        if(!memberRepository.existsByEmail(email)) {
+        Member member = memberRepository.findByEmail(email);
+        if(member == null) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
         }
-        Member member = memberRepository.findByEmail(email);
         if(!bCryptPasswordEncoder.matches(password, member.getPassword())) {
             throw new MemberException(ErrorCode.PW_NOT_FOUND);
         }
@@ -107,7 +103,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MailDTO createJoinCodeMail(String email) {
         try {
-            String str = getTempPassword();
+            String str = generateRandomCode();
             JoinCode code = new JoinCode(str, email);
             joinCodeRepository.save(code);
             MailDTO dto = new MailDTO(email,
@@ -124,8 +120,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Boolean checkJoinCode(String joinCode) {
         try {
-            Boolean isExist = joinCodeRepository.existsById(joinCode);
-            return isExist;
+            return joinCodeRepository.existsById(joinCode);
         } catch (Exception e) {
             throw new MemberException(ErrorCode.SERVER_ERROR);
         }
@@ -139,57 +134,49 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MailDTO createMailAndChangePw(String email) {
         try {
-            String str = getTempPassword();
-            MailDTO dto = new MailDTO(email,
+            String tempPassword = generateRandomCode(); // 임시 비밀번호 생성
+            MailDTO mailDTO = new MailDTO(email,
                     "Woosan 임시비밀번호 안내 이메일입니다.",
-                    "안녕하세요. Woosan 임시비밀번호 안내 관련 이메일 입니다." + " 회원님의 임시 비밀번호는 "
-                            + str + " 입니다." + "로그인 후에 비밀번호를 변경을 해주세요.");
-            updateTempPw(str,email);
-            return dto;
+                    "안녕하세요. Woosan 임시비밀번호 안내 관련 이메일입니다. 회원님의 임시 비밀번호는 "
+                            + tempPassword + " 입니다. 로그인 후 비밀번호를 변경해 주세요.");
+            updateTempPassword(tempPassword, email); // 임시 비밀번호로 업데이트
+            return mailDTO;
         } catch (Exception e) {
             throw new MemberException(ErrorCode.SERVER_ERROR);
         }
     }
 
     // 임시 비밀번호로 업데이트
-    public void updateTempPw(String str, String email) throws Exception {
+    private void updateTempPassword(String tempPassword, String email) {
         Member member = memberRepository.findByEmail(email);
-        if(member != null) {
-            member.changePassword(bCryptPasswordEncoder.encode(str));
-            memberRepository.save(member);
-        } else {
+        if (member == null) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
         }
+        member.changePassword(bCryptPasswordEncoder.encode(tempPassword));
+        memberRepository.save(member);
     }
 
     // 랜덤함수로 임시 비밀번호 구문 만들기
-    public String getTempPassword() throws Exception {
-        char[] charSet = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
-                'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
-
-        String str = "";
-
-        // 문자 배열 길이의 값을 랜덤으로 10개를 뽑아 구문을 작성함
-        int idx = 0;
+    private String generateRandomCode() {
+        Random random = new Random();
+        StringBuilder code = new StringBuilder();
         for (int i = 0; i < 10; i++) {
-            idx = (int) (charSet.length * Math.random());
-            str += charSet[idx];
+            int index = random.nextInt(36); // [0, 36) 범위의 랜덤 값
+            code.append(index < 10 ? (char) ('0' + index) : (char) ('A' + index - 10));
         }
-        return str;
+        return code.toString();
     }
 
      // 메일 전송
     @Override
     public void mailSend(MailDTO mailDTO) {
         try {
-            System.out.println("메일 전송 완료");
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(mailDTO.getEmail());
             message.setSubject(mailDTO.getTitle());
             message.setText(mailDTO.getMessage());
             message.setFrom(fromEmail);
             message.setReplyTo(fromEmail);
-            System.out.println("message" + message);
             mailSender.send(message);
         } catch (Exception e) {
             throw new MemberException(ErrorCode.SERVER_ERROR);
@@ -197,40 +184,30 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 비밀번호 변경
-    @Override
-    public void updatePassword(String email, String password, String newPassword){
+    public void updatePassword(String email, String currentPassword, String newPassword) {
         Member member = memberRepository.findByEmail(email);
-
-        if(member == null) {
+        if (member == null) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
-        } else if(!bCryptPasswordEncoder.matches(password, member.getPassword())) {
+        }
+        if (!bCryptPasswordEncoder.matches(currentPassword, member.getPassword())) {
             throw new MemberException(ErrorCode.PW_NOT_FOUND);
         }
-
-        try {
-            member.changePassword(bCryptPasswordEncoder.encode(newPassword));
-            memberRepository.save(member);
-        } catch (Exception e) {
-            throw new MemberException(ErrorCode.SERVER_ERROR);
-        }
+        member.changePassword(bCryptPasswordEncoder.encode(newPassword));
+        memberRepository.save(member);
     }
 
     // 로그인 한 멤버 정보
     @Override
     public MemberInfoDTO getMemberInfo(String email) {
         Member member = memberRepository.findByEmail(email);
-
         if(member == null) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND);
         }
         MemberInfoDTO dto = mapper.memberToMemberInfoDTO(member);
-
         List<String> profile = fileImgService.findFiles("member", member.getId());
-
         if(profile != null){
             dto.setProfile(profile);
         }
-
         return dto;
     }
 }
