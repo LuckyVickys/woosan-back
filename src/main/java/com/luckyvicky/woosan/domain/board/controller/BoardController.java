@@ -1,9 +1,6 @@
 package com.luckyvicky.woosan.domain.board.controller;
 
-import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
-import com.luckyvicky.woosan.domain.board.dto.BoardListDTO;
-import com.luckyvicky.woosan.domain.board.dto.BoardPageResponseDTO;
-import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
+import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.service.AIService;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
@@ -91,9 +88,9 @@ public class BoardController {
      * 게시물 수정 페이지 조회
      */
     @GetMapping("/{id}/modify")
-    public ResponseEntity<BoardDTO> getBoardForUpdate(@PathVariable Long id) {
-        BoardDTO boardDTO = boardService.getBoardForUpdate(id);
-        return new ResponseEntity<>(boardDTO, HttpStatus.OK);
+    public ResponseEntity<UpdateBoardDTO> getBoardForUpdate(@PathVariable("id") Long id) {
+        UpdateBoardDTO updateBoardDTO = boardService.getBoardForUpdate(id);
+        return new ResponseEntity<>(updateBoardDTO, HttpStatus.OK);
     }
 
 
@@ -122,10 +119,10 @@ public class BoardController {
      * 게시물 번역
      */
     @PostMapping("/{id}/translate")
-    public ResponseEntity<BoardDTO> boardDetailTranslate(@PathVariable("id") Long id, @RequestBody BoardDTO boardDTO) {
+    public ResponseEntity<BoardApiDTO> boardDetailTranslate(@PathVariable("id") Long id, @RequestBody BoardApiDTO boardApiDTO) {
         try {
-            boardDTO = aiService.translateBoardDetailPage(boardDTO);
-            return ResponseEntity.ok(boardDTO);
+            boardApiDTO = aiService.translateBoardDetailPage(boardApiDTO);
+            return ResponseEntity.ok(boardApiDTO);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -136,10 +133,10 @@ public class BoardController {
      * 게시물 요약
      */
     @PostMapping("/{id}/summary")
-    public ResponseEntity<String> boardDetailSummary(@PathVariable("id") Long id, @RequestBody BoardDTO boardDTO) {
+    public ResponseEntity<String> boardDetailSummary(@PathVariable("id") Long id, @RequestBody BoardApiDTO boardApiDTO) {
         String summary = "";
         try {
-            summary = aiService.summaryBoardDetailPage(boardDTO);
+            summary = aiService.summaryBoardDetailPage(boardApiDTO);
             System.out.println(summary);
             return ResponseEntity.ok(summary);
         } catch (Exception e) {
