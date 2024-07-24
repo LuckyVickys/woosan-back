@@ -57,11 +57,11 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
 
         Pageable pageable = commonUtils.createPageable(pageRequestDTO);
 
-        Page<Board> results = getSearchResults(categoryName, filterType, keyword, pageable); // 검색 결과 가져오기
+        Page<Board> results = getSearchResults(categoryName, filterType, keyword, pageable);
 
-        List<SearchDTO> dtoList = commonUtils.mapToDTOList(results.getContent(), SearchDTO.class); // DTO 매핑
+        List<SearchDTO> dtoList = commonUtils.mapToDTOList(results.getContent(), SearchDTO.class);
 
-        return commonUtils.createPageResponseDTO(pageRequestDTO, dtoList, results.getTotalElements()); // PageResponseDTO 생성
+        return commonUtils.createPageResponseDTO(pageRequestDTO, dtoList, results.getTotalElements());
     }
 
     private Page<Board> getSearchResults(String categoryName, String filterType, String keyword, Pageable pageable) {

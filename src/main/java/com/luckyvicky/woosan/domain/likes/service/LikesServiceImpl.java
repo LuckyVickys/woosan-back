@@ -18,8 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.luckyvicky.woosan.global.util.Constants.TYPE_BOARD;
-import static com.luckyvicky.woosan.global.util.Constants.TYPE_REPLY;
+import static com.luckyvicky.woosan.global.util.Constants.*;
 
 @Service
 @Log4j2
@@ -42,37 +41,40 @@ public class LikesServiceImpl implements LikesService {
     @Transactional
     public void toggleLike(Long memberId, String type, Long targetId) {
         validationHelper.validateLikeInput(memberId, type, targetId);
-
         Optional<Likes> existingLike = likesRepository.findByMemberIdAndTypeAndTargetId(memberId, type, targetId);
 
         if (existingLike.isPresent()) {
-            // 이미 추천이 되어 있는 경우, 추천 취소
-            likesRepository.delete(existingLike.get());
-            updateLikeCount(type, targetId, -1); // 추천수 감소
-            Member member = validationHelper.findWriterAndAddPoints(memberId, -5);
-            memberRepository.save(member);
+            handleLikeRemoval(existingLike.get(), type, targetId, memberId);
         } else {
-
-            Member member = validationHelper.findWriterAndAddPoints(memberId, 5);
-
-            // 추천이 되어있지 않은 경우, 추천 추가
-            Likes newLike = Likes.builder()
-                    .member(member)
-                    .type(type)
-                    .targetId(targetId)
-                    .build();
-            likesRepository.save(newLike);
-
-            // 추천수 증가
-            updateLikeCount(type, targetId, 1);
-
-            memberRepository.save(member);
+            handleNewLike(type, targetId, memberId);
         }
     }
 
+    /**
+     * 이미 추천이 되어 있는 경우, 추천 취소
+     */
+    public void handleLikeRemoval(Likes existingLike, String type, Long targetId,  Long memberId) {
+        likesRepository.delete(existingLike);
+        updateLikeCount(type, targetId, -1);
+        updateMemberPoints(memberId, -5);
+    }
+
+    /**
+     * 추천이 되어있지 않은 경우, 추천 추가
+     */
+    private void handleNewLike(String type, Long targetId, Long memberId) {
+        Member member = validationHelper.findWriterAndAddPoints(memberId, 5);
+        Likes newLike = Likes.builder()
+                .member(member)
+                .type(type)
+                .targetId(targetId)
+                .build();
+        likesRepository.save(newLike);
+        updateLikeCount(type, targetId, 1);
+        memberRepository.save(member);
+    }
 
     private void updateLikeCount(String type, Long targetId, int likesCount) {
-
         if (TYPE_BOARD.equals(type)) {
             Board board = validationHelper.findBoard(targetId);
             board.changeLikesCount(likesCount);
@@ -86,6 +88,10 @@ public class LikesServiceImpl implements LikesService {
         }
     }
 
+    private void updateMemberPoints(Long memberId, int points) {
+        Member member = validationHelper.findWriterAndAddPoints(memberId, points);
+        memberRepository.save(member);
+    }
 
     /**
      * 추천 여부 확인
