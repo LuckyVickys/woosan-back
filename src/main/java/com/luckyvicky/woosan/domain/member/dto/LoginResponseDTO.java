@@ -17,4 +17,5 @@ public class LoginResponseDTO {
     private String level;
     private String accessToken;
     private String refreshToken;
+    private Boolean isActive;
 }

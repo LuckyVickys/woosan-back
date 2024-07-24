@@ -61,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
         return new LoginResponseDTO(member.getId(), member.getEmail(),
                 member.getNickname(), member.getPoint(), member.getNextPoint(),
                 member.getMemberType().toString(), member.getLevel().toString(),
-                accessToken, refreshToken);
+                accessToken, refreshToken, member.getIsActive());
     }
 
     // accessToken으로 member 가져오기
