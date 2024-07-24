@@ -2,8 +2,8 @@ package com.luckyvicky.woosan.domain.member.utils;
 
 import com.luckyvicky.woosan.domain.member.dto.ProfileUpdateDTO;
 import com.luckyvicky.woosan.domain.member.entity.MemberProfile;
-import com.luckyvicky.woosan.domain.member.repository.MemberProfileRepository;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberProfileRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 

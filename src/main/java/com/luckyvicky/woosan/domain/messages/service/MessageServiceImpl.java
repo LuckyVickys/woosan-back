@@ -2,7 +2,7 @@ package com.luckyvicky.woosan.domain.messages.service;
 
 import com.luckyvicky.woosan.global.exception.MemberException;
 import com.luckyvicky.woosan.domain.member.entity.Member;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.domain.messages.dto.MessageAddDTO;
 import com.luckyvicky.woosan.domain.messages.entity.Message;
 import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;

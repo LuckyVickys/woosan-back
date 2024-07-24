@@ -1,4 +1,4 @@
-package com.luckyvicky.woosan.domain.member.repository;
+package com.luckyvicky.woosan.domain.member.repository.jpa;
 
 import com.luckyvicky.woosan.domain.member.entity.MemberProfile;
 import org.springframework.data.jpa.repository.JpaRepository;

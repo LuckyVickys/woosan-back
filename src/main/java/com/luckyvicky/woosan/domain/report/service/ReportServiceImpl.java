@@ -5,7 +5,7 @@ import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.member.entity.Member;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.domain.messages.entity.Message;
 import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;
 import com.luckyvicky.woosan.domain.report.dto.ReportDTO;

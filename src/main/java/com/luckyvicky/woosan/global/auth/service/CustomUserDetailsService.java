@@ -1,7 +1,7 @@
 package com.luckyvicky.woosan.global.auth.service;
 
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.global.auth.dto.CustomUserDetails;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.global.auth.dto.CustomUserInfoDTO;

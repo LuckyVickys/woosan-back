@@ -9,8 +9,8 @@
 //import com.luckyvicky.woosan.domain.member.entity.MemberProfile;
 //import com.luckyvicky.woosan.domain.member.entity.MemberType;
 //import com.luckyvicky.woosan.domain.member.entity.SocialType;
-//import com.luckyvicky.woosan.domain.member.repository.MemberProfileRepository;
-//import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+//import com.luckyvicky.woosan.domain.member.repository.jpa.MemberProfileRepository;
+//import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;

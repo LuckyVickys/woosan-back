@@ -8,7 +8,7 @@ import com.luckyvicky.woosan.domain.matching.mapper.MemberMatchingMapper;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
 import com.luckyvicky.woosan.domain.matching.repository.MemberMatchingRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

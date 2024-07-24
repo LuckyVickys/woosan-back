@@ -1,7 +1,7 @@
 package com.luckyvicky.woosan.repository;
 
 import com.luckyvicky.woosan.domain.member.entity.Member;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.domain.messages.entity.Message;
 import com.luckyvicky.woosan.domain.messages.repository.MessageRepository;
 import lombok.extern.log4j.Log4j2;

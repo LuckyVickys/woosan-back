@@ -1,6 +1,5 @@
 package com.luckyvicky.woosan.domain.member.service;
 
-import com.cybozu.labs.langdetect.Command;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.projection.IMyBoard;
@@ -13,7 +12,7 @@ import com.luckyvicky.woosan.domain.member.dto.MyBoardDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyPageDTO;
 import com.luckyvicky.woosan.domain.member.dto.MyReplyDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.domain.messages.dto.MessageDTO;
 import com.luckyvicky.woosan.domain.messages.entity.Message;
 import com.luckyvicky.woosan.domain.messages.exception.MessageException;
