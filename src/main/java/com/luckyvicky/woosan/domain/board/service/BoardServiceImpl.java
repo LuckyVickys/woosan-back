@@ -4,7 +4,7 @@ import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.exception.BoardException;
 import com.luckyvicky.woosan.domain.board.projection.IBoardList;
-import com.luckyvicky.woosan.domain.member.repository.MemberRepository;
+import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.global.util.ValidationHelper;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
