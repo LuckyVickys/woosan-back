@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/memberprofile")
+@RequestMapping("/api/member-profile")
 @RequiredArgsConstructor
 public class MemberProfileController {
 
@@ -31,7 +31,7 @@ public class MemberProfileController {
     /**
      * 마이페이지 입력 및 수정
      * */
-    @PatchMapping
+    @PatchMapping("/modify")
     public ResponseEntity<ProfileUpdateDTO> modifyBoard(@RequestPart(value = "profileUpdateDTO", required = false) ProfileUpdateDTO profileUpdateDTO,
                                                         @RequestPart(value="images", required = false)List<MultipartFile> images) {
         memberProfileService.update(profileUpdateDTO, images);
