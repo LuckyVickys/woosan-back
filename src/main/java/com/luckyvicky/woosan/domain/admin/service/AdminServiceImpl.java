@@ -56,6 +56,8 @@ public class AdminServiceImpl implements AdminService {
                 .build();
         return boardRepository.save(board);
     }
+
+
     /**
      * 게시물 수정
      */
@@ -100,9 +102,5 @@ public class AdminServiceImpl implements AdminService {
 
         board.changeIsDeleted(true);
         boardRepository.save(board);
-
     }
-
-
-
 }

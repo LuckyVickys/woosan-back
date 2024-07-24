@@ -1,8 +1,6 @@
 package com.luckyvicky.woosan.domain.board.entity;
 
-import jakarta.persistence.Column;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;

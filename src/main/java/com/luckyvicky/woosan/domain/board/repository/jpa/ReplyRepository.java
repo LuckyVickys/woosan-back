@@ -27,13 +27,4 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @EntityGraph(attributePaths = {"board", "board.title", "board.categoryName"})
     Page<IMyReply> findByWriterId(Long writerId, Pageable pageable);
 
-
-
-
-
-
-    // <---------------repository Test----------------->
-    Page<Reply> findByParentIdIsNull(Pageable pageable);
-    Page<Reply> findByParentId(Long parentId, Pageable pageable);
-    // <---------------repository Test----------------->
 }

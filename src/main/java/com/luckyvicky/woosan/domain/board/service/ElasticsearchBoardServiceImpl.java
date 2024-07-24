@@ -17,7 +17,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -73,6 +72,9 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         }
     }
 
+    /**
+     * 전체 카테고리 검색
+     */
     private Page<Board> searchAllCategories(String filterType, String keyword, Pageable pageable) {
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -131,6 +133,9 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         return new PageImpl<>(boardList, pageable, searchHits.getTotalHits());
     }
 
+    /**
+     * 특정 카테고리 조회
+     */
     private Page<Board> searchSpecificCategory(String categoryName, String filterType, String keyword, Pageable pageable) {
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -191,7 +196,6 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     }
 
 
-
     /**
      * 동의/유의어 검색
      */
@@ -205,6 +209,9 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         return commonUtils.createPageResponseDTO(pageRequestDTO, synonymDtoList, searchHits.getTotalHits());
     }
 
+    /**
+     *  유의어 검색 쿼리
+     */
     private Query buildSynonymSearchQuery(String keyword, Pageable pageable) {
         return new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.multiMatchQuery(keyword, "synonym_title", "synonym_content")
@@ -214,16 +221,20 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
                 .build();
     }
 
-
+    /**
+     * 쿼리 실행
+     */
     private SearchHits<Board> executeSynonymSearch(Query searchQuery) {
         return elasticsearchRestTemplate.search(searchQuery, Board.class);
     }
+
 
     private List<SearchDTO> mapSearchHitsToDTO(SearchHits<Board> searchHits) {
         return commonUtils.mapToDTOList(searchHits.getSearchHits().stream()
                 .map(SearchHit::getContent)
                 .collect(Collectors.toList()), SearchDTO.class);
     }
+
 
     /**
      * 기본 검색 + 유의어 검색
@@ -262,6 +273,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         }
         return shouldQuery.substring(0, shouldQuery.length() - 1); // 마지막 쉼표 제거
     }
+
 
     @Override
     public List<String> autocomplete(String categoryName, String filterType, String keyword) {
