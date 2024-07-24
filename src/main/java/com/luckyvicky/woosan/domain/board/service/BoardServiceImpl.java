@@ -4,6 +4,7 @@ import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.exception.BoardException;
 import com.luckyvicky.woosan.domain.board.projection.IBoardList;
+import com.luckyvicky.woosan.domain.board.projection.IUpdateBoard;
 import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.global.util.ValidationHelper;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
@@ -121,13 +122,13 @@ public class BoardServiceImpl implements BoardService {
      * 게시물 단건 조회 (PATCH)
      */
     @Override
-    public BoardDTO getBoardForUpdate(Long id) {
+    public UpdateBoardDTO getBoardForUpdate(Long id) {
         validationHelper.boardExist(id); // 게시물 존재 여부 검증
-        IBoardMember boardMember = boardRepository.findById(id, IBoardMember.class)
+        IUpdateBoard updateBoard = boardRepository.findById(id, IUpdateBoard.class)
                 .orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
-        BoardDTO boardDTO = commonUtils.mapObject(boardMember, BoardDTO.class);
-        boardDTO.setFilePathUrl(fileImgService.findFiles("board", id));
-        return boardDTO;
+        UpdateBoardDTO updateBoardDTO = commonUtils.mapObject(updateBoard, UpdateBoardDTO.class);
+        updateBoardDTO.setFilePathUrl(fileImgService.findFiles("board", id));
+        return updateBoardDTO;
     }
 
 

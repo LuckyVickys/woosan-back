@@ -2,7 +2,7 @@ package com.luckyvicky.woosan.domain.board.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
+import com.luckyvicky.woosan.domain.board.dto.BoardApiDTO;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,22 +40,22 @@ public class AIServiceImpl implements  AIService{
 
     /**
      * 본문 한영 번역
-     * @param boardDTO
-     * @return boardDTO(번역된 게시글)
+     *
+     * @param boardApiDTO
+     * @return boardApiDTO(번역된 게시글)
      * @throws IOException
      */
-    @Override
-    public BoardDTO translateBoardDetailPage(BoardDTO boardDTO) throws IOException {
-        String detectedLanguage = LanguageDiscrimination(boardDTO.getContent());
+    public BoardApiDTO translateBoardDetailPage(BoardApiDTO boardApiDTO) throws IOException {
+        String detectedLanguage = LanguageDiscrimination(boardApiDTO.getContent());
 
         if(detectedLanguage.equals("ko")) {
-            boardDTO.setTitle(translate(boardDTO.getTitle(), detectedLanguage, "en"));
-            boardDTO.setContent(translate(boardDTO.getContent(), detectedLanguage, "en"));
+            boardApiDTO.setTitle(translate(boardApiDTO.getTitle(), detectedLanguage, "en"));
+            boardApiDTO.setContent(translate(boardApiDTO.getContent(), detectedLanguage, "en"));
         }else{
-            boardDTO.setTitle(translate(boardDTO.getTitle(), detectedLanguage, "ko"));
-            boardDTO.setContent(translate(boardDTO.getContent(), detectedLanguage, "ko"));
+            boardApiDTO.setTitle(translate(boardApiDTO.getTitle(), detectedLanguage, "ko"));
+            boardApiDTO.setContent(translate(boardApiDTO.getContent(), detectedLanguage, "ko"));
         }
-        return boardDTO;
+        return boardApiDTO;
     }
 
     private String translate(String textToTranslate, String sourceLang, String targetLang) throws IOException {
@@ -100,15 +100,15 @@ public class AIServiceImpl implements  AIService{
 
     /**
      * 본문 요약
-     * @param boardDTO
+     * @param boardApiDTO
      * @return summary(요약된 글)
      * @throws IOException
      */
     @Override
-    public String summaryBoardDetailPage(BoardDTO boardDTO) throws IOException {
+    public String summaryBoardDetailPage(BoardApiDTO boardApiDTO) throws IOException {
         HttpURLConnection con = createConnection(CLOVA_API_URL, clovaClientId, clovaClientSecret);
         con.setRequestProperty("Content-Type", "application/json");
-        JSONObject requestBody = createRequestBody(boardDTO);
+        JSONObject requestBody = createRequestBody(boardApiDTO);
         sendRequest(con, requestBody);
         return getResponse(con);
     }
@@ -126,10 +126,10 @@ public class AIServiceImpl implements  AIService{
     }
 
     // 요약 JSON 요청 본문 생성
-    private JSONObject createRequestBody(BoardDTO boardDTO) {
+    private JSONObject createRequestBody(BoardApiDTO boardApiDTO) {
         JSONObject document = new JSONObject();
-        document.put("title", boardDTO.getTitle());
-        document.put("content", boardDTO.getContent());
+        document.put("title", boardApiDTO.getTitle());
+        document.put("content", boardApiDTO.getContent());
 
         JSONObject option = new JSONObject();
         option.put("language", "ko");
