@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 
 
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -424,9 +425,11 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
      */
     @Override
     public List<DailyBestBoardDTO> getTop5BoardsByViews() {
-        LocalDateTime startOfDay = LocalDateTime.now(ZoneId.of("UTC")).toLocalDate().atStartOfDay();
-        LocalDateTime endOfDay = LocalDateTime.now(ZoneId.of("UTC")).plusDays(1).toLocalDate().atStartOfDay();
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+        ZonedDateTime startOfDay = now.toLocalDate().atStartOfDay(ZoneId.of("UTC"));
+        ZonedDateTime endOfDay = startOfDay.plusDays(1);
 
+        
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.boolQuery()
                         .must(QueryBuilders.rangeQuery("reg_date")
@@ -439,12 +442,16 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
 
         SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
 
-        return searchHits.getSearchHits().stream()
+        List<DailyBestBoardDTO> result = searchHits.getSearchHits().stream()
                 .map(hit -> {
                     Board board = hit.getContent();
                     return new DailyBestBoardDTO(board.getId(), board.getTitle(), board.getReplyCount(), board.getViews(), board.getLikesCount());
                 })
                 .collect(Collectors.toList());
+
+        log.info("Search Results: " + result);
+
+        return result;
     }
 
 

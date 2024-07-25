@@ -174,12 +174,12 @@ public class BoardServiceImpl implements BoardService {
     }
 
     /**
-     * 인기글 게시물 10개 조회
+     * 인기글 게시물 10개 조회 (추천순)
      */
     @Override
     @Transactional
     public List<BoardListDTO> getBestBoard() {
-        List<IBoardList> result = boardRepository.findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
+        List<IBoardList> result = boardRepository.findTop10ProjectedByIsDeletedFalseOrderByLikesCountDesc();
         return commonUtils.mapToDTOList(result, BoardListDTO.class);
     }
 
