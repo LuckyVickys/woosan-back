@@ -23,36 +23,43 @@ public class MessageServiceImpl implements MessageService {
     // 쪽지 전송
     @Override
     public Long add(MessageAddDTO messageAddDTO) {
+        Member sender = findMemberById(messageAddDTO.getSenderId());
+        Member receiver = findMemberByNickname(messageAddDTO.getReceiver());
+        validateMessageContent(messageAddDTO.getContent());
 
-        try {
-            Member sender = memberRepository.findById(messageAddDTO.getSenderId())
-                    .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        Message message = createMessage(sender, receiver, messageAddDTO.getContent());
+        Message savedMessage = messageRepository.save(message);
 
-            Member receiver = memberRepository.findByNickname(messageAddDTO.getReceiver())
-                    .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+        return savedMessage.getId();
+    }
 
-            if(messageAddDTO.getContent().trim().isEmpty()) {
-                throw new GlobalException(ErrorCode.NULL_OR_BLANK);
-            }
+    // id로 멤버를 찾기
+    private Member findMemberById(Long id) {
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+    }
 
-            Message message = Message.builder()
-                    .sender(sender)
-                    .receiver(receiver)
-                    .content(messageAddDTO.getContent())
-                    .delBySender(false)
-                    .delByReceiver(false)
-                    .build();
+    // 닉네임으로 멤버를 찾기
+    private Member findMemberByNickname(String nickname) {
+        return memberRepository.findByNickname(nickname)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND));
+    }
 
-            Message msg = messageRepository.save(message);
-
-            return msg.getId();
-
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    // 메시지 내용 검증
+    private void validateMessageContent(String content) {
+        if (content.trim().isEmpty()) {
+            throw new GlobalException(ErrorCode.NULL_OR_BLANK);
         }
+    }
 
-        return null;
+    // 메시지 객체 생성
+    private Message createMessage(Member sender, Member receiver, String content) {
+        return Message.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .content(content)
+                .delBySender(false)
+                .delByReceiver(false)
+                .build();
     }
 }
