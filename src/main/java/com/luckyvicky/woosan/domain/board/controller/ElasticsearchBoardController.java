@@ -1,5 +1,6 @@
 package com.luckyvicky.woosan.domain.board.controller;
 
+import com.luckyvicky.woosan.domain.board.dto.DailyBestBoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.RankingDTO;
 import com.luckyvicky.woosan.domain.board.dto.SearchPageResponseDTO;
 import com.luckyvicky.woosan.domain.board.service.ElasticsearchBoardService;
@@ -65,6 +66,15 @@ public class ElasticsearchBoardController {
     public ResponseEntity<List<RankingDTO>> getRanking() {
         List<RankingDTO> result = elasticsearchBoardService.getRankingChanges();
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+
+    /**
+     * 일별 조회수 기준 상위 5개 인기글
+     */
+    @GetMapping("/daily/best")
+    public List<DailyBestBoardDTO> getTop5BoardsByViews() {
+        return elasticsearchBoardService.getTop5BoardsByViews();
     }
 }
 

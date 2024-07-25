@@ -1,8 +1,6 @@
 package com.luckyvicky.woosan.domain.board.service;
 
-import com.luckyvicky.woosan.domain.board.dto.RankingDTO;
-import com.luckyvicky.woosan.domain.board.dto.SearchDTO;
-import com.luckyvicky.woosan.domain.board.dto.SearchPageResponseDTO;
+import com.luckyvicky.woosan.domain.board.dto.*;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
 
@@ -21,4 +19,8 @@ public interface ElasticsearchBoardService {
     List<RankingDTO> getRankingChanges();
 
     SearchPageResponseDTO searchWithStandardAndSynonyms(PageRequestDTO standardPageRequest, PageRequestDTO synonymPageRequest, String categoryName, String filterType, String keyword);
+
+    List<DailyBestBoardDTO> getTop5BoardsByViews();
+
+    List<SuggestedBoardDTO> getSuggestedBoards(String title, String content);
 }
