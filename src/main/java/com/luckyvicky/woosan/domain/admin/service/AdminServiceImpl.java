@@ -6,6 +6,8 @@ import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.member.entity.Member;
+import com.luckyvicky.woosan.global.annotation.SlaveDBRequest;
+import com.luckyvicky.woosan.global.util.TargetType;
 import com.luckyvicky.woosan.global.util.ValidationHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -37,7 +39,7 @@ public class AdminServiceImpl implements AdminService {
 
         //파일이 있으면 파일 정보를 버킷 및 db에 저장합니다.
         if (images != null) {
-            fileImgService.fileUploadMultiple("board", board.getId(), images);
+            fileImgService.fileUploadMultiple(TargetType.BOARD, board.getId(), images);
         }
 
         return board.getId();
@@ -71,20 +73,20 @@ public class AdminServiceImpl implements AdminService {
         board.changeContent(boardDTO.getContent());
 
         if (boardDTO.getFilePathUrl() == null) {
-            fileImgService.targetFilesDelete("board", board.getId());
+            fileImgService.targetFilesDelete(TargetType.BOARD, board.getId());
         } else {
-            List<String> beforeFiles = fileImgService.findFiles("board", board.getId());
+            List<String> beforeFiles = fileImgService.findFiles(TargetType.BOARD, board.getId());
             List<String> afterFiles = boardDTO.getFilePathUrl();
 
             for (String beforeFile : beforeFiles) {
                 if (!afterFiles.contains(beforeFile)) {
-                    fileImgService.deleteS3FileByUrl(board.getId(), "board", beforeFile);
+                    fileImgService.deleteS3FileByUrl(board.getId(), TargetType.BOARD, beforeFile);
                 }
             }
         }
 
         if (images != null) {
-            fileImgService.fileUploadMultiple("board", board.getId(), images);
+            fileImgService.fileUploadMultiple(TargetType.BOARD, board.getId(), images);
         }
         boardRepository.save(board);
     }

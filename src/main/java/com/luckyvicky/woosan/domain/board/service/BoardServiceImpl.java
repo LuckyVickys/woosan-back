@@ -6,6 +6,7 @@ import com.luckyvicky.woosan.domain.board.exception.BoardException;
 import com.luckyvicky.woosan.domain.board.projection.IBoardList;
 import com.luckyvicky.woosan.domain.board.projection.IUpdateBoard;
 import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
+import com.luckyvicky.woosan.global.annotation.SlaveDBRequest;
 import com.luckyvicky.woosan.global.util.ValidationHelper;
 import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
@@ -61,6 +62,7 @@ public class BoardServiceImpl implements BoardService {
     /**
      * 게시물 다건 조회(공지사항1 + 인기글3 + 전체 조회)
      */
+    @SlaveDBRequest
     @Override
     @Transactional(readOnly = true)
     public BoardPageResponseDTO getBoardList(PageRequestDTO pageRequestDTO, String categoryName) {
@@ -88,6 +90,7 @@ public class BoardServiceImpl implements BoardService {
     /**
      * 공지사항 다건 조회 (cs page)
      */
+    @SlaveDBRequest
     @Override
     @Transactional(readOnly = true)
     public PageResponseDTO<BoardListDTO> getNoticePage(PageRequestDTO pageRequestDTO) {
@@ -148,6 +151,7 @@ public class BoardServiceImpl implements BoardService {
     /**
      * 게시물 단건 조회 (PATCH)
      */
+    @SlaveDBRequest
     @Override
     public UpdateBoardDTO getBoardForUpdate(Long id) {
         validationHelper.boardExist(id); // 게시물 존재 여부 검증
@@ -184,6 +188,7 @@ public class BoardServiceImpl implements BoardService {
     /**
      * 공지사항 게시물 10개 조회
      */
+    @SlaveDBRequest
     @Override
     @Transactional
     public List<BoardListDTO> getNotices() {
@@ -194,6 +199,7 @@ public class BoardServiceImpl implements BoardService {
     /**
      * 인기글 게시물 10개 조회 (추천순)
      */
+    @SlaveDBRequest
     @Override
     @Transactional
     public List<BoardListDTO> getBestBoard() {

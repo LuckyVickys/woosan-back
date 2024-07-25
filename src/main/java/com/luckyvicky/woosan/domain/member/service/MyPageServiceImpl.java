@@ -6,6 +6,7 @@ import com.luckyvicky.woosan.domain.board.projection.IMyBoard;
 import com.luckyvicky.woosan.domain.board.projection.IMyReply;
 import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
+import com.luckyvicky.woosan.global.annotation.SlaveDBRequest;
 import com.luckyvicky.woosan.global.util.CommonUtils;
 import com.luckyvicky.woosan.global.util.ValidationHelper;
 import com.luckyvicky.woosan.domain.member.dto.MyBoardDTO;
@@ -50,6 +51,7 @@ public class MyPageServiceImpl implements MyPageService {
     private final ValidationHelper validationHelper;
     private final CommonUtils commonUtils;
 
+    @SlaveDBRequest
     @Override
     @Transactional
     public PageResponseDTO<MyBoardDTO> getMyBoard(MyPageDTO myPageDTO) {
@@ -64,6 +66,7 @@ public class MyPageServiceImpl implements MyPageService {
         return commonUtils.createPageResponseDTO(pageRequestDTO, myBoardDTOs, myBoards.getTotalElements());
     }
 
+    @SlaveDBRequest
     @Override
     @Transactional(readOnly = true)
     public PageResponseDTO<MyReplyDTO> getMyReply(MyPageDTO myPageDTO) {
@@ -78,6 +81,7 @@ public class MyPageServiceImpl implements MyPageService {
         return commonUtils.createPageResponseDTO(pageRequestDTO, myReplyDTOs, myReplies.getTotalElements());
     }
 
+    @SlaveDBRequest
     @Override
     public PageResponseDTO<BoardDTO> myLikeBoardList(MyPageDTO myPageDTO) {
         Long memberId = getMemberId(myPageDTO);
@@ -93,6 +97,7 @@ public class MyPageServiceImpl implements MyPageService {
         return createPageResponseDTO(dtoList, pageRequestDTO, result.getTotalElements());
     }
 
+    @SlaveDBRequest
     @Override
     public PageResponseDTO<MessageDTO> mySendMessages(MyPageDTO myPageDTO) {
         Long memberId = getMemberId(myPageDTO);
@@ -111,6 +116,7 @@ public class MyPageServiceImpl implements MyPageService {
         return createPageResponseDTO(dtoList, pageRequestDTO, result.getTotalElements());
     }
 
+    @SlaveDBRequest
     @Override
     public PageResponseDTO<MessageDTO> myReceiveMessages(MyPageDTO myPageDTO) {
         Long memberId = getMemberId(myPageDTO);
@@ -159,6 +165,7 @@ public class MyPageServiceImpl implements MyPageService {
         return "받은 메시지 삭제 완료";
     }
 
+    @SlaveDBRequest
     @Override
     public MessageDTO getMyMessage(Long id) {
         Message message = messageRepository.findById(id)

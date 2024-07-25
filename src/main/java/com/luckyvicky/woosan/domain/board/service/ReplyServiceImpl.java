@@ -1,6 +1,7 @@
 package com.luckyvicky.woosan.domain.board.service;
 
 import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
+import com.luckyvicky.woosan.global.annotation.SlaveDBRequest;
 import com.luckyvicky.woosan.global.util.ValidationHelper;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.global.util.CommonUtils;
@@ -63,6 +64,7 @@ public class ReplyServiceImpl implements ReplyService {
     /**
      * 댓글 조회
      */
+    @SlaveDBRequest
     @Override
     @Transactional(readOnly = true)
     public PageResponseDTO<ReplyDTO> getReplies(Long boardId, PageRequestDTO pageRequestDTO) {

@@ -5,6 +5,7 @@ import com.luckyvicky.woosan.domain.fileImg.dto.FileUpdateDTO;
 import com.luckyvicky.woosan.domain.fileImg.entity.FileImg;
 import com.luckyvicky.woosan.domain.fileImg.repository.FileImgRepository;
 import com.luckyvicky.woosan.domain.fileImg.utils.FileImgUtils;
+import com.luckyvicky.woosan.global.annotation.SlaveDBRequest;
 import com.luckyvicky.woosan.global.util.TargetType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class FileImgServiceImpl implements FileImgService {
         FileImgUtils.saveFiles(s3, fileImgRepository, bucketName, type, targetId, files);
     }
 
+    @SlaveDBRequest
     @Override
     public List<String> findFiles(String type, Long targetId) {
         return fileImgRepository.findByTypeAndTargetIdOrderByOrdAsc(type, targetId).stream()
