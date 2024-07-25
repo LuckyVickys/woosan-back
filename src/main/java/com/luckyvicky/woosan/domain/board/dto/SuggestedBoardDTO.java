@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -14,7 +16,7 @@ public class SuggestedBoardDTO {
     private Long id;
     private String categoryName;
     private String title;
-    private String content;
+    private LocalDateTime regDate;
     private int replyCount;
     private int likesCount;
 }
