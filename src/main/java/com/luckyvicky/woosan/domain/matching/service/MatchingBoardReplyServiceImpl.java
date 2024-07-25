@@ -29,28 +29,27 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
     private final FileImgService fileImgService;
     private final MatchingBoardReplyMapper matchingBoardReplyMapper;
 
-    // 댓글 작성
     @Override
     public MatchingBoardReplyResponseDTO saveReply(MatchingBoardReplyRequestDTO requestDTO) {
         Member writer = memberRepository.findById(requestDTO.getWriterId())
                 .orElseThrow(() -> new IllegalArgumentException("작성자 ID가 잘못되었습니다."));
-        MatchingBoardReply reply = matchingBoardReplyMapper.toEntity(requestDTO);
-        reply = reply.toBuilder()
+
+        MatchingBoardReply.MatchingBoardReplyBuilder replyBuilder = matchingBoardReplyMapper.toEntity(requestDTO).toBuilder()
                 .writer(writer)
                 .matchingBoard(matchingBoardRepository.findById(requestDTO.getMatchingId())
-                        .orElseThrow(() -> new IllegalArgumentException("매칭 보드 ID가 잘못되었습니다.")))
-                .build();
+                        .orElseThrow(() -> new IllegalArgumentException("매칭 보드 ID가 잘못되었습니다.")));
 
         if (requestDTO.getParentId() != null) {
             validationParentId(requestDTO.getParentId());
-            reply = reply.toBuilder().parentId(requestDTO.getParentId()).build();
+            MatchingBoardReply parent = matchingBoardReplyRepository.findById(requestDTO.getParentId())
+                    .orElseThrow(() -> new IllegalArgumentException("부모 댓글 ID가 잘못되었습니다."));
+            replyBuilder.parent(parent);
         }
 
-        MatchingBoardReply savedReply = matchingBoardReplyRepository.save(reply);
+        MatchingBoardReply savedReply = matchingBoardReplyRepository.save(replyBuilder.build());
         return mapToResponseDTO(savedReply);
     }
 
-    // 특정 매칭 보드의 모든 댓글과 답글을 페이지네이션으로 가져옵니다.
     @Override
     @Transactional(readOnly = true)
     public Page<MatchingBoardReplyResponseDTO> getAllRepliesByMatchingBoardId(Long matchingId, Pageable pageable) {
@@ -65,7 +64,6 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
                 });
     }
 
-    // 댓글 삭제
     @Override
     public void deleteReply(Long id, Long memberId) {
         MatchingBoardReply reply = matchingBoardReplyRepository.findById(id)
@@ -76,7 +74,6 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
         matchingBoardReplyRepository.delete(reply);
     }
 
-    // 특정 부모 댓글의 모든 자식 댓글을 가져옵니다.
     private List<MatchingBoardReplyResponseDTO> getRepliesByParentId(Long parentId) {
         return matchingBoardReplyRepository.findByParentId(parentId)
                 .stream()
@@ -88,15 +85,14 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
                 .collect(Collectors.toList());
     }
 
-    // 부모 댓글 ID 유효성 검사
     private void validationParentId(Long parentId) {
         if (!matchingBoardReplyRepository.existsById(parentId)) {
             throw new IllegalArgumentException("부모 댓글 ID가 잘못되었습니다.");
         }
     }
 
-    // MatchingBoardReply 엔티티를 MatchingBoardReplyResponseDTO로 변환하는 메서드
-    private MatchingBoardReplyResponseDTO mapToResponseDTO(MatchingBoardReply reply) {
+    @Transactional(readOnly = true)
+    public MatchingBoardReplyResponseDTO mapToResponseDTO(MatchingBoardReply reply) {
         Member member = memberRepository.findById(reply.getWriter().getId())
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
         List<String> profileImageUrls = fileImgService.findFiles("member", member.getId());
@@ -106,7 +102,7 @@ public class MatchingBoardReplyServiceImpl implements MatchingBoardReplyService 
                 .content(reply.getContent())
                 .writerId(reply.getWriter().getId())
                 .regDate(reply.getRegDate())
-                .parentId(reply.getParentId())
+                .parentId(reply.getParent() != null ? reply.getParent().getId() : null)
                 .matchingId(reply.getMatchingBoard().getId())
                 .nickname(member.getNickname())
                 .profileImageUrl(profileImageUrls.isEmpty() ? null : profileImageUrls.get(0))

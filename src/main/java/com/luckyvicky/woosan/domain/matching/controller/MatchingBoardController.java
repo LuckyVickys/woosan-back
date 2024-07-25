@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -126,9 +127,11 @@ public class MatchingBoardController {
 
     // 매칭 보드 수정
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateMatchingBoard(@PathVariable Long id, @ModelAttribute MatchingBoardRequestDTO requestDTO) {
+    public ResponseEntity<?> updateMatchingBoard(@PathVariable Long id,
+                                                 @ModelAttribute MatchingBoardRequestDTO requestDTO,
+                                                 @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         try {
-            MatchingBoardResponseDTO responseDTO = matchingBoardService.updateMatchingBoard(id, requestDTO);
+            MatchingBoardResponseDTO responseDTO = matchingBoardService.updateMatchingBoard(id, requestDTO, images);
             System.out.println("매칭 보드 수정 성공: " + responseDTO);
             return new ResponseEntity<>("매칭 보드가 성공적으로 수정되었습니다.", HttpStatus.OK);
         } catch (Exception e) {

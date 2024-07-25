@@ -8,6 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,9 +23,9 @@ public class MatchingBoard {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) //Member와의 관계 설정
+    @ManyToOne(fetch = FetchType.LAZY) // Member와의 관계 설정
     @JoinColumn(name = "member_id", nullable = false)
-    private Member  member;
+    private Member member;
 
     @Column(name = "matching_type", nullable = false)
     private int matchingType; // 1: 정기 모임, 2: 번개, 3: 셀프 소개팅
@@ -65,13 +66,13 @@ public class MatchingBoard {
     @Column(name = "head_count", nullable = false)
     private int headCount;
 
-    //셀프 소개팅 작성 시 MemberProfile 데이터를 기반으로 필드를 채움
+    // 셀프 소개팅 작성 시 MemberProfile 데이터를 기반으로 필드를 채움
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = true)
     private MemberProfile profile;
 
-    //모임장인지 확인하는 메소드
-    public boolean isManager(Long memberId){
+    // 모임장인지 확인하는 메소드
+    public boolean isManager(Long memberId) {
         return member.getId().equals(memberId);
     }
 
@@ -82,7 +83,5 @@ public class MatchingBoard {
 
     // 매칭 보드와 댓글의 관계 설정
     @OneToMany(mappedBy = "matchingBoard", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MatchingBoardReply> replies;
-
+    private List<MatchingBoardReply> replies = new ArrayList<>();
 }
-

@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,16 +36,20 @@ public class MatchingBoardReply {
     private LocalDateTime regDate;
 
     // 부모 댓글 ID (답글의 경우)
-    @Column(name = "parent_id", nullable = true)
+    @Column(name = "parent_id", nullable = true, insertable = false, updatable = false)
     private Long parentId;
 
-    //매칭 보드와의 관계 설정
+    // 부모 댓글과의 관계 설정
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "matching_id", nullable =false)
+    @JoinColumn(name = "parent_id", nullable = true)
+    private MatchingBoardReply parent;
+
+    // 매칭 보드와의 관계 설정
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "matching_id", nullable = false)
     private MatchingBoard matchingBoard;
 
-    @OneToMany(mappedBy = "parentId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MatchingBoardReply> childReplies;
-
-
+    // 자식 댓글과의 관계 설정
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MatchingBoardReply> childReplies = new ArrayList<>();
 }

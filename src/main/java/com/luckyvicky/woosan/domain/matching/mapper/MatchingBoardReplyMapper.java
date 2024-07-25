@@ -15,6 +15,6 @@ public interface MatchingBoardReplyMapper {
     @Mapping(source = "writer.id", target = "writerId")
     MatchingBoardReplyResponseDTO toResponseDTO(MatchingBoardReply matchingBoardReply);
 
-
+    @Mapping(source = "writerId", target = "writer.id")
     MatchingBoardReply toEntity(MatchingBoardReplyRequestDTO requestDTO);
 }

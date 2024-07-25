@@ -70,4 +70,8 @@ public class MemberProfile {
     public void setIntroduce(String introduce) {
         this.introduce = introduce;
     }
+
+    // 휴대폰 번호 변경
+    public void setPhone(String phone) { this.phone = phone; }
+
 }
