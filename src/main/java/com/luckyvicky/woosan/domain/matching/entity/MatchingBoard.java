@@ -81,7 +81,4 @@ public class MatchingBoard {
         this.views += 1;
     }
 
-    // 매칭 보드와 댓글의 관계 설정
-    @OneToMany(mappedBy = "matchingBoard", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MatchingBoardReply> replies = new ArrayList<>();
 }

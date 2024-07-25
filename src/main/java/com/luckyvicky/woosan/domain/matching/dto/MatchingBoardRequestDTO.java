@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+
 
 @Data
 @Builder
@@ -42,5 +42,6 @@ public class MatchingBoardRequestDTO {
     //파일 이미지 관련 필드 추가
     private List<MultipartFile> images;
     private List<String> filePathUrl; // 기존 파일 경로 목록 추가
+
 
 }

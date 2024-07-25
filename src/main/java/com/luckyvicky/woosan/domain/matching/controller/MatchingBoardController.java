@@ -27,7 +27,6 @@ public class MatchingBoardController {
     public ResponseEntity<?> getAllMatching() {
         try {
             List<MatchingBoardResponseDTO> matchingList = matchingBoardService.getAllMatching();
-            System.out.println("모든 매칭 데이터: " + matchingList);
             return new ResponseEntity<>(matchingList, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("모든 매칭을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
@@ -39,10 +38,8 @@ public class MatchingBoardController {
     public ResponseEntity<?> createRegularly(@ModelAttribute MatchingBoardRequestDTO requestDTO) {
         try {
             MatchingBoardResponseDTO responseDTO = matchingBoardService.createMatchingBoard(requestDTO);
-            System.out.println("정기모임 생성 성공: " + responseDTO);
             return new ResponseEntity<>("정기모임이 성공적으로 생성되었습니다.", HttpStatus.CREATED);
         } catch (Exception e) {
-            System.out.println("정기모임 생성 중 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("정기모임 생성 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
@@ -52,10 +49,8 @@ public class MatchingBoardController {
     public ResponseEntity<?> createTemporary(@ModelAttribute MatchingBoardRequestDTO requestDTO) {
         try {
             MatchingBoardResponseDTO responseDTO = matchingBoardService.createMatchingBoard(requestDTO);
-            System.out.println("번개모임 생성 성공: " + responseDTO);
             return new ResponseEntity<>("번개모임이 성공적으로 생성되었습니다.", HttpStatus.CREATED);
         } catch (Exception e) {
-            System.out.println("번개모임 생성 중 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("번개모임 생성 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
@@ -65,10 +60,8 @@ public class MatchingBoardController {
     public ResponseEntity<?> createSelf(@ModelAttribute MatchingBoardRequestDTO requestDTO) {
         try {
             MatchingBoardResponseDTO responseDTO = matchingBoardService.createMatchingBoard(requestDTO);
-            System.out.println("셀프 소개팅 생성 성공: " + responseDTO);
             return new ResponseEntity<>("셀프 소개팅이 성공적으로 생성되었습니다.", HttpStatus.CREATED);
         } catch (Exception e) {
-            System.out.println("셀프 소개팅 생성 중 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("셀프 소개팅 생성 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
@@ -78,10 +71,8 @@ public class MatchingBoardController {
     public ResponseEntity<?> getRegularly() {
         try {
             List<MatchingBoardResponseDTO> regularlyList = matchingBoardService.getMatchingByType(1);
-            System.out.println("정기모임 목록: " + regularlyList);
             return new ResponseEntity<>(regularlyList, HttpStatus.OK);
         } catch (Exception e) {
-            System.out.println("정기모임 가져오기 중 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("정기모임을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
@@ -91,10 +82,8 @@ public class MatchingBoardController {
     public ResponseEntity<?> getTemporary() {
         try {
             List<MatchingBoardResponseDTO> temporaryList = matchingBoardService.getMatchingByType(2);
-            System.out.println("번개모임 목록: " + temporaryList);
             return new ResponseEntity<>(temporaryList, HttpStatus.OK);
         } catch (Exception e) {
-            System.out.println("번개모임 가져오기 중 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("번개모임을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
@@ -104,10 +93,8 @@ public class MatchingBoardController {
     public ResponseEntity<?> getSelf() {
         try {
             List<MatchingBoardResponseDTO> selfList = matchingBoardService.getMatchingByType(3);
-            System.out.println("셀프 소개팅 목록: " + selfList);
             return new ResponseEntity<>(selfList, HttpStatus.OK);
         } catch (Exception e) {
-            System.out.println("셀프 소개팅 가져오기 중 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("셀프 소개팅을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
@@ -117,10 +104,8 @@ public class MatchingBoardController {
     public ResponseEntity<?> getMatchingBoardsByMemberId(@PathVariable Long memberId) {
         try {
             List<MatchingBoardResponseDTO> matchingBoards = matchingBoardService.getMatchingBoardsByMemberId(memberId);
-            System.out.println("사용자 매칭 보드 목록: " + matchingBoards);
             return new ResponseEntity<>(matchingBoards, HttpStatus.OK);
         } catch (Exception e) {
-            System.out.println("사용자 매칭 보드 가져오기 중 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("사용자 매칭을 가져오는 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
@@ -132,10 +117,8 @@ public class MatchingBoardController {
                                                  @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         try {
             MatchingBoardResponseDTO responseDTO = matchingBoardService.updateMatchingBoard(id, requestDTO, images);
-            System.out.println("매칭 보드 수정 성공: " + responseDTO);
             return new ResponseEntity<>("매칭 보드가 성공적으로 수정되었습니다.", HttpStatus.OK);
         } catch (Exception e) {
-            System.out.println("매칭 보드 수정 중 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("매칭 보드 수정 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
@@ -145,13 +128,10 @@ public class MatchingBoardController {
     public ResponseEntity<?> deleteMatchingBoard(@PathVariable Long id, @RequestParam Long memberId) {
         try {
             matchingBoardService.deleteMatchingBoard(id, memberId);
-            System.out.println("매칭 보드 삭제 성공: id=" + id + ", memberId=" + memberId);
             return new ResponseEntity<>("매칭 보드가 성공적으로 삭제되었습니다.", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            System.out.println("매칭 보드 삭제 권한 없음: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("매칭 보드 삭제 권한이 없습니다: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("매칭 보드 삭제 중 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("매칭 보드 삭제 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
