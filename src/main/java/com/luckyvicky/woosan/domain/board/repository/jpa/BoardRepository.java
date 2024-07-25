@@ -76,7 +76,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    List<IBoardList> findTop10ProjectedByIsDeletedFalseOrderByViewsDesc();
+    List<IBoardList> findTop10ProjectedByIsDeletedFalseOrderByLikesCountDesc();
 
 
     @Transactional(readOnly = true)
