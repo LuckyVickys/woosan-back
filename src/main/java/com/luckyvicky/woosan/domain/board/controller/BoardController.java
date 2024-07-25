@@ -83,6 +83,15 @@ public class BoardController {
         return new ResponseEntity<>(boardDetailDTO, HttpStatus.OK);
     }
 
+    /**
+     * 게시물 단건 조회 - 공지사항 상세 페이지
+     */
+    @GetMapping("/notices/{id}")
+    public ResponseEntity<BoardDTO> getNotice(@PathVariable("id") Long id) {
+        BoardDTO boardDTO = boardService.getNotice(id);
+        return new ResponseEntity<>(boardDTO, HttpStatus.OK);
+    }
+
 
     /**
      * 게시물 수정 페이지 조회
