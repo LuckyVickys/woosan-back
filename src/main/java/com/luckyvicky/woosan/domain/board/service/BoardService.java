@@ -22,6 +22,9 @@ public interface BoardService {
     @Transactional
     BoardDetailDTO getBoard(Long id);
 
+    @Transactional
+    BoardDTO getNotice(Long id);
+
     UpdateBoardDTO getBoardForUpdate(Long id);
 
     void updateBoard(BoardDTO boardDTO, List<MultipartFile> images);

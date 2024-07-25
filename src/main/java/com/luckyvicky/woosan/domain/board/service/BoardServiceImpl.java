@@ -128,6 +128,24 @@ public class BoardServiceImpl implements BoardService {
 
 
     /**
+     * 공지사항 단건 조회 - 상세 페이지
+     */
+    @Override
+    @Transactional
+    public BoardDTO getNotice(Long id) {
+        increaseViewCount(id); // 조회수 증가
+        Board board = validationHelper.findBoard(id); // 게시물 조회
+        IBoardMember boardMember = boardRepository.findByIdAndCategoryName(id, NOTICE)
+                .orElseThrow(() -> new BoardException(ErrorCode.BOARD_NOT_FOUND));
+        BoardDTO boardDTO = commonUtils.mapObject(boardMember, BoardDTO.class);
+        boardDTO.setViews(board.getViews());  // 최신 조회수 DTO에 반영
+        boardDTO.setFilePathUrl(fileImgService.findFiles("board", id));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
+        boardDTO.setWriterProfile(fileImgService.findFiles("member", boardDTO.getWriterId()));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
+
+        return boardDTO;
+    }
+
+    /**
      * 게시물 단건 조회 (PATCH)
      */
     @Override

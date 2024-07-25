@@ -11,6 +11,7 @@ import com.luckyvicky.woosan.domain.board.repository.jpa.BoardRepository;
 import com.luckyvicky.woosan.domain.board.repository.jpa.ReplyRepository;
 import com.luckyvicky.woosan.domain.likes.exception.LikeException;
 import com.luckyvicky.woosan.domain.member.entity.Member;
+import com.luckyvicky.woosan.domain.member.entity.MemberType;
 import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.exception.MemberException;
@@ -82,7 +83,6 @@ public class ValidationHelper {
     }
 
 
-
     /**
      * ReplyDTO 입력값 검증
      */
@@ -149,7 +149,6 @@ public class ValidationHelper {
             throw new ReplyException(ErrorCode.PARENT_REPLY_NOT_FOUND);
         }
     }
-
 
 
     /**
@@ -230,11 +229,11 @@ public class ValidationHelper {
      * 관리자 여부 검증 및 조회
      */
     public Member checkAndFindAdmin(Long writerId) {
-        if (writerId != 1) {
+        Member member = findWriter(writerId);
+
+        if (member.getMemberType() != MemberType.ADMIN) {
             throw new MemberException(ErrorCode.ACCESS_DENIED);
         }
-
-        return memberRepository.findById(writerId)
-                .orElseThrow(() -> new MemberException(ErrorCode.ACCESS_DENIED));
+        return member;
     }
 }

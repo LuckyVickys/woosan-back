@@ -3,6 +3,7 @@ package com.luckyvicky.woosan.domain.board.repository.jpa;
 import com.luckyvicky.woosan.domain.board.entity.Board;
 import com.luckyvicky.woosan.domain.board.projection.IBoardList;
 
+import com.luckyvicky.woosan.domain.board.projection.IBoardMember;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -26,6 +27,14 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     @Transactional
     @EntityGraph(attributePaths = {"writer"})
     <T> Optional<T> findById(Long id, Class<T> className);
+
+    /**
+     * 다이나믹 프로젝션
+     * 게시물 단건 조회
+     */
+    @Transactional
+    @EntityGraph(attributePaths = {"writer"})
+    Optional<IBoardMember> findByIdAndCategoryName(Long id, String categoryName);
 
     /**
      * 인터페이스 프로젝션
