@@ -33,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authorizationHeader = request.getHeader("Authoriztion");
+        String authorizationHeader = request.getHeader("Authorization");
 
         // JWT가 헤더에 있는 경우
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
