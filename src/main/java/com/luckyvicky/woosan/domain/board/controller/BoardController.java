@@ -78,9 +78,9 @@ public class BoardController {
      * 게시물 단건 조회 - 상세 페이지
      */
     @GetMapping("/{id}")
-    public ResponseEntity<BoardDTO> getBoard(@PathVariable("id") Long id) {
-        BoardDTO boardDTO = boardService.getBoard(id);
-        return new ResponseEntity<>(boardDTO, HttpStatus.OK);
+    public ResponseEntity<BoardDetailDTO> getBoard(@PathVariable("id") Long id) {
+        BoardDetailDTO boardDetailDTO = boardService.getBoard(id);
+        return new ResponseEntity<>(boardDetailDTO, HttpStatus.OK);
     }
 
 

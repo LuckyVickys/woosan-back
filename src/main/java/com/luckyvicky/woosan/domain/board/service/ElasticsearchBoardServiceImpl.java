@@ -24,8 +24,11 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDateTime;
 
@@ -416,6 +419,51 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     }
 
 
+    /**
+     * 일별 조회수 기준 상위 5개 인기글 (자정~자정 작성 기준)
+     */
+    @Override
+    public List<DailyBestBoardDTO> getTop5BoardsByViews() {
+        LocalDateTime startOfDay = LocalDateTime.now(ZoneId.of("UTC")).toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = LocalDateTime.now(ZoneId.of("UTC")).plusDays(1).toLocalDate().atStartOfDay();
+
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.boolQuery()
+                        .must(QueryBuilders.rangeQuery("reg_date")
+                                .gte(startOfDay)
+                                .lt(endOfDay))
+                        .must(QueryBuilders.termQuery("is_deleted", false)))
+                .withSort(SortBuilders.fieldSort("views").order(SortOrder.DESC))
+                .withPageable(PageRequest.of(0, 7))
+                .build();
+
+        SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
+
+        return searchHits.getSearchHits().stream()
+                .map(hit -> {
+                    Board board = hit.getContent();
+                    return new DailyBestBoardDTO(board.getId(), board.getTitle(), board.getReplyCount(), board.getViews(), board.getLikesCount());
+                })
+                .collect(Collectors.toList());
+    }
 
 
+    /**
+     * 연관 게시물 8개 조회
+     */
+    @Override
+    public List<SuggestedBoardDTO> getSuggestedBoards(String title, String content) {
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.boolQuery()
+                        .should(QueryBuilders.matchQuery("title", title).analyzer("ngram_analyzer"))
+                        .should(QueryBuilders.matchQuery("content", content).analyzer("ngram_analyzer")))
+                .withPageable(PageRequest.of(0, 8))
+                .build();
+
+        SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
+
+        return commonUtils.mapToDTOList(searchHits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .collect(Collectors.toList()), SuggestedBoardDTO.class);
+    }
 }

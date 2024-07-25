@@ -4,6 +4,7 @@ import com.luckyvicky.woosan.domain.admin.service.AdminService;
 import com.luckyvicky.woosan.domain.board.dto.BoardDTO;
 import com.luckyvicky.woosan.domain.board.dto.BoardListDTO;
 import com.luckyvicky.woosan.domain.board.dto.RemoveDTO;
+import com.luckyvicky.woosan.domain.board.dto.UpdateBoardDTO;
 import com.luckyvicky.woosan.domain.board.service.BoardService;
 import com.luckyvicky.woosan.domain.fileImg.dto.FileUpdateDTO;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
@@ -56,9 +57,9 @@ public class AdminController {
      * 게시물 수정 페이지 조회
      */
     @GetMapping("notices/{id}/modify")
-    public ResponseEntity<BoardDTO> getBoardForModification(@PathVariable Long id) {
-        BoardDTO boardDTO = boardService.getBoard(id);
-        return new ResponseEntity<>(boardDTO, HttpStatus.OK);
+    public ResponseEntity<UpdateBoardDTO> getBoardForModification(@PathVariable Long id) {
+        UpdateBoardDTO updateBoardDTO = boardService.getBoardForUpdate(id);
+        return new ResponseEntity<>(updateBoardDTO, HttpStatus.OK);
     }
 
     /**

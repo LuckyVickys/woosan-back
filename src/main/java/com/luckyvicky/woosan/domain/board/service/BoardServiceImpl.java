@@ -40,6 +40,7 @@ public class BoardServiceImpl implements BoardService {
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
     private final FileImgService fileImgService;
+    private final ElasticsearchBoardService elasticsearchBoardService;
     private final CommonUtils commonUtils;
     private final ValidationHelper validationHelper;
 
@@ -105,7 +106,7 @@ public class BoardServiceImpl implements BoardService {
      */
     @Override
     @Transactional
-    public BoardDTO getBoard(Long id) {
+    public BoardDetailDTO getBoard(Long id) {
         increaseViewCount(id); // 조회수 증가
         Board board = validationHelper.findBoard(id); // 게시물 조회
         IBoardMember boardMember = boardRepository.findById(id, IBoardMember.class)
@@ -114,7 +115,15 @@ public class BoardServiceImpl implements BoardService {
         boardDTO.setViews(board.getViews());  // 최신 조회수 DTO에 반영
         boardDTO.setFilePathUrl(fileImgService.findFiles("board", id));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
         boardDTO.setWriterProfile(fileImgService.findFiles("member", boardDTO.getWriterId()));   // 버킷에서 이미지 url 꺼내고 DTO에 반영
-        return boardDTO;
+
+
+        // 연관 게시물 검색
+        List<SuggestedBoardDTO> suggestedBoards = elasticsearchBoardService.getSuggestedBoards(board.getTitle(), board.getContent());
+
+        return BoardDetailDTO.builder()
+                .boardDTO(boardDTO)
+                .suggestedBoards(suggestedBoards)
+                .build();
     }
 
 

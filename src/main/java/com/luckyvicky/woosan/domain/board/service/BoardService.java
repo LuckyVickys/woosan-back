@@ -20,7 +20,7 @@ public interface BoardService {
     PageResponseDTO<BoardListDTO> getNoticePage(PageRequestDTO pageRequestDTO);
 
     @Transactional
-    BoardDTO getBoard(Long id);
+    BoardDetailDTO getBoard(Long id);
 
     UpdateBoardDTO getBoardForUpdate(Long id);
 
