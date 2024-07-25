@@ -190,12 +190,6 @@ public class MyPageServiceImpl implements MyPageService {
         return myPageDTO.getPageRequestDTO() != null ? myPageDTO.getPageRequestDTO() : new PageRequestDTO();
     }
 
-    //페이지네이션 매개변수 메소드
-    private Pageable createPageable(PageRequestDTO pageRequestDTO) {
-        pageRequestDTO.validate();
-        return PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize());
-    }
-
     //페이지네이션 응답 반환 메소드
     private <T> PageResponseDTO<T> createPageResponseDTO(List<T> dtoList, PageRequestDTO pageRequestDTO, long totalCount) {
         return PageResponseDTO.<T>withAll()
