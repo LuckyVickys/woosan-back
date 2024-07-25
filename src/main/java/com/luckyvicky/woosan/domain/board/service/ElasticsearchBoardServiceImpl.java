@@ -464,7 +464,8 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
                 .withQuery(QueryBuilders.boolQuery()
                         .should(QueryBuilders.matchQuery("title", title).analyzer("ngram_analyzer"))
                         .should(QueryBuilders.matchQuery("content", content).analyzer("ngram_analyzer")))
-                .withPageable(PageRequest.of(0, 8))
+                .withSort(SortBuilders.fieldSort("views").order(SortOrder.DESC))
+                .withPageable(PageRequest.of(0, 2))
                 .build();
 
         SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
