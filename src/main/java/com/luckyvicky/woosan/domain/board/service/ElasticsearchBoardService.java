@@ -22,5 +22,5 @@ public interface ElasticsearchBoardService {
 
     List<DailyBestBoardDTO> getTop5BoardsByViews();
 
-    List<SuggestedBoardDTO> getSuggestedBoards(String title, String content);
+    List<SuggestedBoardDTO> getSuggestedBoards(Long id, String title, String content);
 }
