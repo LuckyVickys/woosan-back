@@ -70,9 +70,9 @@ public class ElasticsearchBoardController {
 
 
     /**
-     * 일별 조회수 기준 상위 5개 인기글
+     * 주간 조회수 기준 상위 7개 인기글
      */
-    @GetMapping("/daily/best")
+    @GetMapping("/weekly/best")
     public List<DailyBestBoardDTO> getTop5BoardsByViews() {
         return elasticsearchBoardService.getTop5BoardsByViews();
     }

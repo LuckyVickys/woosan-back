@@ -420,13 +420,13 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
 
 
     /**
-     * 일별 조회수 기준 상위 5개 인기글 (자정~자정 작성 기준)
+     * 주간 조회수 기준 상위 7개 인기글
      */
     @Override
     public List<DailyBestBoardDTO> getTop5BoardsByViews() {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
-        ZonedDateTime startOfDay = now.toLocalDate().atStartOfDay(ZoneId.of("UTC"));
-        ZonedDateTime endOfDay = startOfDay.plusDays(1);
+        ZonedDateTime startOfDay = now.minusDays(7).toLocalDate().atStartOfDay(ZoneId.of("UTC"));
+        ZonedDateTime endOfDay = now.toLocalDate().atStartOfDay(ZoneId.of("UTC")).plusDays(1);
 
         Query searchQuery = buildTop5BoardsSearchQuery(startOfDay, endOfDay);
         SearchHits<Board> searchHits = executeTop5BoardsSearch(searchQuery);
@@ -438,7 +438,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     }
 
     /**
-     * 일별 조회수 기준 상위 5개 인기글 검색 쿼리 생성
+     * 조회수 기준 상위 7개 인기글 검색 쿼리 생성
      */
     private Query buildTop5BoardsSearchQuery(ZonedDateTime startOfDay, ZonedDateTime endOfDay) {
         return new NativeSearchQueryBuilder()
@@ -453,7 +453,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     }
 
     /**
-     * 일별 조회수 기준 상위 5개 인기글 검색 쿼리 실행
+     * 조회수 기준 상위 7개 인기글 검색 쿼리 실행
      */
     private SearchHits<Board> executeTop5BoardsSearch(Query searchQuery) {
         return elasticsearchRestTemplate.search(searchQuery, Board.class);
@@ -473,7 +473,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
 
 
     /**
-     * 연관 게시물 8개 조회
+     * 연관 게시물 2개 조회
      */
     @Override
     public List<SuggestedBoardDTO> getSuggestedBoards(Long currentBoardId, String title, String content) {
