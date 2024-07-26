@@ -13,6 +13,7 @@ import com.luckyvicky.woosan.domain.report.dto.TargetDTO;
 import com.luckyvicky.woosan.domain.report.entity.Report;
 import com.luckyvicky.woosan.domain.report.mapper.ReportMapper;
 import com.luckyvicky.woosan.domain.report.repository.ReportRepository;
+import com.luckyvicky.woosan.global.annotation.SlaveDBRequest;
 import com.luckyvicky.woosan.global.util.CommonUtils;
 import com.luckyvicky.woosan.global.util.PageRequestDTO;
 import com.luckyvicky.woosan.global.util.PageResponseDTO;
@@ -63,6 +64,7 @@ public class ReportServiceImpl implements ReportService {
     /**
      * 신고 목록
      */
+    @SlaveDBRequest
     @Override
     public PageResponseDTO<ReportDTO> reportList(PageRequestDTO pageRequestDTO) {
         pageRequestDTO.validate();
@@ -77,6 +79,7 @@ public class ReportServiceImpl implements ReportService {
     /**
      * 신고 상세 보기
      */
+    @SlaveDBRequest
     @Override
     public ReportDTO getReport(Long id) {
         Report report = getEntityById(reportRepository, id, "존재하지 않는 신고입니다.");
@@ -100,6 +103,7 @@ public class ReportServiceImpl implements ReportService {
     /**
      * 신고 대상 이동
      */
+    @SlaveDBRequest
     @Override
     public TargetDTO goToTarget(Long id) {
         Report report = getEntityById(reportRepository, id, "존재하지 않는 신고입니다.");

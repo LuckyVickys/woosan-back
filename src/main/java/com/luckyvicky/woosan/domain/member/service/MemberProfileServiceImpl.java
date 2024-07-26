@@ -8,6 +8,7 @@ import com.luckyvicky.woosan.domain.member.repository.jpa.MemberProfileRepositor
 import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
 import com.luckyvicky.woosan.domain.member.utils.MemberProfileUtil;
 import com.luckyvicky.woosan.domain.member.utils.ProfileUpdateMapper;
+import com.luckyvicky.woosan.global.annotation.SlaveDBRequest;
 import com.luckyvicky.woosan.global.util.TargetType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class MemberProfileServiceImpl implements MemberProfileService {
     private final FileImgService fileImgService;
     private final MemberProfileUtil memberProfileUtil;
 
+    @SlaveDBRequest
     @Override
     public ProfileUpdateDTO get(Long id) {
         Optional<Member> memberOptional = memberRepository.findById(id);
