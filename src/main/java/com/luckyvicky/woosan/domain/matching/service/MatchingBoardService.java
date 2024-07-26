@@ -4,6 +4,7 @@ import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardResponseDTO;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public interface MatchingBoardService {
     List<MatchingBoardResponseDTO> getMatchingBoardsByMemberId(Long memberId);
 
     // 특정 매칭 게시글을 수정하는 메서드
-    MatchingBoardResponseDTO updateMatchingBoard(Long id, MatchingBoardRequestDTO requestDTO);
+    MatchingBoardResponseDTO updateMatchingBoard(Long id, MatchingBoardRequestDTO requestDTO, List<MultipartFile> images);
 
     // 특정 매칭 게시글을 삭제하는 메서드
     void deleteMatchingBoard(Long id, Long memberId);
@@ -30,4 +31,6 @@ public interface MatchingBoardService {
     // 특정 매칭 게시글의 조회수를 증가시키는 메서드
     void increaseViewCount(Long boardId, Long memberId, Long writerId, HttpServletRequest request);
 
+    // 회원의 레벨을 검증하는 메서드
+    void validateMemberLevel(Member member, int matchingType);
 }

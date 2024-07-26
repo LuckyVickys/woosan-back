@@ -121,7 +121,7 @@ public class BoardServiceImpl implements BoardService {
 
 
         // 연관 게시물 검색
-        List<SuggestedBoardDTO> suggestedBoards = elasticsearchBoardService.getSuggestedBoards(board.getTitle(), board.getContent());
+        List<SuggestedBoardDTO> suggestedBoards = elasticsearchBoardService.getSuggestedBoards(id, board.getTitle(), board.getContent());
 
         return BoardDetailDTO.builder()
                 .boardDTO(boardDTO)

@@ -27,14 +27,14 @@ public class JWTUtil {
     public JWTUtil(
             @Value("${spring.jwt.secret}")String secretKey,
             @Value("${spring.jwt.access.expirationTime}") long accessTokenExpTime,
-            @Value("${spring.jwt.refresh.expirationTime}") long refreshTokenExpTime, RefreshTokenRepository refreshTokenRepository,
-            RefreshTokenRepository refreshTokenRepository1
+            @Value("${spring.jwt.refresh.expirationTime}") long refreshTokenExpTime,
+            RefreshTokenRepository refreshTokenRepository
     ) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpTime = accessTokenExpTime;
         this.refreshTokenExpTime = refreshTokenExpTime;
-        this.refreshTokenRepository = refreshTokenRepository1;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     /**
