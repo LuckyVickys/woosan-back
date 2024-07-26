@@ -115,8 +115,8 @@ public class CustomSecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(PERMIT_ALL_LIST).permitAll()
                 .requestMatchers(PERMIT_USER_LIST).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                .requestMatchers(PERMIT_LEVEL_2_LIST).hasAnyAuthority("ROLE_ADMIN", "LEVEL_2", "LEVEL_3")
-                .requestMatchers(PERMIT_LEVEL_3_LIST).hasAnyAuthority("ROLE_ADMIN", "LEVEL_3")
+                .requestMatchers(PERMIT_LEVEL_2_LIST).hasAnyAuthority("ROLE_ADMIN", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5")
+                .requestMatchers(PERMIT_LEVEL_3_LIST).hasAnyAuthority("ROLE_ADMIN", "LEVEL_3", "LEVEL_4", "LEVEL_5")
                 .requestMatchers(PERMIT_ADMIN_LIST).hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
