@@ -284,20 +284,22 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
 
     // 매칭 보드 파일 정보 갱신
     private void updateBoardFiles(MatchingBoardRequestDTO requestDTO, List<MultipartFile> images, Long boardId) {
-        if (requestDTO.getFilePathUrl() == null) {
-            fileImgService.targetFilesDelete("matchingBoard", boardId);
-        } else {
-            List<String> beforeFiles = fileImgService.findFiles("matchingBoard", boardId);
-            List<String> afterFiles = requestDTO.getFilePathUrl();
+        // 현재 저장된 파일 목록을 가져옴
+        List<String> existingFileUrls = fileImgService.findFiles("matchingBoard", boardId);
 
-            for (String beforeFile : beforeFiles) {
-                if (!afterFiles.contains(beforeFile)) {
-                    fileImgService.deleteS3FileByUrl(boardId, "matchingBoard", beforeFile);
+        // 요청된 파일 URL이 null이 아닌 경우 처리
+        if (requestDTO.getFilePathUrl() != null) {
+            List<String> updatedFileUrls = requestDTO.getFilePathUrl();
+
+            // 삭제된 파일 처리
+            for (String existingFile : existingFileUrls) {
+                if (!updatedFileUrls.contains(existingFile)) {
+                    fileImgService.deleteS3FileByUrl(boardId, "matchingBoard", existingFile);
                 }
             }
         }
-
-        if (images != null) {
+        // 새로운 파일이 있으면 해당 파일을 업로드
+        if (images != null && !images.isEmpty()) {
             fileImgService.fileUploadMultiple("matchingBoard", boardId, images);
         }
     }
