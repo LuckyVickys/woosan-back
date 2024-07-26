@@ -4,8 +4,8 @@ import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardResponseDTO;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
+import com.luckyvicky.woosan.domain.matching.exception.MatchingException;
 import com.luckyvicky.woosan.domain.matching.mapper.MatchingBoardMapper;
-import com.luckyvicky.woosan.domain.matching.mapper.MemberMatchingMapper;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
 import com.luckyvicky.woosan.domain.matching.repository.MemberMatchingRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
@@ -37,7 +37,6 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     private final MatchingBoardMapper matchingBoardMapper;
     private final FileImgService fileImgService;
     private final MemberMatchingService memberMatchingService;
-    private final MemberMatchingMapper memberMatchingMapper;
     private final RedisTemplate<String, String> redisTemplate;
 
     // 모든 매칭 게시글을 가져오는 메서드
@@ -62,7 +61,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     public MatchingBoardResponseDTO createMatchingBoard(MatchingBoardRequestDTO requestDTO) {
         // 회원 정보 조회
         Member member = memberRepository.findById(requestDTO.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+                .orElseThrow(() -> new MatchingException("회원이 존재하지 않습니다."));
 
         // 회원의 레벨을 확인
         validateMemberLevel(member, requestDTO.getMatchingType());
@@ -81,7 +80,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
                 matchingBoard = createSelfBoard(member, requestDTO);
                 break;
             default:
-                throw new IllegalArgumentException("잘못된 매칭 타입입니다.");
+                throw new MatchingException("잘못된 매칭 타입입니다.");
         }
 
         // 파일 업로드 및 DB 저장
@@ -116,7 +115,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
 
         // 번개 모임은 당일 날짜로만 생성 가능
         if (!requestDTO.getMeetDate().toLocalDate().equals(LocalDateTime.now().toLocalDate())) {
-            throw new IllegalArgumentException("번개 모임은 당일 날짜로만 생성할 수 있습니다.");
+            throw new MatchingException("번개 모임은 당일 날짜로만 생성할 수 있습니다.");
         }
 
         // MatchingBoard 객체 생성 및 설정
@@ -174,11 +173,11 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     @Transactional
     public MatchingBoardResponseDTO updateMatchingBoard(Long id, MatchingBoardRequestDTO requestDTO, List<MultipartFile> images) {
         MatchingBoard matchingBoard = matchingBoardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
+                .orElseThrow(() -> new MatchingException("매칭 보드가 존재하지 않습니다."));
 
         // 작성자 확인
         if (!matchingBoard.getMember().getId().equals(requestDTO.getMemberId())) {
-            throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
+            throw new MatchingException("작성자만 수정할 수 있습니다.");
         }
 
         // 매칭 보드 엔티티 업데이트
@@ -195,11 +194,11 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     @Transactional
     public void deleteMatchingBoard(Long id, Long memberId) {
         MatchingBoard matchingBoard = matchingBoardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
+                .orElseThrow(() -> new MatchingException("매칭 보드가 존재하지 않습니다."));
 
         // 작성자 확인
         if (!matchingBoard.getMember().getId().equals(memberId)) {
-            throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
+            throw new MatchingException("작성자만 삭제할 수 있습니다.");
         }
 
         // 관련된 모든 member_matching 행 삭제
@@ -217,7 +216,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     private void checkRegularlyConstraints(Member member) {
         List<MatchingBoard> regularlyBoards = matchingBoardRepository.findByMemberAndMatchingType(member, 1);
         if (!regularlyBoards.isEmpty()) {
-            throw new IllegalArgumentException("정기 모임은 한 개만 생성할 수 있습니다.");
+            throw new MatchingException("정기 모임은 한 개만 생성할 수 있습니다.");
         }
     }
 
@@ -230,7 +229,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
                 LocalDateTime.now().toLocalDate().plusDays(1).atStartOfDay()
         );
         if (!temporaryBoards.isEmpty()) {
-            throw new IllegalArgumentException("당일 번개 모임은 한 개만 생성할 수 있습니다.");
+            throw new MatchingException("당일 번개 모임은 한 개만 생성할 수 있습니다.");
         }
     }
 
@@ -238,7 +237,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     private void checkSelfConstraints(Member member) {
         List<MatchingBoard> selfBoards = matchingBoardRepository.findByMemberAndMatchingType(member, 3);
         if (!selfBoards.isEmpty()) {
-            throw new IllegalArgumentException("셀프 소개팅 게시물은 한 개만 생성할 수 있습니다.");
+            throw new MatchingException("셀프 소개팅 게시물은 한 개만 생성할 수 있습니다.");
         }
     }
 
@@ -301,7 +300,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
 
         // 멤버 정보 조회
         Member member = memberRepository.findById(matchingBoard.getMember().getId())
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+                .orElseThrow(() -> new MatchingException("회원이 존재하지 않습니다."));
 
         // 프로필 이미지 파일 경로를 가져옵니다.
         List<String> profileImageUrls = fileImgService.findFiles("member", member.getId());
@@ -359,7 +358,7 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
 
         if (hasViewed == null || !hasViewed) {
             MatchingBoard board = matchingBoardRepository.findById(boardId)
-                    .orElseThrow(() -> new IllegalArgumentException("매칭 보드를 찾을 수 없습니다."));
+                    .orElseThrow(() -> new MatchingException("매칭 보드를 찾을 수 없습니다."));
 
             // 조회수 증가
             board.incrementViews(); // 엔티티의 메서드를 사용
@@ -376,16 +375,16 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         switch (matchingType) {
             case 1: // 정기 모임
                 if (member.getLevel().ordinal() < MemberType.Level.LEVEL_3.ordinal()) {
-                    throw new IllegalArgumentException("정기 모임을 생성하려면 레벨 3 이상이어야 합니다.");
+                    throw new MatchingException("정기 모임을 생성하려면 레벨 3 이상이어야 합니다.");
                 }
                 break;
             case 2: // 번개 및 셀프 소개팅
                 if (member.getLevel().ordinal() < MemberType.Level.LEVEL_2.ordinal()) {
-                    throw new IllegalArgumentException("번개와 셀프 소개팅을 생성하려면 레벨 2 이상이어야 합니다.");
+                    throw new MatchingException("번개와 셀프 소개팅을 생성하려면 레벨 2 이상이어야 합니다.");
                 }
                 break;
             default:
-                throw new IllegalArgumentException("잘못된 매칭 타입입니다.");
+                throw new MatchingException("잘못된 매칭 타입입니다.");
         }
     }
 
