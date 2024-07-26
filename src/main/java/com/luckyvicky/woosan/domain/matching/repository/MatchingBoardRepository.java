@@ -17,9 +17,6 @@ public interface MatchingBoardRepository extends JpaRepository<MatchingBoard, Lo
     // 회원이 특정 날짜 범위 내에 생성한 매칭타입의 매칭보드를 찾습니다.
     List<MatchingBoard> findByMemberAndMatchingTypeAndMeetDateBetween(Member member, int matchingType, LocalDateTime start, LocalDateTime end);
 
-    // 번개는 당일 자정에 자동으로 삭제됩니다.
-    List<MatchingBoard> findByMatchingTypeAndMeetDateBefore(int matchingType, LocalDateTime dateTime);
-
     long countByMember_IdAndMatchingType(Long memberId, int i);
 
     // 특정 사용자가 만든 매칭 보드 가져오기

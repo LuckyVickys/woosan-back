@@ -4,6 +4,7 @@ import com.luckyvicky.woosan.domain.matching.dto.MemberMatchingRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MemberMatchingResponseDTO;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
 import com.luckyvicky.woosan.domain.matching.entity.MemberMatching;
+import com.luckyvicky.woosan.domain.matching.exception.MatchingException;
 import com.luckyvicky.woosan.domain.matching.mapper.MemberMatchingMapper;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
 import com.luckyvicky.woosan.domain.matching.repository.MemberMatchingRepository;
@@ -37,7 +38,7 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
             MemberMatching savedMatching = memberMatchingRepository.save(memberMatching);
             return memberMatchingMapper.toDto(savedMatching);
         } catch (Exception e) {
-            throw new RuntimeException("MemberMatching 데이터를 생성하는 중 오류가 발생했습니다.", e);
+            throw new MatchingException("MemberMatching 데이터를 생성하는 중 오류가 발생했습니다.");
         }
     }
 
@@ -49,14 +50,14 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
 
         // 매칭 보드와 회원 객체 가져오기
         MatchingBoard matchingBoard = matchingBoardRepository.findById(matchingId)
-                .orElseThrow(() -> new IllegalArgumentException("매칭 보드가 존재하지 않습니다."));
+                .orElseThrow(() -> new MatchingException("매칭 보드가 존재하지 않습니다."));
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+                .orElseThrow(() -> new MatchingException("회원이 존재하지 않습니다."));
 
         // 중복 가입 방지
         boolean isAlreadyMember = memberMatchingRepository.findByMatchingBoard_IdAndMember_Id(matchingId, memberId).isPresent();
         if (isAlreadyMember) {
-            throw new IllegalArgumentException("이미 이 매칭에 가입 요청을 보냈습니다.");
+            throw new MatchingException("이미 이 매칭에 가입 요청을 보냈습니다.");
         }
 
         // 매칭 타입에 따른 조건 확인
@@ -82,7 +83,7 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
     @Transactional
     public MemberMatchingResponseDTO updateMatching(Long id, Boolean isAccepted) {
         MemberMatching existingMatching = memberMatchingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("매칭을 찾을 수 없습니다."));
+                .orElseThrow(() -> new MatchingException("매칭을 찾을 수 없습니다."));
 
         // 빌더 패턴을 사용하여 isAccepted 필드를 업데이트합니다.
         MemberMatching updatedMatching = existingMatching.toBuilder()
@@ -102,11 +103,11 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
     @Transactional
     public void leaveMatching(Long matchingId, Long memberId) {
         MemberMatching matching = memberMatchingRepository.findByMatchingBoard_IdAndMember_Id(matchingId, memberId)
-                .orElseThrow(() -> new RuntimeException("매칭을 찾을 수 없습니다."));
+                .orElseThrow(() -> new MatchingException("매칭을 찾을 수 없습니다."));
 
         // 탈퇴하려는 사람이 모임원인지 확인
         if (!matching.getMember().getId().equals(memberId)) {
-            throw new IllegalArgumentException("모임원만 탈퇴할 수 있습니다.");
+            throw new MatchingException("모임원만 탈퇴할 수 있습니다.");
         }
 
         memberMatchingRepository.delete(matching);
@@ -117,17 +118,17 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
     @Transactional
     public void kickMember(Long matchingId, Long memberId) {
         MatchingBoard matchingBoard = matchingBoardRepository.findById(matchingId)
-                .orElseThrow(() -> new RuntimeException("매칭 보드를 찾을 수 없습니다."));
+                .orElseThrow(() -> new MatchingException("매칭 보드를 찾을 수 없습니다."));
 
         // 매칭 보드를 생성한 회원만 강퇴 가능
         Member admin = matchingBoard.getMember();
 
         MemberMatching matching = memberMatchingRepository.findByMatchingBoard_IdAndMember_Id(matchingId, memberId)
-                .orElseThrow(() -> new RuntimeException("회원이 해당 매칭 보드에 없습니다."));
+                .orElseThrow(() -> new MatchingException("회원이 해당 매칭 보드에 없습니다."));
 
         // 강퇴하려는 사람이 모임장인지 확인
         if (!matchingBoard.isManager(admin.getId())) {
-            throw new IllegalArgumentException("모임장만 회원을 강퇴할 수 있습니다.");
+            throw new MatchingException("모임장만 회원을 강퇴할 수 있습니다.");
         }
 
         // isAccepted를 false로 업데이트하여 강퇴 처리
@@ -161,11 +162,11 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
     @Transactional
     public void cancelMatchingRequest(Long matchingId, Long memberId) {
         MemberMatching matching = memberMatchingRepository.findByMatchingBoard_IdAndMember_Id(matchingId, memberId)
-                .orElseThrow(() -> new RuntimeException("매칭 요청을 찾을 수 없습니다."));
+                .orElseThrow(() -> new MatchingException("매칭 요청을 찾을 수 없습니다."));
 
         // 취소하려는 사람이 요청자인지 확인
         if (!matching.getMember().getId().equals(memberId)) {
-            throw new IllegalArgumentException("본인만 요청을 취소할 수 있습니다.");
+            throw new MatchingException("본인만 요청을 취소할 수 있습니다.");
         }
 
         memberMatchingRepository.delete(matching);
@@ -178,7 +179,7 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
         try {
             memberMatchingRepository.deleteByMatchingBoard_Id(matchingId);
         } catch (Exception e) {
-            throw new RuntimeException("멤버 매칭 데이터 삭제 중 오류가 발생했습니다: " + e.getMessage());
+            throw new MatchingException("멤버 매칭 데이터 삭제 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
@@ -195,7 +196,7 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
             }
             memberMatchingRepository.saveAll(memberMatchings);
         } catch (Exception e) {
-            throw new RuntimeException("멤버 매칭 상태 업데이트 중 오류가 발생했습니다: " + e.getMessage());
+            throw new MatchingException("멤버 매칭 상태 업데이트 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
@@ -209,7 +210,7 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
     // memberMatching 보드 엔티티를 DTO로 변환하는 메서드
     private MemberMatchingResponseDTO toDTO(MemberMatching memberMatching) {
         Member member = memberRepository.findById(memberMatching.getMember().getId())
-                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new MatchingException("회원 정보를 찾을 수 없습니다."));
         List<String> profileImageUrls = fileImgService.findFiles("member", member.getId());
         return MemberMatchingResponseDTO.builder()
                 .id(memberMatching.getId())
@@ -235,33 +236,33 @@ public class MemberMatchingServiceImpl implements MemberMatchingService {
 
         if (type == 1) { // 정기 모임
             if (joinedMeetings >= 2) {
-                throw new IllegalArgumentException("정기 모임은 내가 가입한 모임을 합쳐서 최대 2개까지 유지할 수 있습니다.");
+                throw new MatchingException("정기 모임은 내가 가입한 모임을 합쳐서 최대 2개까지 유지할 수 있습니다.");
             }
             if (createdMeetings >= 2) {
-                throw new IllegalArgumentException("정기 모임은 내가 만든 모임을 합쳐서 최대 2개까지 유지할 수 있습니다.");
+                throw new MatchingException("정기 모임은 내가 만든 모임을 합쳐서 최대 2개까지 유지할 수 있습니다.");
             }
             if (pendingRequests >= 3) {
-                throw new IllegalArgumentException("정기 모임에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
+                throw new MatchingException("정기 모임에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
             }
         } else if (type == 2) { // 번개 모임
             if (joinedMeetings >= 1) {
-                throw new IllegalArgumentException("번개는 내가 가입한 모임을 합쳐서 최대 1개까지 유지할 수 있습니다.");
+                throw new MatchingException("번개는 내가 가입한 모임을 합쳐서 최대 1개까지 유지할 수 있습니다.");
             }
             if (createdMeetings >= 1) {
-                throw new IllegalArgumentException("번개는 내가 만든 모임을 합쳐서 최대 1개까지 유지할 수 있습니다.");
+                throw new MatchingException("번개는 내가 만든 모임을 합쳐서 최대 1개까지 유지할 수 있습니다.");
             }
             if (pendingRequests >= 3) {
-                throw new IllegalArgumentException("번개에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
+                throw new MatchingException("번개에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
             }
         } else if (type == 3) { // 셀프 소개팅
             if (joinedMeetings >= 3) {
-                throw new IllegalArgumentException("셀프 소개팅은 내가 가입한 모임을 합쳐서 최대 3개까지 유지할 수 있습니다.");
+                throw new MatchingException("셀프 소개팅은 내가 가입한 모임을 합쳐서 최대 3개까지 유지할 수 있습니다.");
             }
             if (createdMeetings >= 3) {
-                throw new IllegalArgumentException("셀프 소개팅은 내가 만든 모임을 합쳐서 최대 3개까지 유지할 수 있습니다.");
+                throw new MatchingException("셀프 소개팅은 내가 만든 모임을 합쳐서 최대 3개까지 유지할 수 있습니다.");
             }
             if (pendingRequests >= 3) {
-                throw new IllegalArgumentException("셀프 소개팅에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
+                throw new MatchingException("셀프 소개팅에 대한 가입 대기 중인 신청은 최대 3개까지 가능합니다.");
             }
         }
     }
