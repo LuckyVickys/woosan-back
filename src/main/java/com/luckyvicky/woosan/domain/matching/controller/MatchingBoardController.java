@@ -67,7 +67,7 @@ public class MatchingBoardController {
     }
 
     // 정기모임 가져오기
-    @GetMapping("/regularly")
+    @GetMapping("/regularly/list")
     public ResponseEntity<?> getRegularly() {
         try {
             List<MatchingBoardResponseDTO> regularlyList = matchingBoardService.getMatchingByType(1);
@@ -78,7 +78,7 @@ public class MatchingBoardController {
     }
 
     // 번개 가져오기
-    @GetMapping("/temporary")
+    @GetMapping("/temporary/list")
     public ResponseEntity<?> getTemporary() {
         try {
             List<MatchingBoardResponseDTO> temporaryList = matchingBoardService.getMatchingByType(2);
@@ -89,7 +89,7 @@ public class MatchingBoardController {
     }
 
     // 셀프 소개팅 가져오기
-    @GetMapping("/self")
+    @GetMapping("/self/list")
     public ResponseEntity<?> getSelf() {
         try {
             List<MatchingBoardResponseDTO> selfList = matchingBoardService.getMatchingByType(3);
@@ -111,7 +111,7 @@ public class MatchingBoardController {
     }
 
     // 매칭 보드 수정
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/update")
     public ResponseEntity<?> updateMatchingBoard(@PathVariable Long id,
                                                  @ModelAttribute MatchingBoardRequestDTO requestDTO,
                                                  @RequestParam(value = "images", required = false) List<MultipartFile> images) {
@@ -124,7 +124,7 @@ public class MatchingBoardController {
     }
 
     // 매칭 보드 삭제
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> deleteMatchingBoard(@PathVariable Long id, @RequestParam Long memberId) {
         try {
             matchingBoardService.deleteMatchingBoard(id, memberId);
