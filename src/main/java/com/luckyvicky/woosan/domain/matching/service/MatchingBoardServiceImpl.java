@@ -287,17 +287,16 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         // 현재 저장된 파일 목록을 가져옴
         List<String> existingFileUrls = fileImgService.findFiles("matchingBoard", boardId);
 
-        // 요청된 파일 URL이 null이 아닌 경우 처리
-        if (requestDTO.getFilePathUrl() != null) {
-            List<String> updatedFileUrls = requestDTO.getFilePathUrl();
-
-            // 삭제된 파일 처리
+        // 삭제된 파일 처리
+        if (requestDTO.getDeletedFiles() != null && !requestDTO.getDeletedFiles().isEmpty()) {
+            List<String> deletedFiles = requestDTO.getDeletedFiles();
             for (String existingFile : existingFileUrls) {
-                if (!updatedFileUrls.contains(existingFile)) {
+                if (deletedFiles.contains(existingFile)) {
                     fileImgService.deleteS3FileByUrl(boardId, "matchingBoard", existingFile);
                 }
             }
         }
+
         // 새로운 파일이 있으면 해당 파일을 업로드
         if (images != null && !images.isEmpty()) {
             fileImgService.fileUploadMultiple("matchingBoard", boardId, images);
@@ -391,13 +390,18 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
                     throw new MatchingException("정기 모임을 생성하려면 레벨 3 이상이어야 합니다.");
                 }
                 break;
-            case 2: // 번개 및 셀프 소개팅
+            case 2: // 번개
                 if (member.getLevel().ordinal() < MemberType.Level.LEVEL_2.ordinal()) {
-                    throw new MatchingException("번개와 셀프 소개팅을 생성하려면 레벨 2 이상이어야 합니다.");
+                    throw new MatchingException("번개를 생성하려면 레벨 2 이상이어야 합니다.");
+                }
+                break;
+            case 3: // 셀프 소개팅
+                if (member.getLevel().ordinal() < MemberType.Level.LEVEL_2.ordinal()) {
+                    throw new MatchingException("셀프 소개팅을 생성하려면 레벨 2 이상이어야 합니다.");
                 }
                 break;
             default:
-                throw new MatchingException("잘못된 매칭 타입입니다.");
+                throw new MatchingException("잘못된 매칭 타입입니다. 매칭 타입: " + matchingType);
         }
     }
 

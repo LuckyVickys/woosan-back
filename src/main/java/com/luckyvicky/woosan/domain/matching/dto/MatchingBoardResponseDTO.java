@@ -13,7 +13,6 @@ import java.util.Map;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class MatchingBoardResponseDTO {
 
     //정기모임, 번개, 셀프소개팅 관련 공통 필드
