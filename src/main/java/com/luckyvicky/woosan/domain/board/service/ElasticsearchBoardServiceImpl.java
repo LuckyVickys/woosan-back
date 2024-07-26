@@ -143,7 +143,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     private Page<Board> searchSpecificCategory(String categoryName, String filterType, String keyword, Pageable pageable) {
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        
+
         switch (filterType) {
             case "content":
                 boolQueryBuilder.must(QueryBuilders.matchQuery("content", keyword)
@@ -214,7 +214,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     }
 
     /**
-     *  유의어 검색 쿼리
+     * 유의어 검색 쿼리
      */
     private Query buildSynonymSearchQuery(String keyword, Pageable pageable) {
         return new NativeSearchQueryBuilder()
@@ -342,7 +342,6 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     }
 
 
-
     /**
      * 검색 키워드 저장
      */
@@ -372,10 +371,10 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         Set<String> processedKeywords = new HashSet<>(); // 이미 처리된 키워드를 추적
 
         // 현재 순위 처리
-        for ( int i = 0; i < currnetRankings.size(); i++ ) {
+        for (int i = 0; i < currnetRankings.size(); i++) {
             String currentKeyword = currnetRankings.get(i);
             int pastIndex = pastRankins.indexOf(currentKeyword);
-            String symbol = (pastIndex == -1 || i < pastIndex) ? "+" :(i > pastIndex) ? "-" : "_"; // 기본적으로 변동 없음을 의미하는 언더스코어로 설정
+            String symbol = (pastIndex == -1 || i < pastIndex) ? "+" : (i > pastIndex) ? "-" : "_"; // 기본적으로 변동 없음을 의미하는 언더스코어로 설정
 
             changes.add(new RankingDTO(i + 1, currentKeyword, symbol));
             processedKeywords.add(currentKeyword);
@@ -383,15 +382,15 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
 
         // 이전 순위에 있었지만 현재 순위에 없는 키워드 처리
         int rankCounter = currnetRankings.size() + 1;
-        for ( int i = 0; i < pastRankins.size(); i++ ) {
+        for (int i = 0; i < pastRankins.size(); i++) {
             String pastKeyword = pastRankins.get(i);
-            if ( !processedKeywords.contains(pastKeyword) ) {
+            if (!processedKeywords.contains(pastKeyword)) {
                 changes.add(new RankingDTO(rankCounter++, pastKeyword, "-"));
             }
         }
 
         // 최종 결과의 길이가 10을 초과하지 않도록 제한
-        if ( changes.size() > 10 ) {
+        if (changes.size() > 10) {
             changes = changes.subList(0, 10);
         }
 
@@ -421,16 +420,28 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
 
 
     /**
-     * 일별 조회수 기준 상위 5개 인기글 (자정~자정 작성 기준)
+     * 주간 조회수 기준 상위 7개 인기글
      */
     @Override
     public List<DailyBestBoardDTO> getTop5BoardsByViews() {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
-        ZonedDateTime startOfDay = now.toLocalDate().atStartOfDay(ZoneId.of("UTC"));
-        ZonedDateTime endOfDay = startOfDay.plusDays(1);
+        ZonedDateTime startOfDay = now.minusDays(7).toLocalDate().atStartOfDay(ZoneId.of("UTC"));
+        ZonedDateTime endOfDay = now.toLocalDate().atStartOfDay(ZoneId.of("UTC")).plusDays(1);
 
-        
-        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+        Query searchQuery = buildTop5BoardsSearchQuery(startOfDay, endOfDay);
+        SearchHits<Board> searchHits = executeTop5BoardsSearch(searchQuery);
+
+        List<DailyBestBoardDTO> result = mapToDailyBestBoardDTOs(searchHits);
+        log.info("Search Results: " + result);
+
+        return result;
+    }
+
+    /**
+     * 조회수 기준 상위 7개 인기글 검색 쿼리 생성
+     */
+    private Query buildTop5BoardsSearchQuery(ZonedDateTime startOfDay, ZonedDateTime endOfDay) {
+        return new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.boolQuery()
                         .must(QueryBuilders.rangeQuery("reg_date")
                                 .gte(startOfDay)
@@ -439,39 +450,69 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
                 .withSort(SortBuilders.fieldSort("views").order(SortOrder.DESC))
                 .withPageable(PageRequest.of(0, 7))
                 .build();
+    }
 
-        SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
+    /**
+     * 조회수 기준 상위 7개 인기글 검색 쿼리 실행
+     */
+    private SearchHits<Board> executeTop5BoardsSearch(Query searchQuery) {
+        return elasticsearchRestTemplate.search(searchQuery, Board.class);
+    }
 
-        List<DailyBestBoardDTO> result = searchHits.getSearchHits().stream()
+    /**
+     * 검색 결과를 DailyBestBoardDTO로 매핑
+     */
+    private List<DailyBestBoardDTO> mapToDailyBestBoardDTOs(SearchHits<Board> searchHits) {
+        return searchHits.getSearchHits().stream()
                 .map(hit -> {
                     Board board = hit.getContent();
                     return new DailyBestBoardDTO(board.getId(), board.getTitle(), board.getReplyCount(), board.getViews(), board.getLikesCount());
                 })
                 .collect(Collectors.toList());
-
-        log.info("Search Results: " + result);
-
-        return result;
     }
 
 
     /**
-     * 연관 게시물 8개 조회
+     * 연관 게시물 2개 조회
      */
     @Override
-    public List<SuggestedBoardDTO> getSuggestedBoards(String title, String content) {
-        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+    public List<SuggestedBoardDTO> getSuggestedBoards(Long currentBoardId, String title, String content) {
+        Query searchQuery = buildSuggestedBoardSearchQuery(title, content);
+        SearchHits<Board> searchHits = executeSuggestedBoardSearch(searchQuery);
+
+        return filterAndMapSuggestedBoards(searchHits, currentBoardId, 2);
+    }
+
+    /**
+     * 연관 게시물 검색 쿼리 생성
+     */
+    private Query buildSuggestedBoardSearchQuery(String title, String content) {
+        return new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.boolQuery()
                         .should(QueryBuilders.matchQuery("title", title).analyzer("ngram_analyzer"))
                         .should(QueryBuilders.matchQuery("content", content).analyzer("ngram_analyzer")))
                 .withSort(SortBuilders.fieldSort("views").order(SortOrder.DESC))
-                .withPageable(PageRequest.of(0, 2))
+                .withPageable(PageRequest.of(0, 8)) // 일단 8개를 가져오고 나중에 필터링
                 .build();
-
-        SearchHits<Board> searchHits = elasticsearchRestTemplate.search(searchQuery, Board.class);
-
-        return commonUtils.mapToDTOList(searchHits.getSearchHits().stream()
-                .map(SearchHit::getContent)
-                .collect(Collectors.toList()), SuggestedBoardDTO.class);
     }
+
+    /**
+     * 연관 게시물 검색 쿼리 실행
+     */
+    private SearchHits<Board> executeSuggestedBoardSearch(Query searchQuery) {
+        return elasticsearchRestTemplate.search(searchQuery, Board.class);
+    }
+
+    /**
+     * 검색 결과에서 현재 게시물 제외 및 DTO 매핑
+     */
+    private List<SuggestedBoardDTO> filterAndMapSuggestedBoards(SearchHits<Board> searchHits, Long currentBoardId, int limit) {
+        return searchHits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .filter(board -> !board.getId().equals(currentBoardId)) // 현재 게시물을 제외
+                .limit(limit) // 필터링 후 지정된 개수만 반환
+                .map(board -> commonUtils.mapObject(board, SuggestedBoardDTO.class))
+                .collect(Collectors.toList());
+    }
+
 }
