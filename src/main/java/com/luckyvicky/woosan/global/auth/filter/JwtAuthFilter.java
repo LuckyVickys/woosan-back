@@ -20,8 +20,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final JWTUtil jwtUtil;
-    private final MemberRepository memberRepository;
-    private final MemberMapper memberMapper;
 
     /**
      * JWT 토큰 검증 필터 수행
