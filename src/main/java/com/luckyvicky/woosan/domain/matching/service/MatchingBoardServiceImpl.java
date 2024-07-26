@@ -3,6 +3,7 @@ package com.luckyvicky.woosan.domain.matching.service;
 import com.luckyvicky.woosan.domain.fileImg.service.FileImgService;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardRequestDTO;
 import com.luckyvicky.woosan.domain.matching.dto.MatchingBoardResponseDTO;
+import com.luckyvicky.woosan.domain.matching.dto.MemberMatchingRequestDTO;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
 import com.luckyvicky.woosan.domain.matching.exception.MatchingException;
 import com.luckyvicky.woosan.domain.matching.mapper.MatchingBoardMapper;
@@ -90,6 +91,16 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
 
         // 매칭 보드 엔티티를 저장 후 DTO로 변환
         MatchingBoardResponseDTO responseDTO = mapToResponseDTO(matchingBoardRepository.save(matchingBoard));
+
+        // 매칭 보드 생성 후 memberMatching에도 데이터 저장
+        MemberMatchingRequestDTO matchingRequest = MemberMatchingRequestDTO.builder()
+                .matchingId(responseDTO.getId())
+                .memberId(requestDTO.getMemberId())
+                .isAccepted(true) // 자동으로 승인
+                .isManaged(true) // 생성자는 관리자
+                .build();
+
+        memberMatchingService.createMemberMatching(matchingRequest);
 
         return responseDTO;
     }
