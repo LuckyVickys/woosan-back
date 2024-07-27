@@ -47,14 +47,10 @@ public class CustomSecurityConfig {
 
             "/api/replies/*", "/api/likes/status", "/api/report/add/**",
 
-            "/api/matching/list", "/api/matching/increaseViewCount", "/api/admin/myBanner",
+            "/api/matching/list/*", "/api/matching/increaseViewCount", "/api/admin/myBanner",
             "/api/matchingReply/*/replies",
 
             "/ws/**"
-            ,
-            "/api/matching/**",
-            "/api/memberMatching/**",
-            "/api/matchingReply/**"
     };
 
     private static final String[] PERMIT_USER_LIST = {
@@ -69,8 +65,9 @@ public class CustomSecurityConfig {
 
             "/api/report/add",
 
-//            "/api/matching/regularly/list", "/api/matching/temporary/list",
-//            "/api/matching/self/list", "/api/matching/user/*"
+            "/api/matching/regularly/list", "/api/matching/temporary/list",
+            "/api/matching/self/list", "/api/matching/user/*",
+            "/api/memberMatching/list/*", "/api/memberMatching/pending/*"
     };
 
     private static final String[] PERMIT_ADMIN_LIST = {
@@ -81,8 +78,8 @@ public class CustomSecurityConfig {
             "/api/matching/temporary", "/api/matching/temporary/**",
             "/api/matching/self", "/api/matching/self/**",
             "/api/matching/*/update", "/api/matching/*/delete",
-//            "/api/memberMatching/**",
-//            "/api/matchingReply/*"
+            "/api/memberMatching/**",
+            "/api/matchingReply/*"
     };
 
     private static final String[] PERMIT_LEVEL_3_LIST = {
@@ -119,8 +116,8 @@ public class CustomSecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(PERMIT_ALL_LIST).permitAll()
                 .requestMatchers(PERMIT_USER_LIST).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                .requestMatchers(PERMIT_LEVEL_2_LIST).hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
-                .requestMatchers(PERMIT_LEVEL_3_LIST).hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                .requestMatchers(PERMIT_LEVEL_2_LIST).hasAnyAuthority("ROLE_ADMIN", "LEVEL_2", "LEVEL_3", "LEVEL_4", "LEVEL_5")
+                .requestMatchers(PERMIT_LEVEL_3_LIST).hasAnyAuthority("ROLE_ADMIN", "LEVEL_3", "LEVEL_4", "LEVEL_5")
                 .requestMatchers(PERMIT_ADMIN_LIST).hasRole("ADMIN")
                 .anyRequest().authenticated()
         );
