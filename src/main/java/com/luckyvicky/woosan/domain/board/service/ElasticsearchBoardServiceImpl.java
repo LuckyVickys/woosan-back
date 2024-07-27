@@ -232,13 +232,11 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         return elasticsearchRestTemplate.search(searchQuery, Board.class);
     }
 
-
     private List<SearchDTO> mapSearchHitsToDTO(SearchHits<Board> searchHits) {
         return commonUtils.mapToDTOList(searchHits.getSearchHits().stream()
                 .map(SearchHit::getContent)
                 .collect(Collectors.toList()), SearchDTO.class);
     }
-
 
     /**
      * 기본 검색 + 유의어 검색
@@ -248,11 +246,35 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         PageResponseDTO<SearchDTO> standardResult = searchByCategoryAndFilter(standardPageRequest, categoryName, filterType, keyword);
         PageResponseDTO<SearchDTO> synonymResult = searchWithSynonyms(synonymPageRequest, keyword);
 
+        // 기본 검색 결과의 ID 목록을 수집
+        Set<Long> standardResultIds = standardResult.getDtoList().stream()
+                .map(SearchDTO::getId)
+                .collect(Collectors.toSet());
+
+        // 유의어 검색 결과에서 기본 검색 결과의 ID를 제외
+        List<SearchDTO> filteredSynonymResult = synonymResult.getDtoList().stream()
+                .filter(dto -> !standardResultIds.contains(dto.getId()))
+                .collect(Collectors.toList());
+
+        // 필터링된 유의어 검색 결과로 새로운 PageImpl 생성
+        PageImpl<SearchDTO> filteredSynonymResultPage = new PageImpl<>(
+                filteredSynonymResult,
+                PageRequest.of(synonymPageRequest.getPage() - 1, synonymPageRequest.getSize()),
+                synonymResult.getTotalCount() - standardResultIds.size()
+        );
+
+        // 필터링된 유의어 검색 결과로 새로운 PageResponseDTO 생성
+        PageResponseDTO<SearchDTO> filteredSynonymResultDTO = commonUtils.createPageResponseDTO(
+                synonymPageRequest, filteredSynonymResultPage.getContent(), filteredSynonymResultPage.getTotalElements()
+        );
+
         return SearchPageResponseDTO.builder()
                 .StandardResult(standardResult)
-                .SynonymResult(synonymResult)
+                .SynonymResult(filteredSynonymResultDTO)
                 .build();
     }
+
+
 
 
     /**
@@ -480,7 +502,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
         Query searchQuery = buildSuggestedBoardSearchQuery(title, content);
         SearchHits<Board> searchHits = executeSuggestedBoardSearch(searchQuery);
 
-        return filterAndMapSuggestedBoards(searchHits, currentBoardId, 2);
+        return filterAndMapSuggestedBoards(searchHits, currentBoardId, 4);
     }
 
     /**
@@ -489,10 +511,13 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
     private Query buildSuggestedBoardSearchQuery(String title, String content) {
         return new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.boolQuery()
-                        .should(QueryBuilders.matchQuery("title", title).analyzer("ngram_analyzer"))
-                        .should(QueryBuilders.matchQuery("content", content).analyzer("ngram_analyzer")))
-                .withSort(SortBuilders.fieldSort("views").order(SortOrder.DESC))
-                .withPageable(PageRequest.of(0, 8)) // 일단 8개를 가져오고 나중에 필터링
+                        .should(QueryBuilders.multiMatchQuery(title, "synonym_title")
+                                .analyzer("synonym_ngram_analyzer")
+                                .boost(2.0f)) // 제목에 가중치 2
+                        .should(QueryBuilders.multiMatchQuery(content, "synonym_content")
+                                .analyzer("synonym_ngram_analyzer")
+                                .boost(1.0f))) // 내용에 가중치 1
+                .withPageable(PageRequest.of(0, 10)) // 일단 8개를 가져오고 나중에 필터링
                 .build();
     }
 
@@ -507,9 +532,14 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
      * 검색 결과에서 현재 게시물 제외 및 DTO 매핑
      */
     private List<SuggestedBoardDTO> filterAndMapSuggestedBoards(SearchHits<Board> searchHits, Long currentBoardId, int limit) {
-        return searchHits.getSearchHits().stream()
+        List<Board> filteredBoards = searchHits.getSearchHits().stream()
                 .map(SearchHit::getContent)
                 .filter(board -> !board.getId().equals(currentBoardId)) // 현재 게시물을 제외
+                .collect(Collectors.toList());
+
+        Collections.shuffle(filteredBoards); // 리스트를 섞어 랜덤 순서로 만듦
+
+        return filteredBoards.stream()
                 .limit(limit) // 필터링 후 지정된 개수만 반환
                 .map(board -> commonUtils.mapObject(board, SuggestedBoardDTO.class))
                 .collect(Collectors.toList());
