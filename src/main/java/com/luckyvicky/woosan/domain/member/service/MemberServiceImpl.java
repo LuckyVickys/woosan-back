@@ -11,6 +11,7 @@ import com.luckyvicky.woosan.domain.member.entity.SocialType;
 import com.luckyvicky.woosan.domain.member.mapper.MemberMapper;
 import com.luckyvicky.woosan.domain.member.repository.redis.JoinCodeRepository;
 import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
+import com.luckyvicky.woosan.global.annotation.SlaveDBRequest;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class MemberServiceImpl implements MemberService {
     private String fromEmail;
 
     // 이메일 중복 체크
+    @SlaveDBRequest
     @Override
     public Boolean existEmail(String email) {
         if(memberRepository.existsByEmail(email)) {
@@ -51,6 +53,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 닉네임 중복 체크
+    @SlaveDBRequest
     @Override
     public Boolean existNickname(String nickname) {
         if(memberRepository.existsByNickname(nickname)) {
@@ -197,6 +200,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     // 로그인 한 멤버 정보
+    @SlaveDBRequest
     @Override
     public MemberInfoDTO getMemberInfo(String email) {
         Member member = memberRepository.findByEmail(email);

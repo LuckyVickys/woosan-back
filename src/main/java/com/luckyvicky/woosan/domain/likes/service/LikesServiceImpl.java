@@ -9,6 +9,7 @@ import com.luckyvicky.woosan.domain.likes.exception.LikeException;
 import com.luckyvicky.woosan.domain.likes.repository.LikesRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
 import com.luckyvicky.woosan.domain.member.repository.jpa.MemberRepository;
+import com.luckyvicky.woosan.global.annotation.SlaveDBRequest;
 import com.luckyvicky.woosan.global.exception.ErrorCode;
 import com.luckyvicky.woosan.global.util.ValidationHelper;
 import lombok.RequiredArgsConstructor;
@@ -96,6 +97,7 @@ public class LikesServiceImpl implements LikesService {
     /**
      * 추천 여부 확인
      */
+    @SlaveDBRequest
     @Override
     @Transactional(readOnly = true)
     public boolean isLiked(Long memberId, String type, Long targetId) {
