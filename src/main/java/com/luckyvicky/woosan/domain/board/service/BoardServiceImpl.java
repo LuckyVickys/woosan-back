@@ -96,7 +96,7 @@ public class BoardServiceImpl implements BoardService {
     public PageResponseDTO<BoardListDTO> getNoticePage(PageRequestDTO pageRequestDTO) {
         Pageable pageable = commonUtils.createPageable(pageRequestDTO);
 
-        Page<IBoardList> result = boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalseOrderByIdDesc(NOTICE, pageable);
+        Page<IBoardList> result = boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalseOrderByRegDateDesc(NOTICE, pageable);
 
         List<BoardListDTO> dtoList = commonUtils.mapToDTOList(result.getContent(), BoardListDTO.class);
 
@@ -236,9 +236,9 @@ public class BoardServiceImpl implements BoardService {
 
     private Page<IBoardList> getBoardsByCategoryPage(String categoryName, Pageable pageable) {
         if (categoryName != null && !categoryName.isEmpty()) {
-            return boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalseOrderByIdDesc(categoryName, pageable);
+            return boardRepository.findAllProjectedByCategoryNameAndIsDeletedFalseOrderByRegDateDesc(categoryName, pageable);
         } else {
-            return boardRepository.findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByIdDesc(NOTICE, pageable);
+            return boardRepository.findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByRegDateDesc(NOTICE, pageable);
         }
     }
 

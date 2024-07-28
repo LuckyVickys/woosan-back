@@ -42,7 +42,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    Page<IBoardList> findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByIdDesc(String categoryName, Pageable pageable);
+    Page<IBoardList> findAllProjectedByCategoryNameNotAndIsDeletedFalseOrderByRegDateDesc(String categoryName, Pageable pageable);
 
 
     /**
@@ -50,7 +50,7 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
      */
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"writer"})
-    Page<IBoardList> findAllProjectedByCategoryNameAndIsDeletedFalseOrderByIdDesc(String categoryName, Pageable pageable);
+    Page<IBoardList> findAllProjectedByCategoryNameAndIsDeletedFalseOrderByRegDateDesc(String categoryName, Pageable pageable);
 
 
     /**
