@@ -13,7 +13,6 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class MatchingBoardRequestDTO {
 
     private Long memberId;
@@ -42,6 +41,7 @@ public class MatchingBoardRequestDTO {
     //파일 이미지 관련 필드 추가
     private List<MultipartFile> images;
     private List<String> filePathUrl; // 기존 파일 경로 목록 추가
+    private List<String> deletedFiles; // 모임 수정시 삭제 파일 목록
 
 
 }

@@ -20,4 +20,8 @@ public interface MatchingBoardReplyRepository extends JpaRepository<MatchingBoar
     @Transactional(readOnly = true)
     @EntityGraph(attributePaths = {"matchingBoard", "writer"})
     List<MatchingBoardReply> findByParentId(Long parentId);
+
+    // 특정 매칭 보드의 모든 댓글 삭제
+    @Transactional
+    void deleteByMatchingBoardId(Long matchingId);
 }
