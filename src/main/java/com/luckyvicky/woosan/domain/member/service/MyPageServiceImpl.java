@@ -59,7 +59,7 @@ public class MyPageServiceImpl implements MyPageService {
         PageRequestDTO pageRequestDTO = getPageRequestDTO(myPageDTO);
         validationHelper.findWriter(memberId);
 
-        Page<IMyBoard> myBoards = boardRepository.findByWriterId(memberId, commonUtils.createPageable(pageRequestDTO));
+        Page<IMyBoard> myBoards = boardRepository.findByWriterIdAndIsDeletedFalse(memberId, commonUtils.createPageable(pageRequestDTO));
 
         List<MyBoardDTO> myBoardDTOs = commonUtils.mapToDTOList(myBoards.getContent(), MyBoardDTO.class);
 
