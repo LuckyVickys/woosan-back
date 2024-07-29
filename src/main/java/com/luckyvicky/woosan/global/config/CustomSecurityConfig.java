@@ -47,7 +47,9 @@ public class CustomSecurityConfig {
 
             "/api/replies/*", "/api/likes/status", "/api/report/add/**",
 
-            "/api/matching/list/*", "/api/matching/increaseViewCount", "/api/admin/myBanner",
+            "/api/matching/list/*", "/api/matching/temporary/list",
+            "/api/matching/self/list",  "/api/memberMatching/list/*",
+            "/api/matching/increaseViewCount", "/api/admin/myBanner",
             "/api/matchingReply/*/replies",
 
             "/ws/**"
@@ -65,9 +67,9 @@ public class CustomSecurityConfig {
 
             "/api/report/add",
 
-            "/api/matching/regularly/list", "/api/matching/temporary/list",
-            "/api/matching/self/list", "/api/matching/user/*",
-            "/api/memberMatching/list/*", "/api/memberMatching/pending/*"
+
+            "/api/matching/user/*",
+            "/api/memberMatching/pending/*"
     };
 
     private static final String[] PERMIT_ADMIN_LIST = {

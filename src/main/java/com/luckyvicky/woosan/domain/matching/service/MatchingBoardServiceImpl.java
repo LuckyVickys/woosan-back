@@ -7,7 +7,6 @@ import com.luckyvicky.woosan.domain.matching.dto.MemberMatchingRequestDTO;
 import com.luckyvicky.woosan.domain.matching.entity.MatchingBoard;
 import com.luckyvicky.woosan.domain.matching.exception.MatchingException;
 import com.luckyvicky.woosan.domain.matching.mapper.MatchingBoardMapper;
-import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardReplyRepository;
 import com.luckyvicky.woosan.domain.matching.repository.MatchingBoardRepository;
 import com.luckyvicky.woosan.domain.matching.repository.MemberMatchingRepository;
 import com.luckyvicky.woosan.domain.member.entity.Member;
@@ -40,7 +39,6 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
     private final FileImgService fileImgService;
     private final MemberMatchingService memberMatchingService;
     private final RedisTemplate<String, String> redisTemplate;
-    private final MatchingBoardReplyRepository matchingBoardReplyRepository;
 
     // 모든 매칭 게시글을 가져오는 메서드
     @Override
@@ -214,9 +212,6 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
             throw new MatchingException("작성자만 삭제할 수 있습니다.");
         }
 
-        // 매칭 보드와 관련된 댓글도 함께 삭제
-        matchingBoardReplyRepository.deleteByMatchingBoardId(id);
-
         // 관련된 모든 member_matching 행 삭제
         memberMatchingService.updateIsAcceptedByMatchingBoardId(id, false);
         memberMatchingService.deleteAllMembersByMatchingBoardId(id);
@@ -224,10 +219,8 @@ public class MatchingBoardServiceImpl implements MatchingBoardService {
         // 이미지 파일 삭제
         fileImgService.targetFilesDelete("matchingBoard", matchingBoard.getId());
 
-        // 매칭 보드 삭제
+        // 매칭 보드와 관련된 댓글도 함께 삭제
         matchingBoardRepository.delete(matchingBoard);
-
-
     }
 
     // 정기 모임 제약 조건 확인
