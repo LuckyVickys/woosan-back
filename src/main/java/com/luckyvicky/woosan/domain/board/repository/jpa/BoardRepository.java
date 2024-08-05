@@ -28,6 +28,10 @@ public interface BoardRepository  extends JpaRepository<Board, Long> {
     @EntityGraph(attributePaths = {"writer"})
     <T> Optional<T> findById(Long id, Class<T> className);
 
+    @Transactional
+    @EntityGraph(attributePaths = {"writer"})
+    Page<IMyBoard> findByWriterIdAndIsDeletedFalse(Long memberId, Pageable pageable);
+
     /**
      * 다이나믹 프로젝션
      * 게시물 단건 조회
