@@ -1,0 +1,30 @@
+package com.luckyvicky.woosan.domain.matching.dto;
+
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class MemberMatchingResponseDTO {
+    // 매칭 ID
+    private Long id;
+
+    // 매칭 보드 ID
+    private Long matchingId;
+
+    // 회원 ID
+    private Long memberId;
+
+    // 수락 여부
+    private Boolean isAccepted;
+
+    // 관리 여부
+    private Boolean isManaged;
+
+    // 닉네임
+    private String nickname;
+
+    // 프로필 이미지 URL
+    private String profileImageUrl;
+}
