@@ -447,7 +447,7 @@ public class ElasticsearchBoardServiceImpl implements ElasticsearchBoardService 
 ```
 
 ### 4. elasticsearch 함수
-기본/연관 검색, 기본/초성 검색어 자동 완성, 일별 검색어 순위, 연관 게시물, 주간 인기 개시물을 위한 elasticsearch 함수를 활용합니다:
+기본/연관 검색, 기본/초성 검색어 자동 완성, 일별 검색어 순위, 연관 게시물, 주간 인기 게시글을 위한 elasticsearch 함수를 활용합니다:
 
 ex) 연관 게시물 조회 
 ```java
