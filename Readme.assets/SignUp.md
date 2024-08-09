@@ -82,6 +82,7 @@ public enum SocialType {
     NORMAL, KAKAO;
 }
 ```
+<br>
 
 ## II. 회원가입 Service 구현
 ### MemberServiceImpl
@@ -163,6 +164,7 @@ public class MemberServiceImpl implements MemberService {
     }
 }
 ```
+<br>
 
 ## III. 회원가입 Controller 구현
 ### MemberController
@@ -210,6 +212,7 @@ public class MemberController {
 }
 
 ```
+<br>
 
 ## IIII. 예외 처리
 ### MemberException
