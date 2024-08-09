@@ -1,6 +1,6 @@
 # SignUp 회원가입
 
-## I. Entity, Enum 구현
+## I. Entity, Enum, DTO 구현
 
 ### 1. Member Entity
 회원 테이블과 매핑되는 Member 엔티티 클래스입니다.<br>
@@ -80,6 +80,41 @@ public enum MemberType {
 ```java
 public enum SocialType {
     NORMAL, KAKAO;
+}
+```
+
+### 4. SignUpReqDTO
+회원가입 시 사용자에게 입력받을 정보를 필드로 구성한 DTO 클래스입니다.
+
+```java
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+public class SignUpReqDTO {
+    @Email(message = "이메일 형식이 올바르지 않습니다.")
+    @NotBlank(message = "이메일은 필수 항목입니다.")
+    private String email;
+
+    @NotBlank(message = "닉네임은 필수 항목입니다.")
+    @Size(min = 1, max = 8, message = "닉네임은 1자 이상 8자 이하여야 합니다.")
+    private String nickname;
+
+    @NotBlank(message = "비밀번호는 필수 항목입니다.")
+    private String password;
+}
+```
+
+### 5. MailDTO
+회원가입 시 사용자에게 전송할 메일 DTO입니다.
+
+```java
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+public class MailDTO {
+    private String email;
+    private String title;
+    private String message;
 }
 ```
 <br>
