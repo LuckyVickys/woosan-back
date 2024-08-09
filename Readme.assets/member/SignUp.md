@@ -62,7 +62,26 @@ public class Member {
 }
 ```
 
-### 2. MemberType Enum
+### 2. JoinCode Entity
+회원가입 코드와 매핑되는 JoinCode 엔티티 클래스입니다. <br>
+회원가입 시 이메일로 발급할 코드에 필요한 정보를 포함합ㄴ다.
+
+```java
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@RedisHash(value = "joinCode", timeToLive = 60 * 5)
+public class JoinCode {
+
+    @Id
+    private String code;
+    @Indexed
+    private String email;
+}
+
+```
+
+### 3. MemberType Enum
 회원의 권한을 구분하기 위한 enum 클래스입니다.
 
 ```java
@@ -74,7 +93,7 @@ public enum MemberType {
     }
 }
 ```
-### 3. SocialType Enum
+### 4. SocialType Enum
 카카오 로그인 여부를 확인하기 위한 enum 클래스입니다.
 
 ```java
@@ -83,7 +102,7 @@ public enum SocialType {
 }
 ```
 
-### 4. SignUpReqDTO
+### 5. SignUpReqDTO
 회원가입 시 사용자에게 입력받을 정보를 필드로 구성한 DTO 클래스입니다.
 
 ```java
@@ -104,7 +123,7 @@ public class SignUpReqDTO {
 }
 ```
 
-### 5. MailDTO
+### 6. MailDTO
 회원가입 시 사용자에게 전송할 메일 DTO입니다.
 
 ```java
