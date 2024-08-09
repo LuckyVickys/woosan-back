@@ -18,4 +18,4 @@
 6. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/UpdatePw.md">**임시 비밀번호 메일 전송**</a>: 임시 비밀번호를 생성하여 이메일로 전송하고, 회원 비밀번호를 임시 비밀번호로 변경합니다.
 7. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/UpdatePw.md">**비밀번호 변경**</a>: 현재 비밀번호를 확인한 후 새로운 비밀번호로 변경합니다.
 8. **로그인 한 멤버 정보 조회**: 로그인된 회원의 정보를 조회합니다.
-9. **회원 탈퇴**: 회원 탈퇴 처리를 합니다.
+9. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/DeleteMember.md">**회원 탈퇴**</a>: 회원 탈퇴 처리를 합니다.
