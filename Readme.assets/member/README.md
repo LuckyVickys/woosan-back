@@ -15,10 +15,12 @@
 3. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/SignUp.md">**회원가입**</a>: 새로운 회원을 등록하고, 가입 성공 시 회원 정보를 반환합니다.
 4. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/SignUp.md">**회원가입 코드 메일 전송**</a>: 회원가입 확인 코드를 이메일로 전송합니다.
 5. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/SignUp.md">**회원가입 코드 체크**</a>: 발송된 회원가입 확인 코드가 유효한지 확인합니다.
-6. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/UpdatePw.md">**임시 비밀번호 메일 전송**</a>: 임시 비밀번호를 생성하여 이메일로 전송하고, 회원 비밀번호를 임시 비밀번호로 변경합니다.
-7. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/UpdatePw.md">**비밀번호 변경**</a>: 현재 비밀번호를 확인한 후 새로운 비밀번호로 변경합니다.
-8. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/MemberInfo.md">**로그인 한 멤버 정보 조회**</a>: 로그인된 회원의 정보를 조회합니다.
-9. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/DeleteMember.md">**회원 탈퇴**</a>: 회원 탈퇴 처리를 합니다.
+6. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/Login.md">**로그인**: 이메일, 비밀번호를 통해 로그인을 합니다. 탈퇴한 회원, 신고 처리된 회원은 로그인이 불가능합니다.</a>
+7. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/SocialLogin.md">**소셜 회원가입 및 로그인**: </a>: 카카오 계정으로 인증을 요청하여 회원가입 및 로그인을 합니다.
+8. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/UpdatePw.md">**임시 비밀번호 메일 전송**</a>: 임시 비밀번호를 생성하여 이메일로 전송하고, 회원 비밀번호를 임시 비밀번호로 변경합니다.
+9. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/UpdatePw.md">**비밀번호 변경**</a>: 현재 비밀번호를 확인한 후 새로운 비밀번호로 변경합니다.
+10. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/MemberInfo.md">**로그인 한 멤버 정보 조회**</a>: 로그인된 회원의 정보를 조회합니다.
+11. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/DeleteMember.md">**회원 탈퇴**</a>: 회원 탈퇴 처리를 합니다.
 <br>
 
 ---
