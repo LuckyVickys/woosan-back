@@ -1,9 +1,9 @@
-### Board 기능
+# Board 기능
 
-#### Overview
+## Overview
 사용자가 다양한 콘텐츠를 게시하고, 공유합니다. 게시물 작성, 조회, 수정, 삭제뿐만 아니라, 게시물의 번역 및 요약, 그리고 Elasticsearch 기반의 검색 기능과 연관 게시물 추천 기능을 포함하여 사용자 경험을 향상시켰습니다. 또한, 인기 검색어 순위를 제공하고 검색어 자동완성 기능을 통해 검색 편의성을 극대화합니다.
 
-#### Structure
+## Structure
 
 - **BoardController**: 게시물 작성, 조회, 수정, 삭제 및 번역, 요약과 같은 다양한 기능을 처리하는 API 엔드포인트를 제공합니다.
 - **ElasticsearchBoardController**: Elasticsearch 기반의 검색 및 자동완성 기능을 위한 API 엔드포인트를 제공합니다.
