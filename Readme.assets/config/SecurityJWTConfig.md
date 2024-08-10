@@ -257,7 +257,26 @@ public Claims parseClaims(String accessToken) {
 - **RefreshToken 처리**: 만료된 액세스 토큰을 갱신하기 위한 리프레시 토큰도 관리합니다.
 
 ```java
+/**
+* RefreshToken 검증
+* @param refreshToken
+* @return IsValidate
+*/
+public boolean validateRefreshToken(String refreshToken) {
+	Optional<RefreshToken> token = refreshTokenRepository.findById(refreshToken);
+	return token.isPresent() && validateToken(token.get().getRefreshToken());
+}
 
+public String getAccessTokenFromRefreshToken(String refreshToken) {
+	Claims claims = parseClaims(refreshToken);
+	CustomUserInfoDTO userInfo = new CustomUserInfoDTO(
+		claims.get("id", Long.class),
+		claims.get("email", String.class),
+		claims.get("memberType", String.class),
+		claims.get("level", String.class)
+	);
+	return createAccessToken(userInfo);
+}
 ```
 
 <br>
@@ -378,7 +397,54 @@ public class CustomUserDetails implements UserDetails {
 
 # IV. JWT 필터
 ## JWTAuthFilter
-클라이언트의 요청에서 JWT를 추출하고 이를 검증하여 인증된 사용자로 간주하게 하는 클래스입니다.
+클라이언트의 요청에서 JWT를 추출하고 이를 검증하여 인증된 사용자로 간주하게 하는 클래스입니다. <br>
+필터 체인에 ```UsernamePasswordAuthenticationFilter``` 앞에 추가되어, 요청이 처리되기 전에 JWT를 검증합니다.
+
+```java
+@RequiredArgsConstructor
+public class JwtAuthFilter extends OncePerRequestFilter {
+
+    private final CustomUserDetailsService customUserDetailsService;
+    private final JWTUtil jwtUtil;
+
+    /**
+     * JWT 토큰 검증 필터 수행
+     * @param request
+     * @param response
+     * @param filterChain
+     * @throws ServletException
+     * @throws IOException
+     */
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String authorizationHeader = request.getHeader("Authorization");
+
+        // JWT가 헤더에 있는 경우
+        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
+
+            // JWT 유효성 검증
+            if(jwtUtil.validateToken(token)) {
+                String email = jwtUtil.getEmail(token);
+
+                // 유저와 토큰 일치 시 userDetails 생성
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+
+                if(userDetails != null) {
+                    // UserDetails, Password, Role -> 접근권한 인증 Token 생성
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                    // 현재 Request의 Security Context에 접근권한 설정
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                }
+            }
+        }
+
+        filterChain.doFilter(request, response);    // 다음 필터로 넘기기
+    }
+}
+```
 
 <br>
 
@@ -388,5 +454,51 @@ public class CustomUserDetails implements UserDetails {
 ## 1. CustomAccessDeniedHandler
 사용자가 권한이 없는 리소스에 접근하려고 할 때 403 Forbidden 에러를 반환하는 클래스입니다.
 
+```java
+@Log4j2(topic = "FORBIDDEN_EXCEPTION_HANDLER")
+@AllArgsConstructor
+@Component
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
+
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        log.error("No Authorities", accessDeniedException);
+
+        String responseBody = objectMapper.writeValueAsString("Authentication error (cause: forbidden)");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpStatus.FORBIDDEN.value());
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(responseBody);
+    }
+}
+```
+
 ## 2. AuthenticationEntryPoint
 인증되지 않은 사용자가 보호된 리소스에 접근하려고 할 때 401 Unauthorized 에러를 반환하는 클래스입니다.
+
+```java
+@Log4j2(topic = "UNAUTHORIZATION_EXCEPTION_HANDLER")
+@AllArgsConstructor
+@Component
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException) throws IOException, ServletException {
+        log.error("Not Authenticated Request", authException);
+        log.error("Request Uri : {}", request.getRequestURI());
+
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(objectMapper.writeValueAsString("Authentication error (cause: unauthorized)"));
+    }
+}
+```
