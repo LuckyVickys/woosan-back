@@ -14,7 +14,7 @@ dependencies {
 }
 ```
 
-## 2. application-properteis 설정
+## 2. application-properties 설정
 accessToken과 refreshToken의 만료 시간을 각각 1분, 1주일로 정하였으며 <br>
 JWT를 생성하고 검증할 때 사용할 비밀 키를 설정합니다.
 
