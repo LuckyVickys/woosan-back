@@ -15,7 +15,7 @@
 
 #### Features
 
-1. **게시물 번역**
+1. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/board/Papago.md">**게시물 번역**</a>
    - **기능 설명**: 사용자가 게시물의 내용을 한국어에서 영어로, 또는 영어에서 한국어로 번역할 수 있는 기능을 제공합니다. 번역은 Naver Papago API를 사용하여 수행됩니다.
      - 입력된 게시물 내용을 바탕으로 자동으로 언어를 감지하고, 감지된 언어에 따라 번역을 수행합니다.
      
@@ -104,7 +104,7 @@
        }
      ```
 
-2. **게시물 요약**
+2. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/board/ClovaSummary.md">**게시물 요약**</a>
    - **기능 설명**: 한국어로 작성된 긴 게시물 내용을 3줄로 요약하여 사용자에게 제공하는 기능입니다. 이 기능은 Naver Clova AI를 활용하여 게시물의 중요한 내용을 추출합니다.
    - **핵심 메서드**: `summaryBoardDetailPage(BoardApiDTO boardApiDTO)`
      - 게시물의 제목과 내용을 Clova AI에 전달하여 요약된 텍스트를 반환받습니다.
