@@ -154,9 +154,111 @@ JWT를 생성하고 관리하는 클래스입니다.
 
 ### 핵심 기능
 - **JWT 생성**: 사용자의 정보를 바탕으로 JWT를 생성합니다. 이 토큰은 사용자 ID, 이메일, 닉네임, 권한 레벨 등의 정보를 포함합니다.
+
+```java
+/**
+* Access Token 생성
+* @param member
+* @return Access Token String
+*/
+public String createAccessToken(CustomUserInfoDTO member) {
+	return createToken(member, accessTokenExpTime);
+}
+
+public String createRefreshToken(CustomUserInfoDTO member) {
+	String refreshToken = createToken(member, refreshTokenExpTime);
+	RefreshToken token = new RefreshToken(member.getId(), refreshToken);
+	refreshTokenRepository.save(token);
+	return refreshToken;
+}
+
+/**
+* JWT 생성
+* @param member
+* @param expireTime
+* @return JWT String
+*/
+private String createToken(CustomUserInfoDTO member, long expireTime) {
+	Claims claims = Jwts.claims();
+	claims.put("id", member.getId());
+	claims.put("email", member.getEmail());
+	claims.put("nickname", member.getNickname());
+	claims.put("isActive", member.getIsActive());
+	claims.put("memberType", member.getMemberType());
+	claims.put("socialType", member.getSocialType());
+	claims.put("level", member.getLevel());
+	claims.put("point", member.getPoint());
+	claims.put("nextPoint", member.getNextPoint());
+	
+	ZonedDateTime now = ZonedDateTime.now();
+	ZonedDateTime tokenValidity = now.plusSeconds(expireTime);
+	
+	return Jwts.builder()
+		.setClaims(claims)
+		.setIssuedAt(Date.from(now.toInstant()))
+		.setExpiration(Date.from(tokenValidity.toInstant()))
+		.signWith(key, SignatureAlgorithm.HS256)
+		.compact();
+}
+```
+
 - **JWT 검증**: 클라이언트로부터 받은 JWT가 유효한지, 위변조되지 않았는지 검증합니다.
+
+```java
+/**
+* JWT 검증
+* @param token
+* @return IsValidate
+*/
+public boolean validateToken(String token) {
+	try {
+	    Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+	    return true;
+	} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+	    log.info("Invalid JWT Token", e);
+	} catch (ExpiredJwtException e) {
+	    log.info("Expired JWT Token", e);
+	} catch (UnsupportedJwtException e) {
+	    log.info("Unsupported JWT Token", e);
+	} catch (IllegalArgumentException e) {
+	    log.info("JWT claims string is empty.", e);
+	}
+	return false;
+}
+```
+
 - **토큰에서 정보 추출**: JWT에서 사용자 정보를 추출하여 이후의 요청 처리에 사용합니다.
+
+```java
+/**
+* Token에서 User ID 추출
+* @param token
+* @return User ID
+*/
+public String getEmail(String token) {
+	return parseClaims(token).get("email", String.class);
+}
+
+/**
+* JWT Claims 추출
+* @param accessToken
+* @return JWT Claims
+*/
+public Claims parseClaims(String accessToken) {
+	try {
+	    return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+	} catch(ExpiredJwtException e) {
+	    return e.getClaims();
+	}
+}
+```
+
 - **RefreshToken 처리**: 만료된 액세스 토큰을 갱신하기 위한 리프레시 토큰도 관리합니다.
+
+```java
+
+```
+
 <br>
 ---
 
