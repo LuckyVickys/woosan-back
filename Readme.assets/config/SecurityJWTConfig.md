@@ -146,6 +146,7 @@ private static final String[] PERMIT_LEVEL_3_LIST = {
 };
 ```
 <br>
+
 ---
 
 # II. JWT 유틸리티
@@ -260,7 +261,8 @@ public Claims parseClaims(String accessToken) {
 ```
 
 <br>
----
+
+--
 
 # III. 사용자 인증 서비스
 ## CustomUserDetailsService
@@ -371,6 +373,7 @@ public class CustomUserDetails implements UserDetails {
   ```
 
 <br>
+
 ---
 
 # IV. JWT 필터
@@ -378,6 +381,7 @@ public class CustomUserDetails implements UserDetails {
 클라이언트의 요청에서 JWT를 추출하고 이를 검증하여 인증된 사용자로 간주하게 하는 클래스입니다.
 
 <br>
+
 ---
 
 # V. Custom Handler 클래스
