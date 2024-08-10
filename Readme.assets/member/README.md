@@ -19,6 +19,9 @@
 7. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/UpdatePw.md">**비밀번호 변경**</a>: 현재 비밀번호를 확인한 후 새로운 비밀번호로 변경합니다.
 8. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/MemberInfo.md">**로그인 한 멤버 정보 조회**</a>: 로그인된 회원의 정보를 조회합니다.
 9. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/member/DeleteMember.md">**회원 탈퇴**</a>: 회원 탈퇴 처리를 합니다.
+<br>
+
+---
 
 # II. Mypage 마이페이지 기능
 
