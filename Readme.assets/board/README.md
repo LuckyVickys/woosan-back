@@ -19,19 +19,89 @@
    - **기능 설명**: 사용자가 게시물의 내용을 한국어에서 영어로, 또는 영어에서 한국어로 번역할 수 있는 기능을 제공합니다. 번역은 Naver Papago API를 사용하여 수행됩니다.
      - 입력된 게시물 내용을 바탕으로 자동으로 언어를 감지하고, 감지된 언어에 따라 번역을 수행합니다.
      
-     ```java
-     public BoardApiDTO translateBoardDetailPage(BoardApiDTO boardApiDTO) throws IOException {
-         String detectedLanguage = LanguageDiscrimination(boardApiDTO.getContent());
-
-         if(detectedLanguage.equals("ko")) {
-             boardApiDTO.setTitle(translate(boardApiDTO.getTitle(), detectedLanguage, "en"));
-             boardApiDTO.setContent(translate(boardApiDTO.getContent(), detectedLanguage, "en"));
-         } else {
-             boardApiDTO.setTitle(translate(boardApiDTO.getTitle(), detectedLanguage, "ko"));
-             boardApiDTO.setContent(translate(boardApiDTO.getContent(), detectedLanguage, "ko"));
-         }
-         return boardApiDTO;
-     }
+     ```java      
+       @Value("${ncp.papago.clientId}")
+       private String papagoClientId;
+   
+       @Value("${ncp.papago.secretkey}")
+       private String papagoClientSecret;
+   
+       private static final String PAPAGO_API_URL = "https://naveropenapi.apigw.ntruss.com/nmt/v1/translation";
+   
+       private static final Pattern KOREAN_PATTERN = Pattern.compile("[\\uAC00-\\uD7AF]");
+       private static final Pattern ENGLISH_PATTERN = Pattern.compile("[A-Za-z]");
+   
+       /**
+        * 본문 한영 번역
+        *
+        * @param boardApiDTO
+        * @return boardApiDTO(번역된 게시글)
+        * @throws IOException
+        */
+       public BoardApiDTO translateBoardDetailPage(BoardApiDTO boardApiDTO) throws IOException {
+           String detectedLanguage = LanguageDiscrimination(boardApiDTO.getContent());
+   
+           if(detectedLanguage.equals("ko")) {
+               boardApiDTO.setTitle(translate(boardApiDTO.getTitle(), detectedLanguage, "en"));
+               boardApiDTO.setContent(translate(boardApiDTO.getContent(), detectedLanguage, "en"));
+           } else {
+               boardApiDTO.setTitle(translate(boardApiDTO.getTitle(), detectedLanguage, "ko"));
+               boardApiDTO.setContent(translate(boardApiDTO.getContent(), detectedLanguage, "ko"));
+           }
+           return boardApiDTO;
+       }
+   
+       private String translate(String textToTranslate, String sourceLang, String targetLang) throws IOException {
+           String text = URLEncoder.encode(textToTranslate, StandardCharsets.UTF_8.toString());
+   
+           HttpURLConnection con = createConnection(PAPAGO_API_URL, papagoClientId, papagoClientSecret);
+   
+           String postParams = "source=" + sourceLang + "&target=" + targetLang + "&text=" + text;
+           con.setDoOutput(true);
+           try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+               wr.writeBytes(postParams);
+               wr.flush();
+           }
+   
+           int responseCode = con.getResponseCode();
+           StringBuilder response = new StringBuilder();
+           try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                   responseCode == 200 ? con.getInputStream() : con.getErrorStream()))) {
+               String inputLine;
+               while ((inputLine = br.readLine()) != null) {
+                   response.append(inputLine);
+               }
+           }
+   
+           ObjectMapper objectMapper = new ObjectMapper();
+           JsonNode rootNode = objectMapper.readTree(response.toString());
+           return rootNode.path("message").path("result").path("translatedText").asText();
+       }
+   
+       private String LanguageDiscrimination(String text) {
+           if (text == null || text.trim().isEmpty()) {
+               return "unknown";
+           }
+           if (KOREAN_PATTERN.matcher(text).find()) {
+               return "ko";
+           }
+           if (ENGLISH_PATTERN.matcher(text).find()) {
+               return "en";
+           }
+           return "unknown";
+       }
+   
+       // Http 요청 설정
+       private HttpURLConnection createConnection(String apiUrl, String clientId, String clientSecret) throws IOException {
+           URL url = new URL(apiUrl);
+           HttpURLConnection con = (HttpURLConnection) url.openConnection();
+           con.setRequestMethod("POST");
+           con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
+           con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
+   
+           con.setDoOutput(true);  // 출력 스트림을 사용해 데이터를 전송할 수 있게 설정
+           return con;
+       }
      ```
 
 2. **게시물 요약**
@@ -40,6 +110,14 @@
      - 게시물의 제목과 내용을 Clova AI에 전달하여 요약된 텍스트를 반환받습니다.
      
      ```java
+     @Value("${ncp.clova.clientId}")
+       private String clovaClientId;
+   
+       @Value("${ncp.clova.secretkey}")
+       private String clovaClientSecret;
+   
+       private static final String CLOVA_API_URL = "https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize";
+
       /**
      * 본문 요약
      * @param boardApiDTO
