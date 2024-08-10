@@ -73,6 +73,7 @@ public LoginResponseDTO login(LoginRequestDTO dto) {
 ```
 
 ## III. 로그인 Controller 구현
+### AuthController
 로그인 API 엔드포인트를 제공합니다.
 
 ```java
@@ -182,6 +183,7 @@ public ResponseEntity<?> refreshAccessToken(String authHeader, RefreshTokenReqDT
 ```
 
 ## III. Controller 구현
+### AuthController
 토큰 재발급과 관련된 API 엔드포인트를 제공합니다.
 
 ```java
