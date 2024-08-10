@@ -1,4 +1,4 @@
-# I. Spring Security 설정
+# I. Spring Security, JWT 설정
 ## 1. build.gradle 설정
 Spring Security와 JWT 의존성을 추가합니다.
 
