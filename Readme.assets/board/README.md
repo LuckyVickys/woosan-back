@@ -35,11 +35,17 @@
      ```
 
 2. **게시물 요약**
-   - **기능 설명**: 긴 게시물 내용을 간결하게 요약하여 사용자에게 제공하는 기능입니다. 이 기능은 Naver Clova AI를 활용하여 게시물의 중요한 내용을 추출합니다.
+   - **기능 설명**: 한국어로 작성된 긴 게시물 내용을 3줄로 요약하여 사용자에게 제공하는 기능입니다. 이 기능은 Naver Clova AI를 활용하여 게시물의 중요한 내용을 추출합니다.
    - **핵심 메서드**: `summaryBoardDetailPage(BoardApiDTO boardApiDTO)`
      - 게시물의 제목과 내용을 Clova AI에 전달하여 요약된 텍스트를 반환받습니다.
      
      ```java
+      /**
+     * 본문 요약
+     * @param boardApiDTO
+     * @return summary(요약된 글)
+     * @throws IOException
+     */
      public String summaryBoardDetailPage(BoardApiDTO boardApiDTO) throws IOException {
          HttpURLConnection con = createConnection(CLOVA_API_URL, clovaClientId, clovaClientSecret);
          con.setRequestProperty("Content-Type", "application/json");
@@ -47,6 +53,70 @@
          sendRequest(con, requestBody);
          return getResponse(con);
      }
+
+     // Http 요청 설정
+       private HttpURLConnection createConnection(String apiUrl, String clientId, String clientSecret) throws IOException {
+           URL url = new URL(apiUrl);
+           HttpURLConnection con = (HttpURLConnection) url.openConnection();
+           con.setRequestMethod("POST");
+           con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
+           con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
+   
+           con.setDoOutput(true);  // 출력 스트림을 사용해 데이터를 전송할 수 있게 설정
+           return con;
+       }
+
+       // 요약 JSON 요청 본문 생성
+       private JSONObject createRequestBody(BoardApiDTO boardApiDTO) {
+           JSONObject document = new JSONObject();
+           document.put("title", boardApiDTO.getTitle());
+           document.put("content", boardApiDTO.getContent());
+   
+           JSONObject option = new JSONObject();
+           option.put("language", "ko");
+           option.put("model", "general");
+           option.put("tone", 0);
+           option.put("summaryCount", 3);
+   
+           JSONObject requestBody = new JSONObject();
+           requestBody.put("document", document);
+           requestBody.put("option", option);
+           return requestBody;
+       }
+
+       // 요약 요청 전송
+       private void sendRequest(HttpURLConnection con, JSONObject requestBody) throws IOException {
+           try (OutputStream os = con.getOutputStream()) {
+               byte[] input = requestBody.toString().getBytes("utf-8");
+               os.write(input, 0, input.length);
+           }
+       }
+   
+       // 요약 응답 처리
+       private String getResponse(HttpURLConnection con) throws IOException {
+           int responseCode = con.getResponseCode();
+           if (responseCode == 200) {
+               try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"))) {
+                   StringBuilder response = new StringBuilder();
+                   String responseLine;
+                   while ((responseLine = br.readLine()) != null) {
+                       response.append(responseLine.trim());
+                   }
+                   JSONObject responseJson = new JSONObject(response.toString());
+                   return responseJson.getString("summary");
+               }
+           } else {
+               try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getErrorStream(), "utf-8"))) {
+                   StringBuilder response = new StringBuilder();
+                   String responseLine;
+                   while ((responseLine = br.readLine()) != null) {
+                       response.append(responseLine.trim());
+                   }
+                   log.debug(response);
+                   throw new IOException("Error: " + response.toString());
+               }
+           }
+       }
      ```
 
 3. **Elasticsearch 기반 검색**
