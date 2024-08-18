@@ -82,9 +82,10 @@
         ┣ 📂service
         ┗ 📜WoosanApplicationTests
 ```
-
+0. <a href="https://github.com/LuckyVickys/woosan-back/tree/main/Readme.assets/config">설정</a>
 1. <a href="https://github.com/LuckyVickys/woosan-front/blob/main/Readme.assets/Deploy/deploy.md">배포</a>
 2. <a href="https://github.com/LuckyVickys/woosan-front/tree/main/Readme.assets/member">회원 기능
 3. <a href="https://github.com/LuckyVickys/woosan-front/tree/main/Readme.assets/board">게시글 기능</a>
 4. <a href="https://github.com/LuckyVickys/woosan-front/tree/main/Readme.assets/matching">모임 기능</a>
-5. <a href="https://github.com/LuckyVickys/woosan-front/tree/main/Readme.assets/admin">관리자 기능</a>
+5. <a href="https://github.com/LuckyVickys/woosan-back/blob/main/Readme.assets/message/AddMessage.md">쪽지 기능</a>
+6. <a href="https://github.com/LuckyVickys/woosan-back/tree/main/Readme.assets/file">파일 기능</a>
